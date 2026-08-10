@@ -1,0 +1,557 @@
+const { PrismaClient } = require('@prisma/client');
+const ApiError = require('../utils/ApiError');
+const socket = require('../utils/socket');
+const crypto = require('crypto');
+const NotificationService = require('./notification.service');
+
+const prisma = new PrismaClient();
+
+const generateTrackingCode = () => {
+  const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+  let code1 = '';
+  let code2 = '';
+  for (let i = 0; i < 4; i++) {
+    code1 += chars.charAt(crypto.randomInt(0, chars.length));
+    code2 += chars.charAt(crypto.randomInt(0, chars.length));
+  }
+  return `VT-${code1}-${code2}`;
+};
+
+/**
+ * Generate a unique Job Number e.g. VNT-000001
+ */
+const generateJobNumber = async () => {
+  const latestVehicle = await prisma.vehicle.findFirst({
+    orderBy: { createdAt: 'desc' },
+    select: { jobNumber: true }
+  });
+
+  if (!latestVehicle) return 'VNT-000001';
+
+  const lastNum = parseInt(latestVehicle.jobNumber.replace('VNT-', ''), 10);
+  const nextNum = (lastNum + 1).toString().padStart(6, '0');
+  return `VNT-${nextNum}`;
+};
+
+/**
+ * Fetch all active vehicles with their relational counts/totals, pagination, and search
+ */
+const getAllVehicles = async (page = 1, limit = 20, search = '', status = '') => {
+  const skip = (page - 1) * limit;
+  const take = parseInt(limit, 10);
+
+  const where = {};
+
+  if (status) {
+    where.status = status;
+  }
+
+  if (search) {
+    where.OR = [
+      { plateNumber: { contains: search } },
+      { ownerName: { contains: search } },
+      { make: { contains: search } },
+      { model: { contains: search } },
+      { vin: { contains: search } },
+      { jobNumber: { contains: search } }
+    ];
+  }
+
+  const [vehicles, total] = await Promise.all([
+    prisma.vehicle.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        complaints: true,
+        progressLogs: { orderBy: { createdAt: 'desc' } },
+        estimates: { where: { status: 'APPROVED' } },
+        additionalRepairs: { where: { approvalStatus: 'APPROVED' } },
+        notifications: { orderBy: { createdAt: 'desc' } }
+      }
+    }),
+    prisma.vehicle.count({ where })
+  ]);
+
+  return {
+    data: vehicles,
+    meta: {
+      total,
+      page: parseInt(page, 10),
+      limit: take,
+      totalPages: Math.ceil(total / take)
+    }
+  };
+};
+
+/**
+ * Fetch massive relational tree for a specific vehicle
+ */
+const getVehicleById = async (id) => {
+  const vehicle = await prisma.vehicle.findUnique({
+    where: { id },
+    include: {
+      complaints: true,
+      inspections: { include: { technician: { select: { name: true } } } },
+      repairs: { include: { technician: { select: { name: true } } } },
+      estimates: { 
+        include: { 
+          items: true,
+          approvals: { include: { approvedBy: { select: { name: true } } } },
+          creator: { select: { name: true } }
+        }
+      },
+      additionalRepairs: { include: { creator: { select: { name: true } } } },
+      progressLogs: { 
+        orderBy: { createdAt: 'desc' },
+        include: { user: { select: { name: true } } }
+      },
+      jobStatusHistory: {
+        orderBy: { createdAt: 'desc' },
+        include: { changedBy: { select: { name: true } } }
+      },
+      payments: true,
+      notifications: { orderBy: { createdAt: 'desc' } }
+    }
+  });
+
+  if (!vehicle) {
+    throw new ApiError(404, 'Vehicle not found');
+  }
+
+  return vehicle;
+};
+
+/**
+ * Intake a new vehicle with initial complaints and audit logs
+ */
+const createVehicle = async (data, userId) => {
+  const { complaints, ...vehicleData } = data;
+  
+  if (!vehicleData.make || !vehicleData.model || !vehicleData.plateNumber || !vehicleData.ownerName || !vehicleData.ownerPhone) {
+    throw new ApiError(400, 'Missing required vehicle details. Make, Model, Plate Number, Owner Name, and Phone Number are required.');
+  }
+
+  const jobNumber = await generateJobNumber();
+  const trackingCode = generateTrackingCode();
+  
+  const vehicle = await prisma.vehicle.create({
+    data: {
+      ...vehicleData,
+      jobNumber,
+      trackingCode,
+      isTrackingEnabled: true,
+      status: vehicleData.status || 'AWAITING_DIAGNOSIS',
+      complaints: {
+        create: complaints?.map(desc => ({ description: desc })) || []
+      },
+      progressLogs: {
+        create: [{ 
+          type: 'VEHICLE_RECEIVED', 
+          message: 'Vehicle received.',
+          userId 
+        }]
+      }
+    },
+    include: { complaints: true, progressLogs: true }
+  });
+
+  // Attempt to send customer notification in the background
+  let latestNotification = null;
+  try {
+    latestNotification = await NotificationService.sendVehicleTrackingMessage(vehicle, trackingCode);
+  } catch (err) {
+    console.error('[VEHICLE CREATION] Notification failed but vehicle was successfully registered:', err);
+  }
+
+  const vehicleWithNotification = {
+    ...vehicle,
+    latestNotification
+  };
+
+  socket.getIO().emit('vehicle:created', vehicleWithNotification);
+  socket.getIO().emit('progress:added', { vehicleId: vehicle.id });
+
+  return vehicleWithNotification;
+};
+
+/**
+ * Update Vehicle Details
+ */
+const updateVehicle = async (id, data) => {
+  const updatedVehicle = await prisma.vehicle.update({
+    where: { id },
+    data
+  });
+  socket.getIO().emit('vehicle:updated', updatedVehicle);
+  return updatedVehicle;
+};
+
+/**
+ * Delete Vehicle
+ */
+const deleteVehicle = async (id) => {
+  await prisma.vehicle.delete({ where: { id } });
+  socket.getIO().emit('vehicle:deleted', { id });
+  return true;
+};
+
+/**
+ * Change status safely with audit trails
+ */
+const updateVehicleStatus = async (id, newStatus, userId) => {
+  const validStatuses = [
+    'AWAITING_DIAGNOSIS',
+    'IN_PROGRESS',
+    'AWAITING_PARTS',
+    'READY_FOR_PICKUP',
+    'COMPLETED'
+  ];
+
+  if (!validStatuses.includes(newStatus)) {
+    throw new ApiError(400, `Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+  }
+
+  const vehicle = await getVehicleById(id);
+  
+  if (vehicle.status === newStatus) {
+    throw new ApiError(400, `Vehicle is already in status ${newStatus}`);
+  }
+
+  const updatedVehicle = await prisma.vehicle.update({
+    where: { id },
+    data: { 
+      status: newStatus,
+      jobStatusHistory: {
+        create: [{
+          previousStatus: vehicle.status,
+          newStatus: newStatus,
+          changedById: userId
+        }]
+      },
+      progressLogs: {
+        create: [{
+          type: 'STATUS_CHANGE',
+          message: `Status updated from ${vehicle.status.replace(/_/g, ' ')} to ${newStatus.replace(/_/g, ' ')}`,
+          userId
+        }]
+      }
+    }
+  });
+
+  const statusMessages = {
+    'IN_PROGRESS': 'Repair work on your vehicle has started.',
+    'AWAITING_PARTS': 'Your vehicle is currently awaiting required parts.',
+    'READY_FOR_PICKUP': 'Your vehicle is ready for pickup.'
+  };
+
+  const notifyMsg = statusMessages[newStatus];
+  let latestNotification = null;
+
+  if (newStatus === 'COMPLETED') {
+    // Deduplicate: check if a VEHICLE_COMPLETED notification was already sent successfully
+    const alreadySent = await prisma.notification.findFirst({
+      where: {
+        vehicleId: id,
+        messageType: 'VEHICLE_COMPLETED',
+        status: 'SENT'
+      }
+    });
+
+    if (!alreadySent) {
+      try {
+        latestNotification = await NotificationService.sendCompletionMessage(updatedVehicle);
+      } catch (err) {
+        console.error('[STATUS NOTIFICATION] Failed to send completion message:', err);
+      }
+    }
+  } else if (notifyMsg) {
+    try {
+      latestNotification = await NotificationService.sendMilestoneMessage(updatedVehicle, newStatus, notifyMsg);
+    } catch (err) {
+      console.error(`[STATUS NOTIFICATION] Failed to send milestone message for ${newStatus}:`, err);
+    }
+  }
+
+  const updatedVehicleWithNotif = {
+    ...updatedVehicle,
+    latestNotification
+  };
+
+  socket.getIO().emit('vehicle:statusChanged', updatedVehicleWithNotif);
+  socket.getIO().emit('progress:added', { vehicleId: id });
+
+  return updatedVehicleWithNotif;
+};
+
+/**
+ * Log inspection and diagnosis findings
+ */
+const addInspection = async (id, data, technicianId) => {
+  const { findings, diagnosis, recommendation } = data;
+  
+  await prisma.inspection.create({
+    data: {
+      vehicleId: id,
+      technicianId,
+      findings,
+      diagnosis,
+      recommendation
+    }
+  });
+
+  await prisma.progressLog.create({
+    data: {
+      vehicleId: id,
+      userId: technicianId,
+      type: 'DIAGNOSIS',
+      message: `Diagnosis completed. Findings: ${findings}`
+    }
+  });
+
+  // Automatically shift status if still awaiting
+  const vehicle = await getVehicleById(id);
+  
+  try {
+    await NotificationService.sendMilestoneMessage(vehicle, 'DIAGNOSIS', 'Your vehicle inspection is complete. A repair estimate is being prepared.');
+  } catch (err) {
+    console.error('[DIAGNOSIS NOTIFICATION] Failed to send milestone message:', err);
+  }
+
+  if (vehicle.status === 'AWAITING_DIAGNOSIS') {
+    await updateVehicleStatus(id, 'IN_PROGRESS', technicianId);
+  }
+
+  return await getVehicleById(id);
+};
+
+/**
+ * Generate a comprehensive, printable Job Sheet
+ */
+const getJobSheet = async (id) => {
+  const vehicle = await getVehicleById(id);
+  
+  // Format the job sheet explicitly following business rules
+  let costStatus = 'NOT ESTIMATED';
+  let displayCost = 0;
+  
+  const approvedEstimate = vehicle.estimates.find(e => e.status === 'APPROVED');
+  
+  if (vehicle.finalTotalCost !== null && vehicle.finalTotalCost !== undefined) {
+    costStatus = 'FINAL REPAIR COST';
+    displayCost = vehicle.finalTotalCost;
+  } else if (approvedEstimate) {
+    costStatus = 'ESTIMATED COST';
+    displayCost = approvedEstimate.total;
+  }
+
+  // Calculate total paid
+  const totalPaid = vehicle.payments.reduce((acc, curr) => acc + curr.amount, 0);
+
+  return {
+    brand: {
+      name: 'VANTARA',
+      slogan: 'The Journey Behind Every Repair.'
+    },
+    jobDetails: {
+      jobNumber: vehicle.jobNumber,
+      status: vehicle.status,
+      dateBroughtIn: vehicle.dateBroughtIn,
+      timeBroughtIn: vehicle.timeBroughtIn,
+      initialCondition: vehicle.initialCondition
+    },
+    vehicleDetails: {
+      make: vehicle.make,
+      model: vehicle.model,
+      year: vehicle.year,
+      plateNumber: vehicle.plateNumber,
+      vin: vehicle.vin
+    },
+    ownerDetails: {
+      name: vehicle.ownerName,
+      phone: vehicle.ownerPhone
+    },
+    complaints: vehicle.complaints,
+    inspections: vehicle.inspections, // Contains diagnosis and recommendations
+    financials: {
+      costStatus,
+      displayCost,
+      finalRepairCost: vehicle.finalTotalCost,
+      totalPaid,
+      balanceDue: vehicle.finalTotalCost !== null ? vehicle.finalTotalCost - totalPaid : null,
+      approvedEstimate: approvedEstimate || null,
+      estimateHistory: vehicle.estimates,
+      additionalRepairs: vehicle.additionalRepairs,
+      payments: vehicle.payments
+    },
+    history: {
+      progressLogs: vehicle.progressLogs,
+      statusHistory: vehicle.jobStatusHistory
+    }
+  };
+};
+
+const getInspections = async (vehicleId) => {
+  return await prisma.inspection.findMany({
+    where: { vehicleId },
+    orderBy: { createdAt: 'desc' },
+    include: { technician: { select: { name: true } } }
+  });
+};
+
+const updateInspection = async (id, data) => {
+  return await prisma.inspection.update({
+    where: { id },
+    data: {
+      findings: data.findings,
+      diagnosis: data.diagnosis,
+      recommendation: data.recommendation,
+      technicianId: data.technician_id || data.technicianId
+    }
+  });
+};
+
+/**
+ * Record customer approval
+ */
+const recordApproval = async (id, estimateId, status, notes, approverId) => {
+  const approval = await prisma.approval.create({
+    data: {
+      vehicleId: id,
+      estimateId,
+      approvedById: approverId,
+      status, // 'APPROVED' or 'REJECTED'
+      notes,
+      approvedAt: new Date()
+    }
+  });
+
+  await prisma.estimate.update({
+    where: { id: estimateId },
+    data: { status }
+  });
+
+  await prisma.progressLog.create({
+    data: {
+      vehicleId: id,
+      userId: approverId,
+      type: 'APPROVAL',
+      message: `Estimate ${status}: ${notes || 'No additional notes'}`
+    }
+  });
+
+  return approval;
+};
+
+
+
+/**
+ * Complaints
+ */
+const addComplaint = async (vehicleId, description) => {
+  return await prisma.complaint.create({
+    data: { vehicleId, description }
+  });
+};
+
+const updateComplaint = async (id, description) => {
+  return await prisma.complaint.update({
+    where: { id },
+    data: { description }
+  });
+};
+
+const deleteComplaint = async (id) => {
+  await prisma.complaint.delete({ where: { id } });
+  return true;
+};
+
+/**
+ * Progress Logs
+ */
+const addProgressLog = async (vehicleId, type, message, userId, isCustomerVisible = false) => {
+  return await prisma.progressLog.create({
+    data: {
+      vehicleId,
+      type,
+      message,
+      userId,
+      isCustomerVisible
+    }
+  });
+};
+
+const getProgressLogs = async (vehicleId) => {
+  return await prisma.progressLog.findMany({
+    where: { vehicleId },
+    orderBy: { createdAt: 'desc' },
+    include: { user: { select: { name: true } } }
+  });
+};
+
+/**
+ * Tracking Management
+ */
+const regenerateTrackingCode = async (id, userId) => {
+  const newCode = generateTrackingCode();
+  const vehicle = await prisma.vehicle.update({
+    where: { id },
+    data: { 
+      trackingCode: newCode,
+      progressLogs: {
+        create: [{
+          type: 'STATUS_CHANGE',
+          message: 'Tracking code regenerated.',
+          userId
+        }]
+      }
+    },
+    include: { progressLogs: true, complaints: true }
+  });
+
+  let latestNotification = null;
+  try {
+    latestNotification = await NotificationService.sendVehicleTrackingMessage(vehicle, newCode);
+  } catch (err) {
+    console.error('[VEHICLE REGENERATION] Notification failed but code was successfully updated:', err);
+  }
+
+  const updatedVehicle = {
+    ...vehicle,
+    latestNotification
+  };
+
+  socket.getIO().emit('vehicle:updated', updatedVehicle);
+  socket.getIO().emit('progress:added', { vehicleId: id });
+
+  return updatedVehicle;
+};
+
+const updateTrackingStatus = async (id, isTrackingEnabled) => {
+  return await prisma.vehicle.update({
+    where: { id },
+    data: { isTrackingEnabled }
+  });
+};
+
+module.exports = {
+  getAllVehicles,
+  getVehicleById,
+  createVehicle,
+  updateVehicle,
+  deleteVehicle,
+  updateVehicleStatus,
+  addInspection,
+  getInspections,
+  updateInspection,
+  recordApproval,
+  addComplaint,
+  updateComplaint,
+  deleteComplaint,
+  addProgressLog,
+  getProgressLogs,
+  getJobSheet,
+  regenerateTrackingCode,
+  updateTrackingStatus
+};
