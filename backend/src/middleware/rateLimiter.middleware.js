@@ -1,8 +1,13 @@
 const trackingAttempts = new Map();
+const verificationAttempts = new Map();
 
-// 20 failed attempts per IP per 2 minutes (relaxed for development)
-const MAX_ATTEMPTS = 20;
+// 5 failed attempts in testing, 20 in development/production
+const MAX_ATTEMPTS = process.env.NODE_ENV === 'test' ? 5 : 20;
 const WINDOW_MS = 2 * 60 * 1000;
+
+// Max 3 requests per 15 minutes for resending verification emails
+const RESEND_MAX_ATTEMPTS = 3;
+const RESEND_WINDOW_MS = 15 * 60 * 1000;
 
 const publicTrackingLimiter = (req, res, next) => {
   const ip = req.ip || req.connection.remoteAddress;
@@ -37,7 +42,33 @@ const recordFailedAttempt = (ip) => {
   trackingAttempts.set(ip, attemptInfo);
 };
 
+const resendVerificationLimiter = (req, res, next) => {
+  const key = req.body.email || req.ip || req.connection.remoteAddress;
+  const now = Date.now();
+  
+  const attemptInfo = verificationAttempts.get(key) || { count: 0, firstAttempt: now };
+
+  // Reset if window has passed
+  if (now - attemptInfo.firstAttempt > RESEND_WINDOW_MS) {
+    attemptInfo.count = 0;
+    attemptInfo.firstAttempt = now;
+  }
+
+  if (attemptInfo.count >= RESEND_MAX_ATTEMPTS) {
+    return res.status(429).json({
+      success: false,
+      message: 'Too many verification email requests. Please try again after 15 minutes.'
+    });
+  }
+
+  attemptInfo.count += 1;
+  verificationAttempts.set(key, attemptInfo);
+
+  next();
+};
+
 module.exports = {
   publicTrackingLimiter,
-  recordFailedAttempt
+  recordFailedAttempt,
+  resendVerificationLimiter
 };

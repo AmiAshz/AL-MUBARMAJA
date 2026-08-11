@@ -85,18 +85,24 @@ model User {
   passwordHash   String
   phone          String?
   role           UserRole @default(TECHNICIAN)
+  emailVerified  Boolean  @default(false)
+  isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   // Relations
-  inspections       Inspection[]
-  repairs           Repair[]
-  estimates         Estimate[]
-  approvals         Approval[]
-  additionalRepairs AdditionalRepair[]
-  progressLogs      ProgressLog[]
-  jobStatusHistory  JobStatusHistory[]
-  payments          Payment[]
+  inspections         Inspection[]
+  repairs             Repair[]
+  estimates           Estimate[]
+  approvals           Approval[]
+  additionalRepairs   AdditionalRepair[]
+  progressLogs        ProgressLog[]
+  jobStatusHistory    JobStatusHistory[]
+  payments              Payment[]
+  verificationTokens    VerificationToken[]
+  passwordResetTokens   PasswordResetToken[]
+  emailLogs             EmailLog[]
+  whatsappNotifications WhatsappNotification[]
 }
 
 model Vehicle {
@@ -142,8 +148,9 @@ model Vehicle {
   additionalRepairs AdditionalRepair[]
   progressLogs      ProgressLog[]
   jobStatusHistory  JobStatusHistory[]
-  payments          Payment[]
-  notifications     Notification[]
+  payments              Payment[]
+  notifications         Notification[]
+  whatsappNotifications WhatsappNotification[]
 }
 
 model Complaint {
@@ -326,4 +333,108 @@ model Notification {
 
   @@index([vehicleId])
   @@index([phoneNumber])
+}
+
+// -----------------------------------------------------------------------------
+// EMAIL VERIFICATION, PASSWORD RESET & LOGGING
+// -----------------------------------------------------------------------------
+
+enum EmailLogType {
+  VERIFICATION
+  PASSWORD_RESET
+  WELCOME
+  INVITATION
+}
+
+enum EmailLogStatus {
+  PENDING
+  SENT
+  DELIVERED
+  BOUNCED
+  COMPLAINED
+  FAILED
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model EmailLog {
+  id                String         @id @default(uuid())
+  userId            String?        @map("user_id")
+  recipient         String
+  type              EmailLogType
+  provider          String
+  providerMessageId String?        @map("provider_message_id")
+  status            EmailLogStatus
+  sentAt            DateTime?      @map("sent_at")
+  failureReason     String?        @map("failure_reason")
+  createdAt         DateTime       @default(now()) @map("created_at")
+
+  user              User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([recipient])
+}
+
+// -----------------------------------------------------------------------------
+// WHATSAPP NOTIFICATIONS
+// -----------------------------------------------------------------------------
+
+enum WhatsappNotificationType {
+  TRACKING_DETAILS
+  DIAGNOSIS_UPDATE
+  ESTIMATE_READY
+  REPAIR_STARTED
+  AWAITING_PARTS
+  READY_FOR_PICKUP
+  REPAIR_COMPLETED
+}
+
+enum WhatsappNotificationStatus {
+  NOT_SENT
+  SENT
+}
+
+model WhatsappNotification {
+  id                String                     @id @default(uuid())
+  vehicleId         String                     @map("vehicle_id")
+  customerId        String?                    @map("customer_id")
+  notificationType  WhatsappNotificationType   @map("notification_type")
+  recipientPhone    String                     @map("recipient_phone")
+  messageTemplate   String?                    @map("message_template")
+  providerMessageId String?                    @map("provider_message_id")
+  status            WhatsappNotificationStatus
+  sentById          String?                    @map("sent_by")
+  sentAt            DateTime?                  @map("sent_at")
+  createdAt         DateTime                   @default(now()) @map("created_at")
+  failureReason     String?                    @map("failure_reason")
+
+  vehicle           Vehicle                    @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  sentBy            User?                      @relation(fields: [sentById], references: [id], onDelete: SetNull)
+
+  @@index([vehicleId])
+  @@index([recipientPhone])
 }

@@ -1,3 +1,9 @@
+// Mock socket.io globally for E2E tests since we don't start the HTTP server
+jest.mock('../../src/utils/socket', () => ({
+  getIO: () => ({ emit: jest.fn() }),
+  init: jest.fn()
+}));
+
 const request = require('supertest');
 const app = require('../../src/app');
 const { PrismaClient } = require('@prisma/client');
@@ -5,7 +11,7 @@ const { generateToken } = require('../../src/utils/jwt');
 
 const prisma = new PrismaClient();
 
-describe('Notification Service & Workshop Endpoints', () => {
+describe('Manual WhatsApp Notification Flow & Endpoints', () => {
   let adminToken;
   let adminUser;
   let testVehicle;
@@ -17,7 +23,9 @@ describe('Notification Service & Workshop Endpoints', () => {
         name: 'Notification Admin',
         email: `notif.admin.${Date.now()}@test.com`,
         passwordHash: 'hashedpassword',
-        role: 'ADMIN'
+        role: 'ADMIN',
+        emailVerified: true,
+        isActive: true
       }
     });
 
@@ -27,7 +35,7 @@ describe('Notification Service & Workshop Endpoints', () => {
   afterAll(async () => {
     // Cleanup
     if (testVehicle) {
-      await prisma.notification.deleteMany({ where: { vehicleId: testVehicle.id } });
+      await prisma.whatsappNotification.deleteMany({ where: { vehicleId: testVehicle.id } });
       await prisma.complaint.deleteMany({ where: { vehicleId: testVehicle.id } });
       await prisma.progressLog.deleteMany({ where: { vehicleId: testVehicle.id } });
       await prisma.vehicle.delete({ where: { id: testVehicle.id } });
@@ -38,7 +46,7 @@ describe('Notification Service & Workshop Endpoints', () => {
     await prisma.$disconnect();
   });
 
-  it('1. Should create a vehicle and automatically dispatch/save a registration notification', async () => {
+  it('1. Should create a vehicle and NOT automatically dispatch any registration notification', async () => {
     const res = await request(app)
       .post('/api/vehicles')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -56,38 +64,44 @@ describe('Notification Service & Workshop Endpoints', () => {
 
     expect(res.statusCode).toBe(201);
     testVehicle = res.body.data;
-    expect(testVehicle.trackingCode).toMatch(/^VT-[2-9A-Z]{4}-[2-9A-Z]{4}$/);
+    expect(testVehicle.trackingCode).toMatch(/^VNT-[2-9A-Z]{6}$/);
 
-    // Verify notification was created in database
-    const notifs = await prisma.notification.findMany({
+    // Verify NO WhatsApp notifications were automatically created in database
+    const notifs = await prisma.whatsappNotification.findMany({
       where: { vehicleId: testVehicle.id }
     });
     
-    expect(notifs.length).toBe(1);
-    expect(notifs[0].messageType).toBe('VEHICLE_REGISTERED');
-    expect(notifs[0].phoneNumber).toBe('+919876543211');
-    expect(notifs[0].status).toBe('SENT'); // defaulted Mock provider succeeds
+    expect(notifs.length).toBe(0);
   });
 
-  it('2. Should manually resend tracking details and log a new notification dispatch', async () => {
+  it('2. Should allow manually marking tracking details as sent', async () => {
     const res = await request(app)
-      .post(`/api/workshop/vehicles/${testVehicle.id}/send-tracking-message`)
-      .set('Authorization', `Bearer ${adminToken}`);
+      .post(`/api/vehicles/${testVehicle.id}/whatsapp-notifications`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ type: 'TRACKING_DETAILS' });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
 
-    const notifs = await prisma.notification.findMany({
+    const notifs = await prisma.whatsappNotification.findMany({
       where: { vehicleId: testVehicle.id },
       orderBy: { createdAt: 'desc' }
     });
 
-    expect(notifs.length).toBe(2);
-    expect(notifs[0].messageType).toBe('VEHICLE_REGISTERED');
+    expect(notifs.length).toBe(1);
+    expect(notifs[0].notificationType).toBe('TRACKING_DETAILS');
     expect(notifs[0].status).toBe('SENT');
+    expect(notifs[0].recipientPhone).toBe('+919876543211');
+
+    // Verify progress log was logged
+    const logs = await prisma.progressLog.findMany({
+      where: { vehicleId: testVehicle.id }
+    });
+    const trackingLog = logs.find(l => l.message === 'Tracking details sent to customer via WhatsApp.');
+    expect(trackingLog).toBeDefined();
   });
 
-  it('3. Should record audit log in progress timeline upon code regeneration', async () => {
+  it('3. Should record audit log in progress timeline upon code regeneration without automatic dispatch', async () => {
     const res = await request(app)
       .post(`/api/vehicles/${testVehicle.id}/tracking/regenerate`)
       .set('Authorization', `Bearer ${adminToken}`);
@@ -103,14 +117,14 @@ describe('Notification Service & Workshop Endpoints', () => {
     const regenLog = logs.find(l => l.message === 'Tracking code regenerated.');
     expect(regenLog).toBeDefined();
 
-    // Verify third notification was sent out
-    const notifs = await prisma.notification.findMany({
+    // Verify no new WhatsApp notifications were sent automatically
+    const notifs = await prisma.whatsappNotification.findMany({
       where: { vehicleId: testVehicle.id }
     });
-    expect(notifs.length).toBe(3);
+    expect(notifs.length).toBe(1); // remains 1 from step 2
   });
 
-  it('4. Should automatically trigger VEHICLE_COMPLETED notification upon status transition to COMPLETED', async () => {
+  it('4. Should NOT automatically trigger completion notification upon status transition to COMPLETED', async () => {
     const res = await request(app)
       .patch(`/api/vehicles/${testVehicle.id}/status`)
       .set('Authorization', `Bearer ${adminToken}`)
@@ -118,51 +132,36 @@ describe('Notification Service & Workshop Endpoints', () => {
 
     expect(res.statusCode).toBe(200);
 
-    // Verify completion notification in database
-    const notifs = await prisma.notification.findMany({
-      where: { vehicleId: testVehicle.id, messageType: 'VEHICLE_COMPLETED' }
+    // Verify no completion notifications exist in database yet
+    const notifs = await prisma.whatsappNotification.findMany({
+      where: { vehicleId: testVehicle.id, notificationType: 'REPAIR_COMPLETED' }
     });
 
-    expect(notifs.length).toBe(1);
-    expect(notifs[0].status).toBe('SENT');
+    expect(notifs.length).toBe(0);
   });
 
-  it('5. Should deduplicate automatic completion messages when shifting back and forth from COMPLETED status', async () => {
-    // 1. Shift to IN_PROGRESS
-    await request(app)
-      .patch(`/api/vehicles/${testVehicle.id}/status`)
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({ status: 'IN_PROGRESS' });
-
-    // 2. Shift back to COMPLETED
+  it('5. Should support manual marking of completion notification as sent', async () => {
     const res = await request(app)
-      .patch(`/api/vehicles/${testVehicle.id}/status`)
+      .post(`/api/vehicles/${testVehicle.id}/whatsapp-notifications`)
       .set('Authorization', `Bearer ${adminToken}`)
-      .send({ status: 'COMPLETED' });
-
-    expect(res.statusCode).toBe(200);
-
-    // Verify no new VEHICLE_COMPLETED notifications were created automatically
-    const notifs = await prisma.notification.findMany({
-      where: { vehicleId: testVehicle.id, messageType: 'VEHICLE_COMPLETED' }
-    });
-
-    expect(notifs.length).toBe(1); // Still exactly one from test case 4!
-  });
-
-  it('6. Should support manual resending of VEHICLE_COMPLETED notification', async () => {
-    const res = await request(app)
-      .post(`/api/workshop/vehicles/${testVehicle.id}/send-completion-message`)
-      .set('Authorization', `Bearer ${adminToken}`);
+      .send({ type: 'REPAIR_COMPLETED' });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
 
-    // Verify a second VEHICLE_COMPLETED notification has been registered manually
-    const notifs = await prisma.notification.findMany({
-      where: { vehicleId: testVehicle.id, messageType: 'VEHICLE_COMPLETED' }
+    // Verify a completion notification has been registered
+    const notifs = await prisma.whatsappNotification.findMany({
+      where: { vehicleId: testVehicle.id, notificationType: 'REPAIR_COMPLETED' }
     });
 
-    expect(notifs.length).toBe(2);
+    expect(notifs.length).toBe(1);
+    expect(notifs[0].status).toBe('SENT');
+
+    // Verify completion progress log was registered
+    const logs = await prisma.progressLog.findMany({
+      where: { vehicleId: testVehicle.id }
+    });
+    const completionLog = logs.find(l => l.message === 'Repair completion notification sent to customer via WhatsApp.');
+    expect(completionLog).toBeDefined();
   });
 });

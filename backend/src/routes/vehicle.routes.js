@@ -13,7 +13,8 @@ const {
   addInspection,
   getJobSheet,
   regenerateTrackingCode,
-  updateTrackingStatus
+  updateTrackingStatus,
+  sendWhatsappNotification
 } = require('../controllers/vehicle.controller');
 const { getEstimatesByVehicle, createEstimate } = require('../controllers/estimate.controller');
 const { getAdditionalRepairs, createAdditionalRepair } = require('../controllers/additionalRepair.controller');
@@ -39,6 +40,7 @@ router.patch('/:id/status', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR'), up
 // Tracking Management
 router.post('/:id/tracking/regenerate', authorize('ADMIN', 'MANAGER'), regenerateTrackingCode);
 router.patch('/:id/tracking/status', authorize('ADMIN', 'MANAGER'), updateTrackingStatus);
+router.post('/:id/whatsapp-notifications', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), sendWhatsappNotification);
 
 // Progress Logs
 router.route('/:id/progress')

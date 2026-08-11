@@ -123,7 +123,7 @@ function TrackContent() {
                       value={trackingCode}
                       onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
                       className="w-full bg-surface-100 border border-white/10 rounded-lg pl-10 pr-4 py-4 font-mono tracking-widest text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all uppercase placeholder-white/20"
-                      placeholder="VT-XXXX-XXXX-XXXX"
+                      placeholder="VNT-XXXXXX"
                       required
                     />
                   </div>

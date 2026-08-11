@@ -191,6 +191,19 @@ const resendCompletionMessage = async (req, res, next) => {
   }
 };
 
+const sendWhatsappNotification = async (req, res, next) => {
+  try {
+    const { type } = req.body;
+    const userId = req.user.id;
+    const WhatsappService = require('../services/whatsapp.service');
+    
+    const result = await WhatsappService.markSent(req.params.id, type, userId);
+    res.status(200).json(new ApiResponse(200, result, 'WhatsApp status logged successfully'));
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getVehicles,
   getVehicle,
@@ -210,5 +223,6 @@ module.exports = {
   regenerateTrackingCode,
   updateTrackingStatus,
   resendTrackingMessage,
-  resendCompletionMessage
+  resendCompletionMessage,
+  sendWhatsappNotification
 };

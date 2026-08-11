@@ -20,11 +20,19 @@ const protect = async (req, res, next) => {
     
     req.user = await prisma.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, name: true, email: true, role: true }
+      select: { id: true, name: true, email: true, role: true, emailVerified: true, isActive: true }
     });
 
     if (!req.user) {
       return next(new ApiError(401, 'User belonging to this token no longer exists.'));
+    }
+
+    if (!req.user.emailVerified) {
+      return next(new ApiError(403, 'Please verify your email before accessing this resource.'));
+    }
+
+    if (!req.user.isActive) {
+      return next(new ApiError(403, 'Your account is deactivated. Please contact support.'));
     }
 
     next();

@@ -10,6 +10,7 @@ import { useVehicles } from '@/lib/useVehicles';
 import { Vehicle, VehicleStatus, VehiclePhoto, PhotoCategory } from '@/lib/types';
 import { processImageFile } from '@/lib/imageUtils';
 import Link from 'next/link';
+import { openWhatsAppWeb } from '@/lib/whatsapp';
 
 const STATUS_COLORS: Record<VehicleStatus, string> = {
   'AWAITING_DIAGNOSIS': 'text-accent-steel border-accent-steel bg-accent-steel/10',
@@ -44,13 +45,28 @@ const ACTIVE_STATUSES = [
 const fmtC = (num: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
 
 export default function DashboardPage() {
-  const { vehicles, isLoaded, addVehicle, updateVehicle, updateVehicleStatus, deleteVehicle, addProgressNote, addPhoto, addAdditionalRepair, createEstimate, updateFinalCost, resendTrackingMessage, regenerateTrackingCode, resendCompletionMessage } = useVehicles();
+  const { vehicles, isLoaded, addVehicle, updateVehicle, updateVehicleStatus, deleteVehicle, addProgressNote, addPhoto, addAdditionalRepair, createEstimate, updateFinalCost, resendTrackingMessage, regenerateTrackingCode, resendCompletionMessage, markWhatsappAsSent } = useVehicles();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<FilterCategory | 'All'>('All');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formVehicle, setFormVehicle] = useState<Vehicle | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{
+    show: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'info' | 'error' = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(current => current?.message === message ? null : current);
+    }, 4500);
+  };
 
   const currentUser = React.useMemo(() => {
     try {
@@ -219,6 +235,9 @@ export default function DashboardPage() {
             }} 
             resendTrackingMessage={resendTrackingMessage}
             setSelectedVehicle={setSelectedVehicle}
+            markWhatsappAsSent={markWhatsappAsSent}
+            showToast={showToast}
+            setConfirmModal={setConfirmModal}
           />
         )}
       </AnimatePresence>
@@ -245,11 +264,68 @@ export default function DashboardPage() {
             onResendTracking={resendTrackingMessage}
             onRegenerateTracking={regenerateTrackingCode}
             onResendCompletion={resendCompletionMessage}
+            markWhatsappAsSent={markWhatsappAsSent}
+            showToast={showToast}
+            setConfirmModal={setConfirmModal}
           />
         )}
       </AnimatePresence>
 
       {selectedVehicle && <PrintJobSheet vehicle={vehicles.find(v => v.id === selectedVehicle.id)!} />}
+
+      {/* Floating in-page Toast Alert */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.95 }}
+            className="fixed bottom-6 right-6 z-[100] bg-[#0C0C0C] border border-white/10 p-4 shadow-2xl flex items-center gap-3 font-mono text-xs max-w-sm rounded"
+          >
+            <div className={`w-2 h-2 rounded-full ${toast.type === 'success' ? 'bg-accent-green' : toast.type === 'info' ? 'bg-primary' : 'bg-accent-rust'}`} />
+            <span className="text-white flex-1 leading-relaxed">{toast.message}</span>
+            <button onClick={() => setToast(null)} className="text-secondary hover:text-white ml-2"><X size={14} /></button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Custom Confirmation Modal */}
+      <AnimatePresence>
+        {confirmModal?.show && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#0C0C0C] border border-white/10 shadow-2xl w-full max-w-sm p-6 flex flex-col gap-4 text-left"
+            >
+              <h3 className="font-display text-lg font-bold uppercase tracking-wider text-white">
+                {confirmModal.title}
+              </h3>
+              <p className="text-xs font-mono text-secondary leading-relaxed">
+                {confirmModal.message}
+              </p>
+              <div className="flex gap-3 mt-2">
+                <button 
+                  onClick={() => setConfirmModal(null)}
+                  className="flex-1 py-2.5 bg-transparent hover:bg-white/5 border border-white/10 text-white text-xs font-mono uppercase tracking-widest"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    confirmModal.onConfirm();
+                    setConfirmModal(null);
+                  }}
+                  className="flex-1 py-2.5 bg-accent-green hover:bg-accent-green/90 text-black font-semibold text-xs font-mono uppercase tracking-widest"
+                >
+                  Yes, Mark as Sent
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -349,7 +425,7 @@ function VehicleCard({ vehicle, onClick }: { vehicle: Vehicle, onClick: () => vo
   );
 }
 
-function VehicleFormModal({ vehicle, onClose, onSave, resendTrackingMessage, setSelectedVehicle }: any) {
+function VehicleFormModal({ vehicle, onClose, onSave, resendTrackingMessage, setSelectedVehicle, markWhatsappAsSent, showToast, setConfirmModal }: any) {
   const [photos, setPhotos] = useState<VehiclePhoto[]>([]);
   const [createdVehicle, setCreatedVehicle] = useState<any>(null);
   const [error, setError] = useState('');
@@ -411,13 +487,52 @@ function VehicleFormModal({ vehicle, onClose, onSave, resendTrackingMessage, set
     }
   };
 
+  // States for WhatsApp manual intake sending
+  const [waStatus, setWaStatus] = useState<'NOT_SENT' | 'WHATSAPP_OPENED' | 'SENT' | 'FAILED'>('NOT_SENT');
+  const [waSentAt, setWaSentAt] = useState<string | null>(null);
+  const [showConfirmIntake, setShowConfirmIntake] = useState(false);
+
   if (createdVehicle) {
-    const notifyStatus = createdVehicle.latestNotification?.status || 'FAILED';
     const ownerPhone = createdVehicle.ownerPhone || '';
-    const maskedPhone = ownerPhone.replace(/.(?=.{4})/g, '*');
+    const trackingLink = `${window.location.origin}/track?code=${createdVehicle.trackingCode}&phone=${encodeURIComponent(ownerPhone)}`;
+    const intakeMessage = `VANTARA\n\n` +
+      `The Journey Behind Every Repair.\n\n` +
+      `Your vehicle has been registered with our workshop.\n\n` +
+      `Vehicle:\n${createdVehicle.make} ${createdVehicle.model} ${createdVehicle.year || ''}\n\n` +
+      `Registration:\n${createdVehicle.plateNumber}\n\n` +
+      `Your tracking number:\n${createdVehicle.trackingCode}\n\n` +
+      `Track your vehicle:\n${window.location.origin}/track\n\n` +
+      `Use your tracking number and registered phone number to check the progress of your vehicle.\n\n` +
+      `Thank you for choosing VANTARA.`;
+
+    const triggerSendIntake = () => {
+      openWhatsAppWeb(ownerPhone, intakeMessage);
+      setWaStatus('WHATSAPP_OPENED');
+      setShowConfirmIntake(false);
+      showToast('WhatsApp Web opened. Review the message and send it from WhatsApp.', 'info');
+    };
+
+    const triggerConfirmIntake = () => {
+      setConfirmModal({
+        show: true,
+        title: 'Confirm Send',
+        message: 'Have you sent this message to the customer through WhatsApp?',
+        onConfirm: async () => {
+          const success = await markWhatsappAsSent(createdVehicle.id, 'TRACKING_DETAILS');
+          if (success) {
+            setWaStatus('SENT');
+            setWaSentAt(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }));
+            showToast('WhatsApp status marked as Sent successfully.', 'success');
+          } else {
+            showToast('Failed to mark WhatsApp status.', 'error');
+          }
+        }
+      });
+    };
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#050505]/90 backdrop-blur-md print:hidden">
+        {/* Registration Success Panel */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-[#0C0C0C] border border-white/10 shadow-[0_0_50px_rgba(0,0,0,1)] w-full max-w-md p-8 relative flex flex-col items-center text-center">
           <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-6">
             <CheckCircle size={32} />
@@ -427,56 +542,116 @@ function VehicleFormModal({ vehicle, onClose, onSave, resendTrackingMessage, set
 
           <div className="w-full bg-[#080808] border border-white/5 p-6 rounded-lg mb-8 space-y-4 text-left">
             <div>
-              <div className="text-[9px] uppercase tracking-[0.2em] text-secondary font-mono font-bold mb-1">Customer Tracking Code</div>
+              <div className="text-[9px] uppercase tracking-[0.2em] text-secondary font-mono font-bold mb-1">Tracking Number</div>
               <div className="font-mono text-lg text-primary tracking-widest bg-primary/5 p-3 border border-primary/10 text-center font-bold">{createdVehicle.trackingCode}</div>
             </div>
             <div className="h-px bg-white/5" />
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-secondary uppercase">Notification Status</span>
-              <span className={`px-2 py-0.5 font-bold uppercase tracking-wider rounded ${
-                notifyStatus === 'SENT' ? 'text-accent-green bg-accent-green/10' : 'text-accent-rust bg-accent-rust/10'
-              }`}>
-                {notifyStatus === 'SENT' ? `✓ Sent to ${maskedPhone}` : '✗ Dispatch Failed'}
-              </span>
+            <div className="flex justify-between items-center text-xs font-mono">
+              <span className="text-secondary uppercase">Customer Phone</span>
+              <span className="text-white">{ownerPhone}</span>
             </div>
+            {waSentAt && (
+              <div className="flex justify-between items-center text-[10px] font-mono text-secondary pt-2">
+                <span>SENT ON</span>
+                <span>{waSentAt}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col w-full gap-3">
+            {/* Send / Resend WhatsApp Button */}
+            {(waStatus === 'NOT_SENT' || waStatus === 'FAILED') && (
+              <button 
+                onClick={triggerSendIntake}
+                className="w-full bg-primary text-black font-semibold rounded-lg py-3 hover:bg-primary/90 transition-all uppercase tracking-wider text-xs font-mono flex items-center justify-center gap-2"
+              >
+                Send via WhatsApp
+              </button>
+            )}
+
+            {waStatus === 'WHATSAPP_OPENED' && (
+              <div className="space-y-2 w-full text-center">
+                <div className="text-xs text-primary font-mono bg-primary/5 p-3 border border-primary/10 rounded mb-2">
+                  WhatsApp Web opened. Review the message and press Send inside WhatsApp Web.
+                </div>
+                <button 
+                  onClick={triggerConfirmIntake}
+                  className="w-full bg-accent-green text-black font-semibold rounded-lg py-3 hover:bg-accent-green/90 transition-all uppercase tracking-wider text-xs font-mono"
+                >
+                  Mark as Sent
+                </button>
+                <button
+                  onClick={triggerSendIntake}
+                  className="text-xs text-secondary hover:underline font-mono block mt-2"
+                >
+                  Open WhatsApp Web again
+                </button>
+              </div>
+            )}
+
+            {waStatus === 'SENT' && (
+              <div className="space-y-2 w-full text-center">
+                <button 
+                  disabled
+                  className="w-full bg-accent-green/20 text-accent-green font-semibold rounded-lg py-3 border border-accent-green/30 uppercase tracking-wider text-xs font-mono flex items-center justify-center gap-2"
+                >
+                  ✓ WhatsApp Sent
+                </button>
+                <button
+                  onClick={triggerSendIntake}
+                  className="text-xs text-primary hover:underline font-mono"
+                >
+                  Resend via WhatsApp
+                </button>
+              </div>
+            )}
+
             <button 
               onClick={() => {
                 onClose();
                 setSelectedVehicle(createdVehicle);
               }}
-              className="w-full bg-primary text-black font-semibold rounded-lg py-3 hover:bg-primary/90 transition-all uppercase tracking-wider text-xs font-mono"
+              className="w-full bg-[#111111] hover:bg-[#151515] border border-white/10 text-white font-semibold rounded-lg py-3 transition-all uppercase tracking-wider text-xs font-mono"
             >
               View Vehicle Profile
             </button>
-            
-            {notifyStatus !== 'SENT' && (
-              <button 
-                onClick={async () => {
-                  const success = await resendTrackingMessage(createdVehicle.id);
-                  if (success) {
-                    alert('Tracking message resent successfully.');
-                    onClose();
-                  } else {
-                    alert('Failed to send message.');
-                  }
-                }}
-                className="w-full bg-[#111111] hover:bg-[#151515] border border-white/10 text-white font-semibold rounded-lg py-3 transition-all uppercase tracking-wider text-xs font-mono"
-              >
-                Send Message Again
-              </button>
-            )}
-            
-            <button 
-              onClick={onClose}
-              className="w-full bg-transparent text-secondary hover:text-white transition-colors text-xs font-mono uppercase tracking-widest py-2"
-            >
-              Dismiss
-            </button>
           </div>
         </motion.div>
+
+        {/* WhatsApp Intake Confirmation Modal */}
+        {showConfirmIntake && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div className="bg-[#0C0C0C] border border-white/10 shadow-2xl w-full max-w-sm p-6 flex flex-col gap-4 text-left">
+              <h3 className="font-display text-lg font-bold uppercase tracking-wider text-white">Send tracking details?</h3>
+              <div className="space-y-2 text-xs font-mono">
+                <div className="flex justify-between"><span className="text-secondary">CUSTOMER:</span><span className="text-white">{createdVehicle.ownerName}</span></div>
+                <div className="flex justify-between"><span className="text-secondary">PHONE:</span><span className="text-white">{ownerPhone.replace(/.(?=.{4})/g, '*')}</span></div>
+                <div className="flex justify-between"><span className="text-secondary">TRACKING CODE:</span><span className="text-primary font-bold">{createdVehicle.trackingCode}</span></div>
+              </div>
+              <div className="h-px bg-white/10" />
+              <div>
+                <span className="text-[10px] font-mono text-secondary uppercase block mb-1">Message Preview</span>
+                <div className="bg-black/50 border border-white/5 p-3 rounded text-[10px] font-mono text-white/70 whitespace-pre-wrap max-h-40 overflow-y-auto leading-relaxed">
+                  {intakeMessage}
+                </div>
+              </div>
+              <div className="flex gap-3 mt-2">
+                <button 
+                  onClick={() => setShowConfirmIntake(false)}
+                  className="flex-1 py-2.5 bg-transparent hover:bg-white/5 border border-white/10 text-white text-xs font-mono uppercase tracking-widest"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={triggerSendIntake}
+                  className="flex-1 py-2.5 bg-primary hover:bg-primary/90 text-black font-semibold text-xs font-mono uppercase tracking-widest"
+                >
+                  Send via WhatsApp
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -581,11 +756,151 @@ function Input({ label, type = "text", ...props }: any) {
   );
 }
 
-function VehicleDetailModal({ vehicle, onClose, onEdit, onDelete, onUpdate, onUpdateStatus, onAddNote, onAddPhoto, onAddRepair, onCreateEstimate, onUpdateFinalCost, onResendTracking, onRegenerateTracking, onResendCompletion }: any) {
+function VehicleDetailModal({ vehicle, onClose, onEdit, onDelete, onUpdate, onUpdateStatus, onAddNote, onAddPhoto, onAddRepair, onCreateEstimate, onUpdateFinalCost, onResendTracking, onRegenerateTracking, onResendCompletion, markWhatsappAsSent, showToast, setConfirmModal }: any) {
   const [newNote, setNewNote] = useState('');
-  const [isResending, setIsResending] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
-  const [isResendingCompletion, setIsResendingCompletion] = useState(false);
+  const [openedTypes, setOpenedTypes] = useState<Record<string, boolean>>({});
+
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const getConfirmationMessage = (type: string, veh: any) => {
+    const trackingUrl = typeof window !== 'undefined' ? `${window.location.origin}/track` : 'https://yourdomain.com/track';
+    const name = `${veh.make} ${veh.model}`;
+
+    switch (type) {
+      case 'TRACKING_DETAILS':
+        return `VANTARA\n\n` +
+          `The Journey Behind Every Repair.\n\n` +
+          `Your vehicle has been registered with our workshop.\n\n` +
+          `Vehicle:\n${name} ${veh.year || ''}\n\n` +
+          `Registration:\n${veh.plateNumber}\n\n` +
+          `Your tracking number:\n${veh.trackingCode}\n\n` +
+          `Track your vehicle:\n${trackingUrl}\n\n` +
+          `Use your tracking number and registered phone number to check the progress of your vehicle.\n\n` +
+          `Thank you for choosing VANTARA.`;
+
+      case 'READY_FOR_PICKUP':
+        return `VANTARA\n\n` +
+          `Your vehicle is ready for pickup.\n\n` +
+          `Vehicle:\n${name}\n\n` +
+          `Registration:\n${veh.plateNumber}\n\n` +
+          `Track your vehicle:\n${trackingUrl}\n\n` +
+          `Thank you for choosing VANTARA.`;
+
+      case 'REPAIR_COMPLETED':
+        return `VANTARA\n\n` +
+          `The repair of your vehicle has been completed.\n\n` +
+          `Vehicle:\n${name}\n\n` +
+          `Registration:\n${veh.plateNumber}\n\n` +
+          `Your vehicle is ready for collection.\n\n` +
+          `Track your vehicle:\n${trackingUrl}\n\n` +
+          `Thank you for choosing VANTARA.`;
+
+      default:
+        return `VANTARA\n\n` +
+          `Update on your vehicle ${name} (${veh.plateNumber}).\n\n` +
+          `Track your vehicle:\n${trackingUrl}\n\n` +
+          `Thank you for choosing VANTARA.`;
+    }
+  };
+
+  const getNotificationStatusCard = (type: string, label: string) => {
+    const history = vehicle.whatsappNotifications || [];
+    const notif = history.find((n: any) => n.notificationType === type && n.status === 'SENT');
+    
+    let statusText = 'Not Sent';
+    let statusColor = 'text-secondary bg-white/5';
+    let details = '';
+    let showSendBtn = true;
+    let showConfirmBtn = false;
+    let buttonLabel = 'Send via WhatsApp';
+
+    const isOpened = !!openedTypes[type];
+
+    if (notif) {
+      statusText = 'Sent';
+      statusColor = 'text-accent-green bg-accent-green/10';
+      buttonLabel = 'Resend via WhatsApp';
+      details = `Sent on: ${formatDate(notif.sentAt)} by ${notif.sentBy?.name || 'Staff'}`;
+    } else if (isOpened) {
+      statusText = 'WhatsApp Web opened';
+      statusColor = 'text-primary bg-primary/10 animate-pulse';
+      showConfirmBtn = true;
+      details = 'Review the message and press Send inside WhatsApp Web.';
+    }
+
+    const triggerOpen = () => {
+      const message = getConfirmationMessage(type, vehicle);
+      openWhatsAppWeb(vehicle.ownerPhone || '', message);
+      setOpenedTypes(prev => ({ ...prev, [type]: true }));
+      showToast('WhatsApp Web opened. Review the message and send it from WhatsApp.', 'info');
+    };
+
+    const triggerConfirm = () => {
+      setConfirmModal({
+        show: true,
+        title: 'Confirm Send',
+        message: 'Have you sent this message to the customer through WhatsApp?',
+        onConfirm: async () => {
+          const success = await markWhatsappAsSent(vehicle.id, type);
+          if (success) {
+            setOpenedTypes(prev => ({ ...prev, [type]: false }));
+            showToast('WhatsApp status marked as Sent successfully.', 'success');
+          } else {
+            showToast('Failed to mark WhatsApp status.', 'error');
+          }
+        }
+      });
+    };
+
+    return (
+      <div className="border-b border-white/5 pb-4 last:border-none last:pb-0 space-y-2">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="text-xs font-mono font-bold text-white uppercase tracking-wider">{label}</div>
+            {details && <div className="text-[10px] font-mono text-secondary mt-1">{details}</div>}
+          </div>
+          <span className={`inline-block px-2 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider rounded ${statusColor}`}>
+            {statusText}
+          </span>
+        </div>
+        <div className="flex gap-2">
+          {showSendBtn && (
+            <button
+              type="button"
+              onClick={triggerOpen}
+              className="flex-grow py-2 bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40 text-primary text-[10px] font-mono font-bold uppercase tracking-widest transition-all"
+            >
+              {buttonLabel}
+            </button>
+          )}
+          {showConfirmBtn && (
+            <button
+              type="button"
+              onClick={triggerConfirm}
+              className="flex-grow py-2 bg-accent-green/20 hover:bg-accent-green/30 border border-accent-green/30 text-accent-green text-[10px] font-mono font-bold uppercase tracking-widest transition-all"
+            >
+              Mark as Sent
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
   const arrivalPhoto = vehicle.photos?.find((p: any) => p.category === 'Vehicle Arrival');
   const galleryPhotos = vehicle.photos?.filter((p: any) => p.id !== arrivalPhoto?.id) || [];
 
@@ -645,27 +960,117 @@ function VehicleDetailModal({ vehicle, onClose, onEdit, onDelete, onUpdate, onUp
         
         <div className="flex flex-col md:flex-row overflow-hidden flex-1">
           <div className="w-full md:w-2/3 flex flex-col border-r border-white/10 max-h-full overflow-y-auto hide-scrollbar">
-            {compFailed && (
-              <div className="mx-8 mt-8 p-4 bg-accent-rust/10 border border-accent-rust/20 rounded-lg flex items-center justify-between gap-3 text-accent-rust text-xs font-mono">
-                <div className="flex items-center gap-2">
-                  <AlertCircle size={16} />
-                  <span>Vehicle completed, but the customer notification could not be sent.</span>
+            {vehicle.status === 'READY_FOR_PICKUP' && (() => {
+              const readyNotif = (vehicle.whatsappNotifications || []).find((n: any) => n.notificationType === 'READY_FOR_PICKUP' && n.status === 'SENT');
+              if (readyNotif) return null;
+
+              const isOpened = !!openedTypes['READY_FOR_PICKUP'];
+
+              const triggerOpen = () => {
+                const msg = getConfirmationMessage('READY_FOR_PICKUP', vehicle);
+                openWhatsAppWeb(vehicle.ownerPhone || '', msg);
+                setOpenedTypes(prev => ({ ...prev, READY_FOR_PICKUP: true }));
+                showToast('WhatsApp Web opened. Review the message and send it from WhatsApp.', 'info');
+              };
+
+              const triggerConfirm = () => {
+                setConfirmModal({
+                  show: true,
+                  title: 'Confirm Send',
+                  message: 'Have you sent this message to the customer through WhatsApp?',
+                  onConfirm: async () => {
+                    const success = await markWhatsappAsSent(vehicle.id, 'READY_FOR_PICKUP');
+                    if (success) {
+                      setOpenedTypes(prev => ({ ...prev, READY_FOR_PICKUP: false }));
+                      showToast('WhatsApp status marked as Sent successfully.', 'success');
+                    } else {
+                      showToast('Failed to mark WhatsApp status.', 'error');
+                    }
+                  }
+                });
+              };
+
+              return (
+                <div className="mx-8 mt-8 p-4 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-between gap-3 text-primary text-xs font-mono">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle size={16} />
+                    <span>Vehicle is ready for pickup. Send the manual pickup notification to the customer.</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={triggerOpen}
+                      className="px-3 py-1.5 bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary uppercase font-bold tracking-widest text-[9px] transition-colors"
+                    >
+                      {isOpened ? 'Resend via WhatsApp' : 'Send Pickup Message via WhatsApp'}
+                    </button>
+                    {isOpened && (
+                      <button
+                        onClick={triggerConfirm}
+                        className="px-3 py-1.5 bg-accent-green text-black uppercase font-bold tracking-widest text-[9px] transition-colors font-semibold rounded"
+                      >
+                        Mark as Sent
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <button
-                  disabled={isResendingCompletion}
-                  onClick={async () => {
-                    setIsResendingCompletion(true);
-                    const success = await onResendCompletion(vehicle.id);
-                    setIsResendingCompletion(false);
-                    if (success) alert('Completion notification resent successfully.');
-                    else alert('Resend failed.');
-                  }}
-                  className="px-3 py-1.5 bg-accent-rust/20 hover:bg-accent-rust/35 border border-accent-rust/30 text-accent-rust uppercase font-bold tracking-widest text-[9px] transition-colors disabled:opacity-50"
-                >
-                  {isResendingCompletion ? 'Sending...' : 'Resend Notification'}
-                </button>
-              </div>
-            )}
+              );
+            })()}
+            
+            {vehicle.status === 'COMPLETED' && (() => {
+              const compNotif = (vehicle.whatsappNotifications || []).find((n: any) => n.notificationType === 'REPAIR_COMPLETED' && n.status === 'SENT');
+              if (compNotif) return null;
+
+              const isOpened = !!openedTypes['REPAIR_COMPLETED'];
+
+              const triggerOpen = () => {
+                const msg = getConfirmationMessage('REPAIR_COMPLETED', vehicle);
+                openWhatsAppWeb(vehicle.ownerPhone || '', msg);
+                setOpenedTypes(prev => ({ ...prev, REPAIR_COMPLETED: true }));
+                showToast('WhatsApp Web opened. Review the message and send it from WhatsApp.', 'info');
+              };
+
+              const triggerConfirm = () => {
+                setConfirmModal({
+                  show: true,
+                  title: 'Confirm Send',
+                  message: 'Have you sent this message to the customer through WhatsApp?',
+                  onConfirm: async () => {
+                    const success = await markWhatsappAsSent(vehicle.id, 'REPAIR_COMPLETED');
+                    if (success) {
+                      setOpenedTypes(prev => ({ ...prev, REPAIR_COMPLETED: false }));
+                      showToast('WhatsApp status marked as Sent successfully.', 'success');
+                    } else {
+                      showToast('Failed to mark WhatsApp status.', 'error');
+                    }
+                  }
+                });
+              };
+
+              return (
+                <div className="mx-8 mt-8 p-4 bg-accent-green/10 border border-accent-green/20 rounded-lg flex items-center justify-between gap-3 text-accent-green text-xs font-mono">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle size={16} />
+                    <span>Repair is completed. Send the manual completion message to the customer.</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={triggerOpen}
+                      className="px-3 py-1.5 bg-accent-green/20 hover:bg-accent-green/30 border border-accent-green/30 text-accent-green uppercase font-bold tracking-widest text-[9px] transition-colors"
+                    >
+                      {isOpened ? 'Resend via WhatsApp' : 'Send Completion Message via WhatsApp'}
+                    </button>
+                    {isOpened && (
+                      <button
+                        onClick={triggerConfirm}
+                        className="px-3 py-1.5 bg-accent-green text-black uppercase font-bold tracking-widest text-[9px] transition-colors font-semibold rounded"
+                      >
+                        Mark as Sent
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
             <div className="p-8 flex flex-col gap-10">
               
               <div className="flex justify-between items-start">
@@ -689,68 +1094,29 @@ function VehicleDetailModal({ vehicle, onClose, onEdit, onDelete, onUpdate, onUp
                 <DetailItem label="Date In" value={vehicle.dateBroughtIn} />
                 
                 <div className="col-span-2 border border-white/10 bg-[#080808]/50 p-6 space-y-6">
-                  <h4 className="text-[10px] uppercase tracking-[0.2em] text-primary font-mono font-bold border-b border-white/10 pb-2">Customer Tracking</h4>
+                  <h4 className="text-[10px] uppercase tracking-[0.2em] text-primary font-mono font-bold border-b border-white/10 pb-2">Customer Tracking (WhatsApp)</h4>
                   
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-[9px] uppercase tracking-[0.2em] text-secondary font-mono font-bold mb-1">Tracking Status</div>
-                      <span className={`inline-block px-2.5 py-1 text-xs font-mono font-bold uppercase tracking-wider rounded ${
-                        (vehicle.notifications || []).find((n: any) => n.messageType === 'VEHICLE_REGISTERED')?.status === 'SENT'
-                          ? 'text-accent-green bg-accent-green/10'
-                          : (vehicle.notifications || []).find((n: any) => n.messageType === 'VEHICLE_REGISTERED')?.status === 'FAILED'
-                          ? 'text-accent-rust bg-accent-rust/10'
-                          : 'text-secondary bg-white/5'
-                      }`}>
-                        {(() => {
-                          const latestReg = (vehicle.notifications || []).find((n: any) => n.messageType === 'VEHICLE_REGISTERED');
-                          if (!latestReg) return 'Not Sent';
-                          if (latestReg.status === 'SENT') return 'Message Sent';
-                          if (latestReg.status === 'FAILED') return 'Dispatch Failed';
-                          return 'Sending...';
-                        })()}
-                      </span>
-                    </div>
-
                     <div>
                       <div className="text-[9px] uppercase tracking-[0.2em] text-secondary font-mono font-bold mb-1">Phone Number</div>
                       <div className="font-mono text-xs text-white/95 mt-1">
                         {vehicle.ownerPhone ? vehicle.ownerPhone.replace(/.(?=.{4})/g, '*') : 'N/A'}
                       </div>
                     </div>
-                  </div>
-
-                  <div>
-                    <div className="text-[9px] uppercase tracking-[0.2em] text-secondary font-mono font-bold mb-2">Tracking Code</div>
-                    <div className="flex items-center gap-3 p-3 bg-[#0C0C0C] border border-white/10">
-                      <span className="font-mono text-sm text-primary tracking-widest flex-1 font-bold">{vehicle.trackingCode || 'Not assigned'}</span>
-                      {vehicle.trackingCode && (
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(vehicle.trackingCode);
-                            alert('Tracking code copied to clipboard!');
-                          }}
-                          className="text-[9px] font-mono uppercase tracking-widest text-secondary hover:text-primary transition-colors px-3 py-1.5 border border-white/10 hover:border-primary/30"
-                        >
-                          Copy
-                        </button>
-                      )}
+                    <div>
+                      <div className="text-[9px] uppercase tracking-[0.2em] text-secondary font-mono font-bold mb-1">Tracking Code</div>
+                      <span className="font-mono text-xs text-primary font-bold mt-1 tracking-widest">{vehicle.trackingCode || 'Not assigned'}</span>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-3 pt-2">
-                    <button
-                      disabled={isResending || !vehicle.trackingCode}
-                      onClick={async () => {
-                        setIsResending(true);
-                        const success = await onResendTracking(vehicle.id);
-                        setIsResending(false);
-                        alert(success ? 'Tracking message sent successfully.' : 'Failed to send tracking message.');
-                      }}
-                      className="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 bg-transparent hover:bg-white/5 border border-white/10 text-[10px] font-mono font-bold uppercase tracking-widest text-white disabled:opacity-50"
-                    >
-                      {isResending ? 'Sending...' : 'Send Again'}
-                    </button>
-                    
+                  <div className="space-y-4 pt-4 border-t border-white/10">
+                    <h5 className="text-[10px] uppercase tracking-[0.15em] text-secondary font-mono font-bold">CUSTOMER MESSAGES</h5>
+                    {getNotificationStatusCard('TRACKING_DETAILS', 'Tracking Details')}
+                    {getNotificationStatusCard('READY_FOR_PICKUP', 'Ready for Pickup')}
+                    {getNotificationStatusCard('REPAIR_COMPLETED', 'Repair Completed')}
+                  </div>
+
+                  <div className="pt-4 border-t border-white/10 flex gap-4">
                     <button
                       disabled={isRegenerating}
                       onClick={async () => {
@@ -758,7 +1124,7 @@ function VehicleDetailModal({ vehicle, onClose, onEdit, onDelete, onUpdate, onUp
                           setIsRegenerating(true);
                           const success = await onRegenerateTracking(vehicle.id);
                           setIsRegenerating(false);
-                          alert(success ? 'Tracking code regenerated and sent to customer.' : 'Failed to regenerate tracking code.');
+                          alert(success ? 'Tracking code regenerated.' : 'Failed to regenerate tracking code.');
                         }
                       }}
                       className="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 bg-transparent hover:bg-white/5 border border-white/10 text-[10px] font-mono font-bold uppercase tracking-widest text-primary hover:text-primary-hover disabled:opacity-50"
@@ -896,6 +1262,8 @@ function VehicleDetailModal({ vehicle, onClose, onEdit, onDelete, onUpdate, onUp
             </div>
           </div>
         </div>
+
+
       </motion.div>
     </div>
   );

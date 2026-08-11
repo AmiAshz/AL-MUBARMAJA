@@ -2,12 +2,11 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const getCustomerTrackingInfo = async (trackingCode, phone) => {
-  // 1. Find the vehicle with matching tracking code and phone number
-  // Do NOT return generic "invalid phone" vs "invalid code" - keep it ambiguous
-  const vehicle = await prisma.vehicle.findFirst({
+  const cleanInputPhone = (phone || '').replace(/\D/g, '');
+
+  const vehicles = await prisma.vehicle.findMany({
     where: {
       trackingCode,
-      ownerPhone: phone,
       isTrackingEnabled: true
     },
     include: {
@@ -23,8 +22,17 @@ const getCustomerTrackingInfo = async (trackingCode, phone) => {
     }
   });
 
+  // Match tolerant to format differences by comparing last 9 digits
+  const vehicle = vehicles.find(v => {
+    const cleanDbPhone = (v.ownerPhone || '').replace(/\D/g, '');
+    if (cleanInputPhone.length >= 9 && cleanDbPhone.length >= 9) {
+      return cleanInputPhone.slice(-9) === cleanDbPhone.slice(-9);
+    }
+    return cleanInputPhone === cleanDbPhone;
+  });
+
   if (!vehicle) {
-    return null; // Return null so controller can handle rate limiting/generic error
+    return null; 
   }
 
   // Sanitize and map the response strictly for customer view

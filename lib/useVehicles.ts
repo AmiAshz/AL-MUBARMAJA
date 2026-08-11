@@ -211,11 +211,12 @@ export function useVehicles() {
     }
   };
 
-  const resendTrackingMessage = async (id: string) => {
+  const markWhatsappAsSent = async (id: string, type: string) => {
     try {
-      const res = await fetch(`${API_URL}/workshop/vehicles/${id}/send-tracking-message`, {
+      const res = await fetch(`${API_URL}/vehicles/${id}/whatsapp-notifications`, {
         method: 'POST',
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ type })
       });
       if (res.ok) {
         fetchVehicles();
@@ -226,6 +227,10 @@ export function useVehicles() {
       console.error(e);
       return false;
     }
+  };
+
+  const resendTrackingMessage = async (id: string) => {
+    return markWhatsappAsSent(id, 'TRACKING_DETAILS');
   };
 
   const regenerateTrackingCode = async (id: string) => {
@@ -246,20 +251,7 @@ export function useVehicles() {
   };
 
   const resendCompletionMessage = async (id: string) => {
-    try {
-      const res = await fetch(`${API_URL}/workshop/vehicles/${id}/send-completion-message`, {
-        method: 'POST',
-        headers: getAuthHeaders()
-      });
-      if (res.ok) {
-        fetchVehicles();
-        return true;
-      }
-      return false;
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
+    return markWhatsappAsSent(id, 'REPAIR_COMPLETED');
   };
 
   return { 
@@ -276,6 +268,7 @@ export function useVehicles() {
     updateFinalCost,
     resendTrackingMessage,
     regenerateTrackingCode,
-    resendCompletionMessage
+    resendCompletionMessage,
+    markWhatsappAsSent
   };
 }

@@ -1,3 +1,9 @@
+// Mock socket.io globally for E2E tests since we don't start the HTTP server
+jest.mock('../../src/utils/socket', () => ({
+  getIO: () => ({ emit: jest.fn() }),
+  init: jest.fn()
+}));
+
 const request = require('supertest');
 const app = require('../../src/app');
 const { PrismaClient } = require('@prisma/client');
@@ -18,7 +24,9 @@ describe('Public Customer Vehicle Tracking API', () => {
         name: 'Tracking Admin',
         email: `tracking.admin.${Date.now()}@test.com`,
         passwordHash: 'hashedpassword',
-        role: 'ADMIN'
+        role: 'ADMIN',
+        emailVerified: true,
+        isActive: true
       }
     });
 
@@ -76,7 +84,7 @@ describe('Public Customer Vehicle Tracking API', () => {
     const res = await request(app)
       .post('/api/public/vehicle-tracking')
       .send({
-        trackingCode: 'VT-INVALID-CODE',
+        trackingCode: 'VNT-INVALID-CODE',
         phone: '+919999999999'
       });
       
@@ -123,20 +131,7 @@ describe('Public Customer Vehicle Tracking API', () => {
     expect(data.finalCost).toBeUndefined();
   });
 
-  it('5. Should trigger rate limit after 5 failed attempts (6th fails with 429)', async () => {
-    // 5 failures
-    for (let i = 0; i < 5; i++) {
-      await request(app).post('/api/public/vehicle-tracking').send({ trackingCode: 'FAIL', phone: 'FAIL' });
-    }
-    
-    // 6th attempt should be rate limited
-    const res = await request(app).post('/api/public/vehicle-tracking').send({ trackingCode: 'FAIL', phone: 'FAIL' });
-    
-    expect(res.statusCode).toBe(429);
-    expect(res.body.message).toContain("Too many attempts");
-  });
-  
-  it('6. Should invalidate old tracking code after regeneration', async () => {
+  it('5. Should invalidate old tracking code after regeneration', async () => {
     // Regenerate code
     const regenRes = await request(app)
       .post(`/api/vehicles/${testVehicle.id}/tracking/regenerate`)
@@ -151,8 +146,18 @@ describe('Public Customer Vehicle Tracking API', () => {
       .post('/api/public/vehicle-tracking')
       .send({ trackingCode, phone: '+919999999999' });
     expect(oldCodeRes.statusCode).toBe(404);
+  });
+
+  it('6. Should trigger rate limit after 5 failed attempts (6th fails with 429)', async () => {
+    // 5 failures
+    for (let i = 0; i < 5; i++) {
+      await request(app).post('/api/public/vehicle-tracking').send({ trackingCode: 'FAIL', phone: 'FAIL' });
+    }
     
-    // We can't test the new code easily here because of the IP rate limit we just hit in test 5,
-    // but the regeneration logic holds.
+    // 6th attempt should be rate limited
+    const res = await request(app).post('/api/public/vehicle-tracking').send({ trackingCode: 'FAIL', phone: 'FAIL' });
+    
+    expect(res.statusCode).toBe(429);
+    expect(res.body.message).toContain("Too many attempts");
   });
 });

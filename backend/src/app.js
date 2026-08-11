@@ -12,6 +12,7 @@ const additionalRepairRoutes = require('./routes/additionalRepair.routes');
 const repairRoutes = require('./routes/repair.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const publicRoutes = require('./routes/public.routes');
+const webhookRoutes = require('./routes/webhook.routes');
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/additional-repairs', additionalRepairRoutes);
 app.use('/api/repairs', repairRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/webhooks', webhookRoutes);
 
 // Error Handling Middleware (must be last)
 app.use(errorHandler);

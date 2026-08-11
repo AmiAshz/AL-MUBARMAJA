@@ -29,8 +29,15 @@ describe('VANTARA End-to-End Workflow & Data Integrity', () => {
           name: 'E2E Admin',
           email: `admin_${Date.now()}@vantara.com`,
           passwordHash: await bcrypt.hash('password123', 10),
-          role: 'ADMIN'
+          role: 'ADMIN',
+          emailVerified: true,
+          isActive: true
         }
+      });
+    } else {
+      admin = await prisma.user.update({
+        where: { id: admin.id },
+        data: { emailVerified: true, isActive: true }
       });
     }
 

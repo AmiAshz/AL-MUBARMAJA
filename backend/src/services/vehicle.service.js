@@ -8,13 +8,11 @@ const prisma = new PrismaClient();
 
 const generateTrackingCode = () => {
   const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-  let code1 = '';
-  let code2 = '';
-  for (let i = 0; i < 4; i++) {
-    code1 += chars.charAt(crypto.randomInt(0, chars.length));
-    code2 += chars.charAt(crypto.randomInt(0, chars.length));
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(crypto.randomInt(0, chars.length));
   }
-  return `VT-${code1}-${code2}`;
+  return `VNT-${code}`;
 };
 
 /**
@@ -68,7 +66,11 @@ const getAllVehicles = async (page = 1, limit = 20, search = '', status = '') =>
         progressLogs: { orderBy: { createdAt: 'desc' } },
         estimates: { where: { status: 'APPROVED' } },
         additionalRepairs: { where: { approvalStatus: 'APPROVED' } },
-        notifications: { orderBy: { createdAt: 'desc' } }
+        notifications: { orderBy: { createdAt: 'desc' } },
+        whatsappNotifications: {
+          orderBy: { createdAt: 'desc' },
+          include: { sentBy: { select: { name: true } } }
+        }
       }
     }),
     prisma.vehicle.count({ where })
@@ -112,7 +114,11 @@ const getVehicleById = async (id) => {
         include: { changedBy: { select: { name: true } } }
       },
       payments: true,
-      notifications: { orderBy: { createdAt: 'desc' } }
+      notifications: { orderBy: { createdAt: 'desc' } },
+      whatsappNotifications: {
+        orderBy: { createdAt: 'desc' },
+        include: { sentBy: { select: { name: true } } }
+      }
     }
   });
 
@@ -157,13 +163,8 @@ const createVehicle = async (data, userId) => {
     include: { complaints: true, progressLogs: true }
   });
 
-  // Attempt to send customer notification in the background
-  let latestNotification = null;
-  try {
-    latestNotification = await NotificationService.sendVehicleTrackingMessage(vehicle, trackingCode);
-  } catch (err) {
-    console.error('[VEHICLE CREATION] Notification failed but vehicle was successfully registered:', err);
-  }
+  // No automatic WhatsApp messages sent on registration
+  const latestNotification = null;
 
   const vehicleWithNotification = {
     ...vehicle,
@@ -510,12 +511,8 @@ const regenerateTrackingCode = async (id, userId) => {
     include: { progressLogs: true, complaints: true }
   });
 
-  let latestNotification = null;
-  try {
-    latestNotification = await NotificationService.sendVehicleTrackingMessage(vehicle, newCode);
-  } catch (err) {
-    console.error('[VEHICLE REGENERATION] Notification failed but code was successfully updated:', err);
-  }
+  // No automatic WhatsApp messages on regeneration
+  const latestNotification = null;
 
   const updatedVehicle = {
     ...vehicle,
