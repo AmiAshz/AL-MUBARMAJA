@@ -85,16 +85,18 @@ class NotificationService {
    */
   static async sendVehicleTrackingMessage(vehicle, trackingCode) {
     const trackingUrl = process.env.CUSTOMER_TRACKING_URL || 'http://localhost:3000/track';
-    const link = `${trackingUrl}?code=${trackingCode}&phone=${encodeURIComponent(vehicle.ownerPhone)}`;
-
-    const messageContent = `ورشة المبرمج\n\n` +
-      `تم تسجيل مركبتك لدى الورشة بنجاح.\n\n` +
-      `المركبة:\n${vehicle.make} ${vehicle.model}\n\n` +
-      `رقم اللوحة:\n${vehicle.plateNumber}\n\n` +
-      `رمز التتبع الخاص بك:\n${trackingCode}\n\n` +
-      `يمكنك متابعة حالة مركبتك من خلال:\n${link}\n\n` +
-      `استخدم رمز التتبع ورقم الجوال المسجل لمتابعة حالة مركبتك.\n\n` +
-      `شكراً لاختياركم ورشة المبرمج.`;
+    
+    const messageContent = `VANTARA — The Journey Behind Every Repair\n\n` +
+      `Your vehicle has been registered with our workshop.\n\n` +
+      `Vehicle: ${vehicle.make} ${vehicle.model}\n` +
+      `Registration: ${vehicle.plateNumber}\n\n` +
+      `Track your vehicle:\n` +
+      `${trackingUrl}\n\n` +
+      `Your Tracking Code:\n` +
+      `${trackingCode}\n\n` +
+      `Use your Tracking Code and registered phone number to check your vehicle's repair status.\n\n` +
+      `Please keep this code private.\n\n` +
+      `— VANTARA`;
 
     return await this.sendNotification(
       vehicle.id,
@@ -109,13 +111,14 @@ class NotificationService {
    */
   static async sendEstimateMessage(vehicle, total) {
     const trackingUrl = process.env.CUSTOMER_TRACKING_URL || 'http://localhost:3000/track';
+    const fmtC = (num) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
 
-    const messageContent = `ورشة المبرمج\n\n` +
-      `تم إعداد تقدير تكلفة الإصلاح لمركبتك ${vehicle.make} ${vehicle.model} (${vehicle.plateNumber}).\n\n` +
-      `التكلفة التقديرية: ${total.toFixed(2)} ر.س\n\n` +
-      `يرجى زيارة الرابط للمراجعة والموافقة:\n` +
+    const messageContent = `VANTARA — Repair Estimate Ready\n\n` +
+      `A repair estimate has been prepared for your ${vehicle.make} ${vehicle.model} (${vehicle.plateNumber}).\n\n` +
+      `Estimated Amount: ${fmtC(total)}\n\n` +
+      `Please visit the link to review and approve the estimate:\n` +
       `${trackingUrl}\n\n` +
-      `شكراً لاختياركم ورشة المبرمج.`;
+      `— VANTARA`;
 
     return await this.sendNotification(
       vehicle.id,
@@ -138,12 +141,12 @@ class NotificationService {
     else if (milestoneType === 'READY_FOR_PICKUP') type = 'READY_FOR_PICKUP';
     else if (milestoneType === 'COMPLETED' || milestoneType === 'VEHICLE_COMPLETED') type = 'VEHICLE_COMPLETED';
 
-    const messageContent = `ورشة المبرمج\n\n` +
-      `تحديث لحالة مركبتك: ${vehicle.make} ${vehicle.model} (${vehicle.plateNumber})\n\n` +
-      `الحالة: ${customMessage}\n\n` +
-      `تابع سير الإصلاح مباشرة عبر الرابط:\n` +
+    const messageContent = `VANTARA — Status Update\n\n` +
+      `Update for your vehicle: ${vehicle.make} ${vehicle.model} (${vehicle.plateNumber})\n\n` +
+      `Status: ${customMessage}\n\n` +
+      `Track the complete repair journey live:\n` +
       `${process.env.CUSTOMER_TRACKING_URL || 'http://localhost:3000/track'}\n\n` +
-      `شكراً لاختياركم ورشة المبرمج.`;
+      `— VANTARA`;
 
     return await this.sendNotification(
       vehicle.id,
@@ -159,13 +162,15 @@ class NotificationService {
   static async sendCompletionMessage(vehicle) {
     const trackingUrl = process.env.CUSTOMER_TRACKING_URL || 'http://localhost:3000/track';
     
-    const messageContent = `ورشة المبرمج\n\n` +
-      `تم الانتهاء من إصلاح مركبتك.\n\n` +
-      `المركبة:\n${vehicle.make} ${vehicle.model}\n\n` +
-      `رقم اللوحة:\n${vehicle.plateNumber}\n\n` +
-      `مركبتك جاهزة للاستلام.\n\n` +
-      `لمتابعة حالة مركبتك:\n${trackingUrl}\n\n` +
-      `شكراً لاختياركم ورشة المبرمج.`;
+    const messageContent = `VANTARA — The Journey Behind Every Repair\n\n` +
+      `Your vehicle repair has been completed.\n\n` +
+      `Vehicle: ${vehicle.make} ${vehicle.model}\n` +
+      `Registration: ${vehicle.plateNumber}\n\n` +
+      `Your vehicle is now ready for collection.\n\n` +
+      `Track your vehicle:\n` +
+      `${trackingUrl}\n\n` +
+      `Thank you for choosing VANTARA.\n\n` +
+      `— VANTARA`;
 
     return await this.sendNotification(
       vehicle.id,

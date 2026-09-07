@@ -64,7 +64,7 @@ describe('Manual WhatsApp Notification Flow & Endpoints', () => {
 
     expect(res.statusCode).toBe(201);
     testVehicle = res.body.data;
-    expect(testVehicle.trackingCode).toMatch(/^VT-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}$/);
+    expect(testVehicle.trackingCode).toMatch(/^VNT-[2-9A-Z]{6}$/);
 
     // Verify NO WhatsApp notifications were automatically created in database
     const notifs = await prisma.whatsappNotification.findMany({

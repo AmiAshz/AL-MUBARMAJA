@@ -14,12 +14,7 @@ const {
   getJobSheet,
   regenerateTrackingCode,
   updateTrackingStatus,
-  sendWhatsappNotification,
-  sendTrackingEmail,
-  sendStatusEmail,
-  sendPickupEmail,
-  sendCompletionEmail,
-  getVehicleEmails
+  sendWhatsappNotification
 } = require('../controllers/vehicle.controller');
 const { getEstimatesByVehicle, createEstimate } = require('../controllers/estimate.controller');
 const { getAdditionalRepairs, createAdditionalRepair } = require('../controllers/additionalRepair.controller');
@@ -46,13 +41,6 @@ router.patch('/:id/status', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR'), up
 router.post('/:id/tracking/regenerate', authorize('ADMIN', 'MANAGER'), regenerateTrackingCode);
 router.patch('/:id/tracking/status', authorize('ADMIN', 'MANAGER'), updateTrackingStatus);
 router.post('/:id/whatsapp-notifications', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), sendWhatsappNotification);
-
-// Email Notifications
-router.post('/:id/send-tracking-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), sendTrackingEmail);
-router.post('/:id/send-status-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), sendStatusEmail);
-router.post('/:id/send-pickup-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), sendPickupEmail);
-router.post('/:id/send-completion-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), sendCompletionEmail);
-router.get('/:id/emails', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), getVehicleEmails);
 
 // Progress Logs
 router.route('/:id/progress')

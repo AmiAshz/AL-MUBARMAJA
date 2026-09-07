@@ -34,14 +34,18 @@ const setFinalCost = async (vehicleId, data, userId) => {
   const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
   if (!vehicle) throw new ApiError(404, 'Vehicle not found');
 
+  if (vehicle.status === 'AWAITING_DIAGNOSIS' || vehicle.status === 'IN_PROGRESS' || vehicle.status === 'AWAITING_PARTS') {
+    throw new ApiError(400, `Cannot generate final billing while vehicle is still ${vehicle.status}. Repair must be complete.`);
+  }
+
   const parts = parseFloat(data.actualPartsCost || 0);
   const labor = parseFloat(data.actualLaborCost || 0);
   const other = parseFloat(data.otherCosts || 0);
   
   const subtotal = parts + labor + other;
   
-  // Tax if applicable, using 15% standard for Saudi Arabia (instead of 18%) if requested, or passing a manual amount
-  const tax = data.applyTax ? (subtotal * 0.15) : parseFloat(data.tax || 0);
+  // Tax if applicable, using 18% standard if requested, or passing a manual amount
+  const tax = data.applyTax ? (subtotal * 0.18) : parseFloat(data.tax || 0);
   
   const finalTotal = subtotal + tax;
 
@@ -61,7 +65,7 @@ const setFinalCost = async (vehicleId, data, userId) => {
       vehicleId,
       userId,
       type: 'NOTE',
-      message: `Final billing calculated. Total cost: ${finalTotal.toFixed(2)} ر.س`
+      message: `Final billing calculated. Total cost: ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(finalTotal)}`
     }
   });
 
@@ -107,7 +111,7 @@ const addPayment = async (vehicleId, data, userId) => {
       vehicleId,
       userId,
       type: 'PAYMENT',
-      message: `Payment received: ${paymentAmount.toFixed(2)} ر.س via ${paymentMethod}`
+      message: `Payment received: ${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(paymentAmount)} via ${paymentMethod}`
     }
   });
 

@@ -13,10 +13,9 @@ const repairRoutes = require('./routes/repair.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const publicRoutes = require('./routes/public.routes');
 const webhookRoutes = require('./routes/webhook.routes');
-const serviceRoutes = require('./routes/service.routes');
-const settingsRoutes = require('./routes/settings.routes');
 
 const app = express();
+
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // For base64 photos
@@ -43,8 +42,6 @@ app.use('/api/repairs', repairRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/webhooks', webhookRoutes);
-app.use('/api/services', serviceRoutes);
-app.use('/api/settings', settingsRoutes);
 
 // Error Handling Middleware (must be last)
 app.use(errorHandler);

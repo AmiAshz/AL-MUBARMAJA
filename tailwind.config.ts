@@ -9,47 +9,29 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Core
-        background: "#F7F8FA",
-        foreground: "#1F2937",
-        // Primary Gold Accents
-        primary: "#4C7111",
-        brand: {
-          deep: "#3D5A0E",
-          dark: "#2F450B",
-          hover: "#3D5A0E",
-        },
-        // Text
-        secondary: "#667085",
-        muted: "#8A93A3",
-        // Borders
-        border: "#E2E5E9",
-        "border-soft": "#E9E9E6",
-        // Surfaces
-        surface: {
-          50: "#F4F8EF",
-          100: "#FFFFFF",
-          200: "#FAFBFC",
-        },
-        // Accents / status
+        background: "#0C0C0C",
+        foreground: "#F5F5F0",
+        primary: "#D4AF37", // Warm amber / muted gold
+        secondary: "#8A8A93", // Muted steel gray
         accent: {
-          green: "#3F7D4A",   // success / ready
-          warning: "#C58A16", // awaiting parts
-          error: "#C94A4A",   // error / danger
-          steel: "#3976A8",   // info
-          // Legacy aliases so existing code doesn't break
-          rust: "#C94A4A",
-          amber: "#C58A16",
+          amber: "#D4AF37",
+          rust: "#8B3A3A",
+          steel: "#4A6B82",
+          green: "#4F6B56"
         },
+        surface: {
+          50: "#121212",
+          100: "#1A1A1A",
+          200: "#222222",
+        }
       },
       fontFamily: {
-        display: ["var(--font-montserrat)", "sans-serif"],
-        sans: ["var(--font-montserrat)", "sans-serif"],
-        arabic: ["var(--font-montserrat)", "system-ui", "sans-serif"],
+        display: ['var(--font-oswald)', 'sans-serif'],
+        sans: ['var(--font-inter)', 'sans-serif'],
       },
       backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-      },
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      }
     },
   },
   plugins: [],

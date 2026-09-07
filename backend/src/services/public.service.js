@@ -6,7 +6,7 @@ const getCustomerTrackingInfo = async (trackingCode, phone) => {
 
   const vehicles = await prisma.vehicle.findMany({
     where: {
-      trackingCode: (trackingCode || '').trim(),
+      trackingCode,
       isTrackingEnabled: true
     },
     include: {

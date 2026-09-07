@@ -40,11 +40,7 @@ export type PhotoCategory =
   | 'Engine'
   | 'Damage'
   | 'Repair Progress'
-  | 'Final Condition'
-  | 'Arrival Conditions'
-  | 'Diagnostics Scan'
-  | 'Repair Progression'
-  | 'Inspection Completed';
+  | 'Final Condition';
 
 export interface VehiclePhoto {
   id: string;
@@ -72,23 +68,6 @@ export interface Estimate {
   status: string;
 }
 
-export type PaymentMethod =
-  | 'CASH'
-  | 'CARD'
-  | 'UPI'
-  | 'BANK_TRANSFER'
-  | 'OTHER';
-
-export interface Payment {
-  id: string;
-  vehicleId: string;
-  amount: number;
-  paymentMethod: PaymentMethod;
-  reference?: string | null;
-  notes?: string | null;
-  createdAt: string;
-}
-
 export interface Vehicle {
   id: string;
   jobNumber: string; // Backend uses jobNumber instead of jobId
@@ -100,8 +79,6 @@ export interface Vehicle {
   ownerName: string;
   ownerPhone: string;
   dateBroughtIn: string;
-  createdAt: string;
-  updatedAt?: string;
   
   complaints: Complaint[];
   status: VehicleStatus;
@@ -121,7 +98,6 @@ export interface Vehicle {
   finalTotalCost?: number | null;
   trackingCode?: string | null;
   notifications?: Notification[];
-  payments?: Payment[];
 }
 
 export interface Notification {
