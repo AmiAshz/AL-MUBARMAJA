@@ -9,7 +9,7 @@ const app = require('../../src/app');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-describe('VANTARA End-to-End Workflow & Data Integrity', () => {
+describe('ورشة المبرمج End-to-End Workflow & Data Integrity', () => {
   let token;
   let vehicleId;
   let estimateId;
@@ -27,7 +27,7 @@ describe('VANTARA End-to-End Workflow & Data Integrity', () => {
       admin = await prisma.user.create({
         data: {
           name: 'E2E Admin',
-          email: `admin_${Date.now()}@vantara.com`,
+          email: `admin_${Date.now()}@al-mbarmaj.com`,
           passwordHash: await bcrypt.hash('password123', 10),
           role: 'ADMIN',
           emailVerified: true,
@@ -75,7 +75,7 @@ describe('VANTARA End-to-End Workflow & Data Integrity', () => {
       expect(res.statusCode).toBe(201);
       vehicleId = res.body.data.id;
       expect(res.body.data.status).toBe('AWAITING_DIAGNOSIS');
-      expect(res.body.data.jobNumber).toMatch(/^VNT-\d{6}$/);
+      expect(res.body.data.jobNumber).toMatch(/^VT-\d{6}$/);
     });
 
     it('2. Add customer complaints', async () => {

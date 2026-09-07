@@ -84,7 +84,7 @@ describe('Public Customer Vehicle Tracking API', () => {
     const res = await request(app)
       .post('/api/public/vehicle-tracking')
       .send({
-        trackingCode: 'VNT-INVALID-CODE',
+        trackingCode: 'VT-INVALID-CODE',
         phone: '+919999999999'
       });
       

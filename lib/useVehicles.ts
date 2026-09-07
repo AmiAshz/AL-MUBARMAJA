@@ -87,7 +87,7 @@ export function useVehicles() {
           vin: vehicleData.vin,
           ownerName: vehicleData.ownerName,
           ownerPhone: vehicleData.ownerPhone,
-          dateBroughtIn: vehicleData.dateBroughtIn,
+          dateBroughtIn: vehicleData.dateBroughtIn || new Date().toISOString().split('T')[0],
           status: vehicleData.status,
           complaints: vehicleData.complaints.map((c: any) => c.description || c) // Flatten if needed
         })
@@ -117,12 +117,12 @@ export function useVehicles() {
     }
   };
 
-  const updateVehicleStatus = async (id: string, status: string) => {
+  const updateVehicleStatus = async (id: string, status: string, lang: string = 'ar') => {
     try {
       await fetch(`${API_URL}/vehicles/${id}/status`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status, lang })
       });
       fetchVehicles();
     } catch (e) {
@@ -211,6 +211,24 @@ export function useVehicles() {
     }
   };
 
+  const addPayment = async (id: string, paymentData: { amount: number; paymentMethod: string; reference?: string }) => {
+    try {
+      const res = await fetch(`${API_URL}/vehicles/${id}/payments`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(paymentData)
+      });
+      if (res.ok) {
+        fetchVehicles();
+        return res;
+      }
+      return null;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  };
+
   const markWhatsappAsSent = async (id: string, type: string) => {
     try {
       const res = await fetch(`${API_URL}/vehicles/${id}/whatsapp-notifications`, {
@@ -266,6 +284,7 @@ export function useVehicles() {
     deleteVehicle,
     createEstimate,
     updateFinalCost,
+    addPayment,
     resendTrackingMessage,
     regenerateTrackingCode,
     resendCompletionMessage,

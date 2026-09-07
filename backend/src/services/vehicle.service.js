@@ -7,16 +7,19 @@ const NotificationService = require('./notification.service');
 const prisma = new PrismaClient();
 
 const generateTrackingCode = () => {
-  const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-  let code = '';
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(crypto.randomInt(0, chars.length));
-  }
-  return `VNT-${code}`;
+  const chars = '0123456789ABCDEF';
+  const genBlock = (len) => {
+    let block = '';
+    for (let i = 0; i < len; i++) {
+      block += chars.charAt(crypto.randomInt(0, chars.length));
+    }
+    return block;
+  };
+  return `VT-${genBlock(4)}-${genBlock(4)}-${genBlock(4)}`;
 };
 
 /**
- * Generate a unique Job Number e.g. VNT-000001
+ * Generate a unique Job Number e.g. VT-000001
  */
 const generateJobNumber = async () => {
   const latestVehicle = await prisma.vehicle.findFirst({
@@ -24,11 +27,13 @@ const generateJobNumber = async () => {
     select: { jobNumber: true }
   });
 
-  if (!latestVehicle) return 'VNT-000001';
+  if (!latestVehicle) return 'VT-000001';
 
-  const lastNum = parseInt(latestVehicle.jobNumber.replace('VNT-', ''), 10);
+  // Replace either VNT- or VT- to support backward compatibility
+  const lastNumStr = latestVehicle.jobNumber.replace('VNT-', '').replace('VT-', '');
+  const lastNum = parseInt(lastNumStr, 10);
   const nextNum = (lastNum + 1).toString().padStart(6, '0');
-  return `VNT-${nextNum}`;
+  return `VT-${nextNum}`;
 };
 
 /**
@@ -201,7 +206,7 @@ const deleteVehicle = async (id) => {
 /**
  * Change status safely with audit trails
  */
-const updateVehicleStatus = async (id, newStatus, userId) => {
+const updateVehicleStatus = async (id, newStatus, userId, lang = 'ar') => {
   const validStatuses = [
     'AWAITING_DIAGNOSIS',
     'IN_PROGRESS',
@@ -220,6 +225,29 @@ const updateVehicleStatus = async (id, newStatus, userId) => {
     throw new ApiError(400, `Vehicle is already in status ${newStatus}`);
   }
 
+  const STATUS_AR = {
+    'AWAITING_DIAGNOSIS': 'بانتظار التشخيص',
+    'IN_PROGRESS': 'قيد الإصلاح',
+    'AWAITING_PARTS': 'بانتظار قطع الغيار',
+    'READY_FOR_PICKUP': 'جاهزة للاستلام',
+    'COMPLETED': 'مكتملة'
+  };
+
+  const STATUS_EN = {
+    'AWAITING_DIAGNOSIS': 'Awaiting Diagnosis',
+    'IN_PROGRESS': 'In Progress',
+    'AWAITING_PARTS': 'Awaiting Parts',
+    'READY_FOR_PICKUP': 'Ready for Pickup',
+    'COMPLETED': 'Completed'
+  };
+
+  const prevStatusLabel = (lang === 'en' ? STATUS_EN : STATUS_AR)[vehicle.status] || vehicle.status;
+  const newStatusLabel = (lang === 'en' ? STATUS_EN : STATUS_AR)[newStatus] || newStatus;
+
+  const logMessage = lang === 'en' 
+    ? `Repair status changed from "${prevStatusLabel}" to "${newStatusLabel}".`
+    : `تم تغيير حالة الإصلاح من "${prevStatusLabel}" إلى "${newStatusLabel}".`;
+
   const updatedVehicle = await prisma.vehicle.update({
     where: { id },
     data: { 
@@ -234,7 +262,7 @@ const updateVehicleStatus = async (id, newStatus, userId) => {
       progressLogs: {
         create: [{
           type: 'STATUS_CHANGE',
-          message: `Status updated from ${vehicle.status.replace(/_/g, ' ')} to ${newStatus.replace(/_/g, ' ')}`,
+          message: logMessage,
           userId
         }]
       }
@@ -352,8 +380,8 @@ const getJobSheet = async (id) => {
 
   return {
     brand: {
-      name: 'VANTARA',
-      slogan: 'The Journey Behind Every Repair.'
+      name: 'AL Mubarmaja / المبرمج',
+      slogan: 'Care Behind Every Repair. / عناية تتواجد مع كل عملية إصلاح.'
     },
     jobDetails: {
       jobNumber: vehicle.jobNumber,
