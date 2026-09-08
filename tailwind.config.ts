@@ -11,35 +11,34 @@ const config: Config = {
       colors: {
         // Core
         background: "#F7F8FA",
-        foreground: "#1F2937",
-        // Primary Gold Accents
-        primary: "#4C7111",
+        foreground: "#111827",
+        // Primary Brand Forest Green
+        primary: "#3D5A0E",
         brand: {
-          deep: "#3D5A0E",
-          dark: "#2F450B",
-          hover: "#3D5A0E",
+          deep: "#2D420A",
+          dark: "#1F2E07",
+          hover: "#2D420A",
         },
         // Text
-        secondary: "#667085",
-        muted: "#8A93A3",
+        secondary: "#374151",
+        muted: "#4B5563",
         // Borders
-        border: "#E2E5E9",
-        "border-soft": "#E9E9E6",
+        border: "#D1D5DB",
+        "border-soft": "#E5E7EB",
         // Surfaces
         surface: {
           50: "#F4F8EF",
           100: "#FFFFFF",
-          200: "#FAFBFC",
+          200: "#F0F4EC",
         },
         // Accents / status
         accent: {
-          green: "#3F7D4A",   // success / ready
-          warning: "#C58A16", // awaiting parts
-          error: "#C94A4A",   // error / danger
-          steel: "#3976A8",   // info
-          // Legacy aliases so existing code doesn't break
-          rust: "#C94A4A",
-          amber: "#C58A16",
+          green: "#2E6838",
+          warning: "#B45309",
+          error: "#B91C1C",
+          steel: "#1D4ED8",
+          rust: "#B91C1C",
+          amber: "#B45309",
         },
       },
       fontFamily: {

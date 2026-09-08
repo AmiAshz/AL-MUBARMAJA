@@ -364,31 +364,31 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 w-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-3 group">
-              <img src="/logo.png" alt={t.title} className="h-[45px] md:h-[56px] w-auto object-contain group-hover:opacity-80 transition-opacity" />
+              <img src="/logo.png" alt={t.title} className="h-[48px] md:h-[58px] w-auto object-contain group-hover:opacity-85 transition-opacity" />
               <div className="hidden lg:flex flex-col">
-                <span className="font-display font-bold text-base text-foreground leading-tight">{t.title}</span>
-                <span className="text-[10px] text-secondary font-medium">{t.subBrand}</span>
+                <span className="font-display font-extrabold text-lg text-foreground leading-tight">{t.title}</span>
+                <span className="text-xs text-secondary font-semibold">{t.subBrand}</span>
               </div>
             </Link>
           </div>
 
           <nav className="hidden md:flex items-center gap-7">
-            <Link href="#hero" className="text-xs font-semibold uppercase tracking-wider text-[#475467] hover:text-[#3D5A0E] transition-colors">{t.home}</Link>
-            <Link href="#services" className="text-xs font-semibold uppercase tracking-wider text-[#475467] hover:text-[#3D5A0E] transition-colors">{t.servicesNav}</Link>
-            <Link href="#track" className="text-xs font-semibold uppercase tracking-wider text-[#475467] hover:text-[#3D5A0E] transition-colors">{t.trackNav}</Link>
-            <Link href="#about" className="text-xs font-semibold uppercase tracking-wider text-[#475467] hover:text-[#3D5A0E] transition-colors">{t.aboutNav}</Link>
-            <Link href="#contact" className="text-xs font-semibold uppercase tracking-wider text-[#475467] hover:text-[#3D5A0E] transition-colors">{t.contactNav}</Link>
+            <Link href="/" className="text-xs font-bold uppercase tracking-wider text-foreground hover:text-primary transition-colors">{t.home}</Link>
+            <Link href="#services" className="text-xs font-bold uppercase tracking-wider text-secondary hover:text-primary transition-colors">{t.servicesNav}</Link>
+            <Link href="/track" className="text-xs font-bold uppercase tracking-wider text-primary hover:text-brand-dark transition-colors">{t.trackNav}</Link>
+            <Link href="#about" className="text-xs font-bold uppercase tracking-wider text-secondary hover:text-primary transition-colors">{t.aboutNav}</Link>
+            <Link href="#contact" className="text-xs font-bold uppercase tracking-wider text-secondary hover:text-primary transition-colors">{t.contactNav}</Link>
           </nav>
 
           {/* CTAs */}
           <div className="hidden md:flex items-center gap-4">
             <button 
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="px-3 py-1.5 border border-[#D0D5DD] bg-white rounded text-xs font-mono text-[#344054] hover:bg-surface-200 transition-colors"
+              className="px-3.5 py-1.5 border-2 border-border bg-white rounded-lg text-xs font-bold font-mono text-foreground hover:bg-surface-50 transition-colors shadow-sm"
             >
               {t.langToggle}
             </button>
-            <Link href="/login" className="px-4 py-2 bg-primary text-white font-bold text-xs rounded hover:bg-brand-hover transition-colors shadow-sm">
+            <Link href="/login" className="px-5 py-2.5 bg-primary text-white font-bold text-xs rounded-lg hover:bg-brand-hover transition-colors shadow-md">
               {t.employeeLogin}
             </Link>
           </div>
@@ -397,12 +397,12 @@ export default function Home() {
           <div className="flex md:hidden items-center gap-3">
             <button 
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="px-2.5 py-1 border border-[#D0D5DD] bg-white rounded text-xs font-mono text-[#344054] hover:bg-surface-200 transition-colors"
+              className="px-2.5 py-1 border border-border bg-white rounded text-xs font-bold font-mono text-foreground hover:bg-surface-50 transition-colors"
             >
               {t.langToggle}
             </button>
             <button className="text-foreground hover:text-primary p-1" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
@@ -414,16 +414,16 @@ export default function Home() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white border-b border-border overflow-hidden absolute top-[85px] w-full shadow-lg"
+              className="md:hidden bg-white border-b border-border overflow-hidden absolute top-[85px] w-full shadow-xl"
             >
               <div className="px-6 py-6 flex flex-col gap-4">
-                <Link href="#hero" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-secondary hover:text-primary">{t.home}</Link>
-                <Link href="#services" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-secondary hover:text-primary">{t.servicesNav}</Link>
-                <Link href="#track" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-secondary hover:text-primary">{t.trackNav}</Link>
-                <Link href="#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-secondary hover:text-primary">{t.aboutNav}</Link>
-                <Link href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-secondary hover:text-primary">{t.contactNav}</Link>
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-foreground hover:text-primary">{t.home}</Link>
+                <Link href="#services" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary">{t.servicesNav}</Link>
+                <Link href="/track" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-primary hover:text-brand-dark">{t.trackNav}</Link>
+                <Link href="#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary">{t.aboutNav}</Link>
+                <Link href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary">{t.contactNav}</Link>
                 <div className="h-px bg-border my-1" />
-                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2.5 bg-primary text-white font-bold text-center text-xs rounded hover:bg-brand-hover transition-colors shadow-sm">
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 bg-primary text-white font-bold text-center text-xs rounded-lg hover:bg-brand-hover transition-colors shadow-md">
                   {t.employeeLogin}
                 </Link>
               </div>
@@ -435,33 +435,33 @@ export default function Home() {
       {/* 3. HOME PAGE - HERO */}
       <section id="hero" className="relative min-h-[85vh] flex items-center justify-center pt-36 pb-20 overflow-hidden bg-background">
         <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-center">
-          <div className="w-[800px] h-[800px] rounded-full border border-[#4C7111]/8 absolute" />
-          <div className="w-[500px] h-[500px] rounded-full border border-[#4C7111]/[0.025] absolute blur-[1px]" />
+          <div className="w-[800px] h-[800px] rounded-full border border-primary/10 absolute" />
+          <div className="w-[500px] h-[500px] rounded-full border border-primary/5 absolute blur-[1px]" />
         </div>
 
         <div className="max-w-5xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">
-          <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible" className="mb-6 flex items-center gap-3 bg-surface-100 border border-border px-4 py-1.5 rounded-full shadow-sm">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs font-semibold tracking-wider text-secondary uppercase">{t.subBrand}</span>
+          <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible" className="mb-6 flex items-center gap-3 bg-white border border-border px-5 py-2 rounded-full shadow-sm">
+            <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs font-bold tracking-wider text-primary uppercase">{t.subBrand}</span>
           </motion.div>
 
-          <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="visible" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-5 leading-[1.25] text-foreground max-w-4xl">
+          <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="visible" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-5 leading-[1.25] text-foreground max-w-4xl">
             {t.heroHeading}
           </motion.h1>
 
-          <motion.h2 custom={1.5} variants={fadeUp} initial="hidden" animate="visible" className="text-base sm:text-lg md:text-xl text-[#3D5A0E] font-medium tracking-wide mb-6 max-w-3xl leading-relaxed">
+          <motion.p custom={1.5} variants={fadeUp} initial="hidden" animate="visible" className="text-base sm:text-lg md:text-xl text-secondary font-medium tracking-normal mb-6 max-w-3xl leading-relaxed">
             {t.heroSubheading}
-          </motion.h2>
+          </motion.p>
 
-          <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="flex items-center gap-2 mb-10 text-xs md:text-sm font-semibold text-secondary italic">
+          <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="flex items-center gap-2 mb-10 text-sm md:text-base font-bold text-primary italic bg-surface-50 border border-border px-5 py-2 rounded-xl shadow-xs">
             <span>"{t.tagline}"</span>
           </motion.div>
 
           <motion.div custom={2.5} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-            <Link href="#services" className="px-8 py-3.5 bg-primary text-white font-bold rounded-lg hover:bg-brand-hover transition-all w-full sm:w-auto shadow-md text-center text-xs uppercase tracking-wider">
+            <Link href="#services" className="px-8 py-4 bg-primary text-white font-bold rounded-xl hover:bg-brand-hover transition-all w-full sm:w-auto shadow-md text-center text-xs uppercase tracking-wider">
               {t.servicesBtn}
             </Link>
-            <Link href="#track" className="px-8 py-3.5 bg-white border border-primary text-foreground font-semibold rounded-lg hover:bg-surface-50 transition-colors w-full sm:w-auto text-center text-xs uppercase tracking-wider shadow-sm">
+            <Link href="/track" className="px-8 py-4 bg-white border-2 border-primary text-foreground font-bold rounded-xl hover:bg-surface-50 transition-colors w-full sm:w-auto text-center text-xs uppercase tracking-wider shadow-sm">
               {t.trackBtn}
             </Link>
           </motion.div>
@@ -471,11 +471,11 @@ export default function Home() {
       {/* ABOUT THE WORKSHOP (Section 3) */}
       <section className="py-20 bg-surface-50 border-t border-border">
         <div className="max-w-5xl mx-auto px-6 text-center">
-          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">
             {t.aboutWorkshopTitle}
           </motion.h2>
-          <div className="w-16 h-1 bg-primary mx-auto mb-6" />
-          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="text-sm md:text-base text-secondary leading-relaxed max-w-3xl mx-auto">
+          <div className="w-16 h-1.5 bg-primary mx-auto mb-6 rounded-full" />
+          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="text-base md:text-lg text-secondary font-medium leading-relaxed max-w-3xl mx-auto">
             {t.aboutWorkshopDesc}
           </motion.p>
         </div>
@@ -484,32 +484,32 @@ export default function Home() {
       {/* 4. OUR SERVICES */}
       <section id="services" className="py-24 max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-2xl md:text-3xl font-bold uppercase mb-3 text-foreground">
+          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-2xl md:text-3xl font-extrabold uppercase mb-3 text-foreground">
             {t.servicesTitle}
           </motion.h2>
-          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="text-xs md:text-sm text-secondary max-w-xl mx-auto">
+          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="text-sm md:text-base text-secondary font-medium max-w-xl mx-auto">
             {t.servicesSubtitle}
           </motion.p>
-          <div className="w-16 h-1 bg-primary mx-auto mt-4" />
+          <div className="w-16 h-1.5 bg-primary mx-auto mt-4 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {servicesList.map((svc, i) => {
             const Icon = svc.icon;
             return (
               <motion.div 
                 key={i}
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.5}
-                className="p-8 border border-border bg-white rounded-2xl hover:border-primary/50 transition-all group flex flex-col justify-between shadow-[0_4px_18px_rgba(30,37,43,0.05)] hover:shadow-md"
+                className="p-8 border-2 border-border bg-white rounded-2xl hover:border-primary transition-all group flex flex-col justify-between shadow-sm hover:shadow-lg"
               >
                 <div>
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-surface-50 text-primary border border-border group-hover:bg-primary group-hover:text-white transition-colors">
-                    <Icon size={22} />
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 bg-surface-50 text-primary border border-border group-hover:bg-primary group-hover:text-white transition-colors">
+                    <Icon size={26} />
                   </div>
-                  <h3 className="text-base md:text-lg font-bold mb-3 text-foreground">
+                  <h3 className="text-lg md:text-xl font-bold mb-3 text-foreground">
                     {lang === 'ar' ? svc.nameAr : svc.nameEn}
                   </h3>
-                  <p className="text-xs md:text-sm text-secondary leading-relaxed">
+                  <p className="text-sm text-secondary font-medium leading-relaxed">
                     {lang === 'ar' ? svc.descAr : svc.descEn}
                   </p>
                 </div>
@@ -523,22 +523,22 @@ export default function Home() {
       <section id="why-choose-us" className="py-24 bg-surface-50 border-t border-border">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{t.whyTitle}</h2>
-            <div className="w-16 h-1 bg-primary mx-auto" />
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-3">{t.whyTitle}</h2>
+            <div className="w-16 h-1.5 bg-primary mx-auto rounded-full" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {whyChooseUsList.map((item, idx) => (
-              <div key={idx} className="p-6 bg-white border border-border rounded-xl shadow-sm hover:border-primary/40 transition-all">
+              <div key={idx} className="p-6 bg-white border border-border rounded-xl shadow-sm hover:border-primary transition-all">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                    <CheckCircle size={18} />
+                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <CheckCircle size={20} />
                   </div>
-                  <h3 className="text-sm md:text-base font-bold text-foreground">
+                  <h3 className="text-base font-bold text-foreground">
                     {lang === 'ar' ? item.titleAr : item.titleEn}
                   </h3>
                 </div>
-                <p className="text-xs md:text-sm text-secondary leading-relaxed">
+                <p className="text-sm text-secondary font-medium leading-relaxed">
                   {lang === 'ar' ? item.descAr : item.descEn}
                 </p>
               </div>
@@ -550,23 +550,23 @@ export default function Home() {
       {/* 6. HOW IT WORKS */}
       <section id="how-it-works" className="py-24 max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{t.howItWorksTitle}</h2>
-          <div className="w-16 h-1 bg-primary mx-auto mt-3" />
+          <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-3">{t.howItWorksTitle}</h2>
+          <div className="w-16 h-1.5 bg-primary mx-auto mt-3 rounded-full" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {howItWorksSteps.map((step, idx) => (
-            <div key={idx} className="relative p-6 bg-white border border-border rounded-2xl shadow-sm flex flex-col group hover:border-primary/40 transition-all">
+            <div key={idx} className="relative p-6 bg-white border border-border rounded-2xl shadow-sm flex flex-col group hover:border-primary transition-all">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-2xl font-mono font-bold text-primary">{step.num}</span>
-                <span className="w-8 h-8 rounded-full bg-surface-50 border border-border flex items-center justify-center text-secondary text-xs font-mono">
+                <span className="text-2xl font-mono font-extrabold text-primary">{step.num}</span>
+                <span className="w-8 h-8 rounded-full bg-surface-50 border border-border flex items-center justify-center text-foreground text-xs font-mono font-bold">
                   0{idx + 1}
                 </span>
               </div>
               <h3 className="text-base font-bold text-foreground mb-2">
                 {lang === 'ar' ? step.titleAr : step.titleEn}
               </h3>
-              <p className="text-xs md:text-sm text-secondary leading-relaxed">
+              <p className="text-sm text-secondary font-medium leading-relaxed">
                 {lang === 'ar' ? step.descAr : step.descEn}
               </p>
             </div>
@@ -577,17 +577,17 @@ export default function Home() {
       {/* 7. TRACK YOUR VEHICLE (CTA TO DEDICATED PAGE) */}
       <section id="track" className="py-24 bg-surface-50 border-t border-border">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-white border border-border rounded-2xl p-8 md:p-12 shadow-xl text-center">
+          <div className="bg-white border-2 border-border rounded-2xl p-8 md:p-12 shadow-xl text-center">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
-              <Key size={30} />
+              <Key size={32} />
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">{t.trackSecTitle}</h2>
-            <p className="text-sm md:text-base text-secondary max-w-2xl mx-auto leading-relaxed mb-8">{t.trackSecDesc}</p>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">{t.trackSecTitle}</h2>
+            <p className="text-base text-secondary font-medium max-w-2xl mx-auto leading-relaxed mb-8">{t.trackSecDesc}</p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto mb-8">
               <Link 
                 href="/track"
-                className="w-full sm:w-auto px-8 py-4 bg-primary text-white font-bold rounded-xl hover:bg-brand-hover transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider shadow-md"
+                className="w-full sm:w-auto px-10 py-4 bg-primary text-white font-bold rounded-xl hover:bg-brand-hover transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider shadow-md"
               >
                 <span>{t.trackVehicleAction}</span>
                 <ArrowRight size={18} className={lang === 'ar' ? 'rotate-180' : ''} />
@@ -595,8 +595,8 @@ export default function Home() {
             </div>
 
             <div className="pt-6 border-t border-border flex items-center justify-center gap-3 bg-surface-50 p-4 rounded-xl max-w-xl mx-auto">
-              <ShieldCheck size={20} className="text-primary shrink-0" />
-              <div className="text-xs leading-relaxed text-secondary text-start">
+              <ShieldCheck size={22} className="text-primary shrink-0" />
+              <div className="text-xs leading-relaxed text-secondary text-start font-medium">
                 <span className="font-bold text-foreground">{t.privacyNoticeTitle}: </span>
                 {t.privacyNotice}
               </div>
@@ -609,29 +609,29 @@ export default function Home() {
       <section id="about" className="py-24 max-w-7xl mx-auto px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{t.aboutUsTitle}</h2>
-            <div className="w-16 h-1 bg-primary mx-auto" />
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-3">{t.aboutUsTitle}</h2>
+            <div className="w-16 h-1.5 bg-primary mx-auto rounded-full" />
           </div>
 
           <div className="bg-white border border-border rounded-2xl p-8 md:p-12 shadow-sm space-y-8">
-            <p className="text-base md:text-lg text-foreground leading-relaxed font-medium">
+            <p className="text-base md:text-lg text-foreground leading-relaxed font-bold">
               {t.aboutUsDesc1}
             </p>
 
             <div className="p-6 bg-surface-50 border-r-4 md:border-r-4 border-primary rounded-xl space-y-2">
-              <h3 className="text-sm font-bold text-primary uppercase tracking-wider">{t.approachTitle}</h3>
-              <p className="text-base md:text-xl font-bold text-foreground italic">
+              <h3 className="text-sm font-extrabold text-primary uppercase tracking-wider">{t.approachTitle}</h3>
+              <p className="text-lg md:text-xl font-extrabold text-foreground italic">
                 {t.approachMotto}
               </p>
             </div>
 
-            <p className="text-sm md:text-base text-secondary leading-relaxed">
+            <p className="text-base text-secondary font-medium leading-relaxed">
               {t.aboutUsDesc2}
             </p>
 
             <div className="pt-6 border-t border-border">
-              <h3 className="text-base font-bold text-foreground mb-2">{t.ourGoalTitle}</h3>
-              <p className="text-sm md:text-base text-secondary leading-relaxed">
+              <h3 className="text-lg font-bold text-foreground mb-2">{t.ourGoalTitle}</h3>
+              <p className="text-base text-secondary font-medium leading-relaxed">
                 {t.ourGoalDesc}
               </p>
             </div>
@@ -643,9 +643,9 @@ export default function Home() {
       <section id="contact" className="py-24 bg-surface-50 border-t border-border">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{t.contactTitle}</h2>
-            <p className="text-xs md:text-sm text-secondary max-w-xl mx-auto leading-relaxed">{t.contactSubtitle}</p>
-            <div className="w-16 h-1 bg-primary mx-auto mt-4" />
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-3">{t.contactTitle}</h2>
+            <p className="text-sm md:text-base text-secondary font-medium max-w-xl mx-auto leading-relaxed">{t.contactSubtitle}</p>
+            <div className="w-16 h-1.5 bg-primary mx-auto mt-4 rounded-full" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -653,30 +653,30 @@ export default function Home() {
             {/* Contact Details Card */}
             <div className="bg-white border border-border rounded-2xl p-8 shadow-sm space-y-6">
               <div className="flex items-start gap-4 p-4 bg-surface-50 border border-border rounded-xl">
-                <MapPin className="text-primary shrink-0 mt-1" size={22} />
+                <MapPin className="text-primary shrink-0 mt-1" size={24} />
                 <div>
-                  <div className="text-xs font-semibold text-secondary">{t.locationLabel}</div>
+                  <div className="text-xs font-bold text-primary uppercase tracking-wider">{t.locationLabel}</div>
                   <div className="text-sm font-bold text-foreground mt-0.5">{t.locationVal}</div>
                 </div>
               </div>
 
               <div className="flex items-start gap-4 p-4 bg-surface-50 border border-border rounded-xl">
-                <Phone className="text-primary shrink-0 mt-1" size={22} />
+                <Phone className="text-primary shrink-0 mt-1" size={24} />
                 <div>
-                  <div className="text-xs font-semibold text-secondary">{t.phoneLabel}</div>
-                  <div className="text-sm font-bold text-foreground mt-0.5 phone-number">{t.phoneVal}</div>
+                  <div className="text-xs font-bold text-primary uppercase tracking-wider">{t.phoneLabel}</div>
+                  <div className="text-sm font-extrabold text-foreground mt-0.5 phone-number">{t.phoneVal}</div>
                 </div>
               </div>
 
               <div className="flex items-start gap-4 p-4 bg-surface-50 border border-border rounded-xl">
-                <Clock className="text-primary shrink-0 mt-1" size={22} />
+                <Clock className="text-primary shrink-0 mt-1" size={24} />
                 <div className="space-y-1">
-                  <div className="text-xs font-semibold text-secondary">{t.workingHoursLabel}</div>
+                  <div className="text-xs font-bold text-primary uppercase tracking-wider">{t.workingHoursLabel}</div>
                   <div className="text-sm font-bold text-foreground">
-                    {t.workingDaysVal}: <span className="font-normal text-secondary">{t.workingTimeVal}</span>
+                    {t.workingDaysVal}: <span className="font-semibold text-secondary">{t.workingTimeVal}</span>
                   </div>
                   <div className="text-xs font-bold text-accent-rust">
-                    {t.fridayLabel}: <span className="font-normal">{t.fridayVal}</span>
+                    {t.fridayLabel}: <span className="font-semibold">{t.fridayVal}</span>
                   </div>
                 </div>
               </div>
@@ -693,7 +693,7 @@ export default function Home() {
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white border border-primary text-foreground font-semibold text-xs uppercase tracking-wider rounded-lg hover:bg-surface-50 transition-colors shadow-sm text-center"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white border-2 border-primary text-foreground font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-surface-50 transition-colors shadow-sm text-center"
                 >
                   <Compass size={16} />
                   {t.getDirectionsBtn}
@@ -703,21 +703,21 @@ export default function Home() {
 
             {/* Map Placeholder Card */}
             <div className="relative w-full h-[400px] border border-border bg-white rounded-2xl overflow-hidden shadow-sm flex items-center justify-center p-8 text-center">
-              <div className="absolute inset-0 bg-[radial-gradient(rgba(75,120,8,0.05)_1px,transparent_1px)] bg-[size:20px_20px]" />
+              <div className="absolute inset-0 bg-[radial-gradient(rgba(61,90,14,0.06)_1px,transparent_1px)] bg-[size:20px_20px]" />
               
               <div className="relative z-10 flex flex-col items-center">
                 <MapPin className="text-primary animate-bounce mb-4" size={48} />
-                <h4 className="text-xl font-bold text-foreground mb-2">{t.workshopVal}</h4>
-                <p className="text-xs text-secondary max-w-xs mb-6 leading-relaxed">
+                <h4 className="text-xl font-extrabold text-foreground mb-2">{t.workshopVal}</h4>
+                <p className="text-sm text-secondary font-medium max-w-xs mb-6 leading-relaxed">
                   {t.locationVal}
                 </p>
                 <a 
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shadow-md"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shadow-md"
                 >
-                  <Compass size={14} />
+                  <Compass size={16} />
                   {t.getDirectionsBtn}
                 </a>
               </div>
@@ -734,18 +734,18 @@ export default function Home() {
             
             {/* Col 1: Brand */}
             <div className="space-y-3">
-              <span className="font-display text-2xl font-bold text-foreground block">{t.title}</span>
-              <p className="text-xs text-secondary leading-relaxed">{t.subBrand}</p>
-              <p className="text-xs text-primary font-medium italic">{t.tagline}</p>
+              <span className="font-display text-2xl font-extrabold text-foreground block">{t.title}</span>
+              <p className="text-sm text-secondary font-medium leading-relaxed">{t.subBrand}</p>
+              <p className="text-xs text-primary font-bold italic">{t.tagline}</p>
             </div>
 
             {/* Col 2: Quick links */}
             <div className="space-y-3">
               <h4 className="text-xs font-bold font-mono uppercase tracking-wider text-foreground">{t.quickLinksTitle}</h4>
-              <ul className="space-y-2 text-xs">
-                <li><Link href="#hero" className="text-secondary hover:text-primary transition-colors">{t.home}</Link></li>
+              <ul className="space-y-2 text-xs font-semibold">
+                <li><Link href="/" className="text-secondary hover:text-primary transition-colors">{t.home}</Link></li>
                 <li><Link href="#services" className="text-secondary hover:text-primary transition-colors">{t.servicesNav}</Link></li>
-                <li><Link href="/track" className="text-secondary hover:text-primary transition-colors">{t.trackNav}</Link></li>
+                <li><Link href="/track" className="text-primary hover:text-brand-dark transition-colors">{t.trackNav}</Link></li>
                 <li><Link href="#about" className="text-secondary hover:text-primary transition-colors">{t.aboutNav}</Link></li>
                 <li><Link href="#contact" className="text-secondary hover:text-primary transition-colors">{t.contactNav}</Link></li>
               </ul>
@@ -754,20 +754,20 @@ export default function Home() {
             {/* Col 3: Contact & Hours */}
             <div className="space-y-3 text-xs">
               <h4 className="text-xs font-bold font-mono uppercase tracking-wider text-foreground">{t.contactNav}</h4>
-              <p className="text-secondary">{t.locationVal}</p>
-              <p className="text-foreground font-mono font-bold phone-number">{t.phoneVal}</p>
-              <div className="pt-2 border-t border-border space-y-1 text-secondary">
-                <div>{t.workingDaysVal}: <span className="font-semibold text-foreground">{t.workingTimeVal}</span></div>
-                <div>{t.fridayLabel}: <span className="font-semibold text-accent-rust">{t.fridayVal}</span></div>
+              <p className="text-secondary font-medium">{t.locationVal}</p>
+              <p className="text-foreground font-mono font-extrabold text-sm phone-number">{t.phoneVal}</p>
+              <div className="pt-2 border-t border-border space-y-1 text-secondary font-medium">
+                <div>{t.workingDaysVal}: <span className="font-bold text-foreground">{t.workingTimeVal}</span></div>
+                <div>{t.fridayLabel}: <span className="font-bold text-accent-rust">{t.fridayVal}</span></div>
               </div>
             </div>
 
           </div>
 
-          <div className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
+          <div className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted font-medium">
             <div>{t.copyright}</div>
             <div>
-              <Link href="/login" className="hover:text-primary transition-colors">{t.employeeLogin}</Link>
+              <Link href="/login" className="font-bold text-primary hover:underline transition-all">{t.employeeLogin}</Link>
             </div>
           </div>
         </div>
