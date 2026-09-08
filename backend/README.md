@@ -1,11 +1,11 @@
-# VANTARA Backend API
+# AL Mubarmaja Backend API
 
-Welcome to the VANTARA Backend system, a robust Express.js & Prisma powered engine managing the entire vehicle repair lifecycle. 
+Welcome to the AL Mubarmaja Backend system, a robust Express.js & Prisma powered engine managing the entire vehicle repair lifecycle. 
 
-## The Vantara Workflow
+## The AL Mubarmaja Workflow
 
 ```text
-                    VANTARA
+                  AL MUBARMAJA
                        │
                 VEHICLE ARRIVES
                        │

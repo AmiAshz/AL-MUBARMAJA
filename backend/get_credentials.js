@@ -3,10 +3,10 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('\n--- VANTARA TEST CREDENTIALS ---\n');
+  console.log('\n--- AL MUBARMAJA TEST CREDENTIALS ---\n');
 
   // 1. Create or Find an Admin User
-  const email = 'admin@vantara.com';
+  const email = 'admin@almubarmaja.com';
   let user = await prisma.user.findUnique({ where: { email } });
   
   if (!user) {

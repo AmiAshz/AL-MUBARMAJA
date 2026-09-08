@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const generateToken = (id, role) => {
   return jwt.sign(
     { id, role },
-    process.env.JWT_SECRET || 'vantara_super_secret_jwt_key_2026',
+    process.env.JWT_SECRET || 'al_mubarmaja_super_secret_jwt_key_2026',
     { expiresIn: '30d' }
   );
 };

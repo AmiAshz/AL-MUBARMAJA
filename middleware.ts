@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
 
   // Assuming the auth token is stored in a cookie named 'token'
   // In a real production app we'd verify the JWT properly using 'jose' or iron-session
-  // For VANTARA MVP we just check if the cookie exists as a basic frontend gate
+  // For AL Mubarmaja we just check if the token exists as a basic frontend gate
   // The backend API routes have robust protection.
   const token = request.cookies.get('token')?.value;
 

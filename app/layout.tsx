@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
-import { Inter, Oswald } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
-const oswald = Oswald({ subsets: ["latin"], variable: '--font-oswald' });
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-montserrat",
+});
 
 export const metadata: Metadata = {
-  title: "Vantara | The Journey Behind Every Repair",
-  description: "Vantara is a modern digital platform for vehicle workshops to manage every vehicle that enters the workshop.",
+  title: "المبرمج | صيانة وتشخيص وإصلاح المركبات باحترافية",
+  description:
+    "المبرمج — صيانة وتشخيص وإصلاح المركبات باحترافية. عناية تتواجد مع كل عملية إصلاح.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -16,8 +24,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${oswald.variable} scroll-smooth`}>
-      <body className="bg-background text-foreground font-sans selection:bg-primary/30 selection:text-primary overflow-x-hidden">
+    <html
+      lang="ar"
+      dir="rtl"
+      className={`${montserrat.variable} bg-background scroll-smooth`}
+      suppressHydrationWarning
+    >
+      <body className="bg-background text-foreground font-sans selection:bg-primary/30 selection:text-white overflow-x-hidden">
         {children}
       </body>
     </html>

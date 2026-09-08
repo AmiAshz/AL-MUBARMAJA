@@ -1,5 +1,5 @@
 {
-  "name": "vantara-app",
+  "name": "al-mubarmaja",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,9 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "build:worker": "opennextjs-cloudflare build",
-    "preview": "opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare deploy"
+    "build:worker": "opennextjs-cloudflare",
+    "preview": "opennextjs-cloudflare && wrangler dev",
+    "deploy": "opennextjs-cloudflare && wrangler deploy"
   },
   "dependencies": {
     "clsx": "^2.1.1",

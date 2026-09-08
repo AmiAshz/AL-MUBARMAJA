@@ -151,6 +151,7 @@ model Vehicle {
   payments              Payment[]
   notifications         Notification[]
   whatsappNotifications WhatsappNotification[]
+  emailLogs             EmailLog[]
 }
 
 model Complaint {
@@ -337,24 +338,6 @@ model Notification {
 
 // -----------------------------------------------------------------------------
 // EMAIL VERIFICATION, PASSWORD RESET & LOGGING
-// -----------------------------------------------------------------------------
-
-enum EmailLogType {
-  VERIFICATION
-  PASSWORD_RESET
-  WELCOME
-  INVITATION
-}
-
-enum EmailLogStatus {
-  PENDING
-  SENT
-  DELIVERED
-  BOUNCED
-  COMPLAINED
-  FAILED
-}
-
 model VerificationToken {
   id        String   @id @default(uuid())
   tokenHash String   @unique
@@ -382,21 +365,25 @@ model PasswordResetToken {
 }
 
 model EmailLog {
-  id                String         @id @default(uuid())
-  userId            String?        @map("user_id")
-  recipient         String
-  type              EmailLogType
-  provider          String
-  providerMessageId String?        @map("provider_message_id")
-  status            EmailLogStatus
-  sentAt            DateTime?      @map("sent_at")
-  failureReason     String?        @map("failure_reason")
-  createdAt         DateTime       @default(now()) @map("created_at")
+  id              String   @id @default(uuid())
+  vehicleId       String?  @map("vehicle_id")
+  customerId      String?  @map("customer_id")
+  recipientEmail  String   @map("recipient_email")
+  emailType       String   @map("email_type") // e.g. EMAIL_VERIFICATION
+  subject         String
+  language        String   @default("ar")
+  status          String   // SENT, FAILED
+  resendEmailId   String?  @map("resend_email_id")
+  sentById        String?  @map("sent_by")
+  sentAt          DateTime? @map("sent_at")
+  errorMessage    String?  @map("error_message")
+  createdAt       DateTime @default(now()) @map("created_at")
 
-  user              User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  vehicle         Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  sentBy          User?    @relation(fields: [sentById], references: [id], onDelete: SetNull)
 
-  @@index([userId])
-  @@index([recipient])
+  @@index([vehicleId])
+  @@index([recipientEmail])
 }
 
 // -----------------------------------------------------------------------------
@@ -437,4 +424,33 @@ model WhatsappNotification {
 
   @@index([vehicleId])
   @@index([recipientPhone])
+}
+
+// -----------------------------------------------------------------------------
+// WORKSHOP CUSTOM SERVICES & DYNAMIC SETTINGS
+// -----------------------------------------------------------------------------
+
+model Service {
+  id            String   @id @default(uuid())
+  nameAr        String   @map("name_ar")
+  nameEn        String   @map("name_en")
+  descriptionAr String   @db.Text @map("description_ar")
+  descriptionEn String   @db.Text @map("description_en")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+}
+
+model WorkshopSettings {
+  id             String   @id @default(uuid())
+  nameAr         String   @default("ورشة المبرمج") @map("name_ar")
+  nameEn         String   @default("Al Mبرمج Workshop") @map("name_en")
+  phone          String   @default("")
+  email          String   @default("")
+  addressAr      String   @default("المملكة العربية السعودية") @map("address_ar")
+  addressEn      String   @default("Saudi Arabia") @map("address_en")
+  googleMapsUrl  String   @default("https://maps.google.com/?q=18.2410405,42.5722994") @map("google_maps_url")
+  latitude       Float    @default(18.2410405)
+  longitude      Float    @default(42.5722994)
+  updatedAt      DateTime @updatedAt @map("updated_at")
 }

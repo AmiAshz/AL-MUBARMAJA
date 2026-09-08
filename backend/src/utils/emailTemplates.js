@@ -1,65 +1,64 @@
-const baseTemplate = (contentHtml) => `
+const baseTemplate = (contentHtml, language = 'en') => {
+  const isRtl = language === 'ar';
+  const dir = isRtl ? 'rtl' : 'ltr';
+  const langAttr = isRtl ? 'ar' : 'en';
+
+  return `
 <!DOCTYPE html>
-<html>
+<html lang="${langAttr}" dir="${dir}">
 <head>
   <meta charset="utf-8">
-  <title>VANTARA</title>
+  <title>${isRtl ? 'المبرمج' : 'AL Mubarmaja'}</title>
   <style>
     body {
-      background-color: #0C0C0C;
-      color: #F5F5F0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #F4F8EF;
+      color: #1a1a1a;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
       -webkit-font-smoothing: antialiased;
+      direction: ${dir};
+      text-align: ${isRtl ? 'right' : 'left'};
     }
     .wrapper {
-      background-color: #0C0C0C;
+      background-color: #F4F8EF;
       padding: 40px 20px;
     }
     .container {
-      background-color: #121212;
-      border: 1px solid #222222;
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 12px;
-      max-width: 580px;
+      max-width: 600px;
       margin: 0 auto;
       padding: 40px 30px;
-      text-align: left;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
-    .logo-container {
+    .header {
       text-align: center;
       margin-bottom: 30px;
+      border-bottom: 2px solid #3D5A0E;
+      padding-bottom: 20px;
     }
     .logo {
-      display: inline-block;
-      background-color: #1A1A1A;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #D4AF37;
-      font-size: 24px;
-      font-weight: bold;
-      letter-spacing: 4px;
-      padding: 8px 16px;
-      text-transform: uppercase;
+      color: #3D5A0E;
+      font-size: 26px;
+      font-weight: 800;
       text-decoration: none;
-      border-radius: 4px;
     }
     .tagline {
-      color: #8A8A93;
+      color: #64748b;
       font-size: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-top: 10px;
-      text-align: center;
+      margin-top: 4px;
     }
     .content {
-      color: #F5F5F0;
       font-size: 15px;
       line-height: 1.6;
+      color: #333333;
     }
     h1 {
-      color: #F5F5F0;
+      color: #1a1a1a;
       font-size: 20px;
-      font-weight: 600;
+      font-weight: 700;
       margin-top: 0;
       margin-bottom: 20px;
     }
@@ -67,126 +66,262 @@ const baseTemplate = (contentHtml) => `
       margin-top: 0;
       margin-bottom: 16px;
     }
+    .details-box {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .details-row {
+      margin-bottom: 10px;
+    }
+    .details-label {
+      font-weight: 600;
+      color: #64748b;
+      font-size: 14px;
+    }
+    .details-value {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .tracking-code {
+      display: inline-block;
+      background-color: #e2e8f0;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #3D5A0E;
+      margin-top: 5px;
+      direction: ltr !important;
+    }
+    .ltr-text {
+      direction: ltr !important;
+      display: inline-block;
+    }
     .cta-container {
       text-align: center;
       margin: 30px 0;
     }
     .btn {
-      background-color: #D4AF37;
-      border: none;
-      color: #0C0C0C !important;
+      background-color: #3D5A0E;
+      color: #ffffff !important;
       display: inline-block;
       font-size: 14px;
       font-weight: bold;
-      letter-spacing: 1px;
-      padding: 12px 24px;
+      padding: 12px 28px;
       text-decoration: none;
-      text-transform: uppercase;
       border-radius: 6px;
-      transition: background-color 0.2s ease;
-    }
-    .btn:hover {
-      background-color: #e5be3c;
     }
     .footer {
-      color: #8A8A93;
+      color: #64748b;
       font-size: 12px;
-      margin-top: 40px;
-      border-top: 1px solid #222222;
+      margin-top: 35px;
+      border-top: 1px solid #e2e8f0;
       padding-top: 20px;
       text-align: center;
       line-height: 1.5;
     }
     .footer-brand {
-      color: #D4AF37;
+      color: #3D5A0E;
       font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 5px;
-    }
-    .expiry {
-      color: #8A8A93;
-      font-size: 13px;
-      font-style: italic;
-      margin-top: 20px;
+      margin-bottom: 4px;
     }
   </style>
 </head>
 <body>
   <div class="wrapper">
     <div class="container">
-      <div class="logo-container">
-        <span class="logo">Vantara</span>
-        <div class="tagline">The Journey Behind Every Repair.</div>
+      <div class="header">
+        <div class="logo">${isRtl ? 'المبرمج' : 'AL Mubarmaja'}</div>
+        <div class="tagline">${isRtl ? 'عناية تتواجد مع كل عملية إصلاح.' : 'Care Behind Every Repair.'}</div>
       </div>
       <div class="content">
         ${contentHtml}
       </div>
       <div class="footer">
-        <div class="footer-brand">Vantara</div>
-        <div>The Journey Behind Every Repair.</div>
-        <div style="margin-top: 10px; font-size: 10px;">&copy; 2026 VANTARA. All rights reserved.</div>
+        <div class="footer-brand">${isRtl ? 'المبرمج' : 'AL Mubarmaja'}</div>
+        <div>${isRtl ? 'صيانة وتشخيص وإصلاح المركبات باحترافية' : 'Professional Vehicle Maintenance, Diagnosis & Repair'}</div>
+        <div style="margin-top: 8px; font-size: 11px;">${isRtl ? '©️ 2026 المبرمج. جميع الحقوق محفوظة.' : '©️ 2026 AL Mubarmaja. All rights reserved.'}</div>
       </div>
     </div>
   </div>
 </body>
 </html>
-`;
+  `;
+};
 
-const verificationEmail = (name, url, expiresMinutes) => baseTemplate(`
-  <h1>Verify your VANTARA account</h1>
-  <p>Hello ${name},</p>
-  <p>Welcome to VANTARA.</p>
-  <p>Please verify your email address to activate your workshop account.</p>
-  <div class="cta-container">
-    <a href="${url}" class="btn" target="_blank">Verify Email</a>
-  </div>
-  <p class="expiry">This verification link expires after ${expiresMinutes} minutes.</p>
-  <p style="font-size: 13px; color: #8A8A93; margin-top: 20px;">If you did not create this account, you can safely ignore this email.</p>
-`);
+// -----------------------------------------------------------------------------
+// 13. AUTHENTICATION & VERIFICATION EMAILS
+// -----------------------------------------------------------------------------
 
-const passwordResetEmail = (name, url, expiresMinutes) => baseTemplate(`
-  <h1>Reset your VANTARA password</h1>
-  <p>Hello ${name},</p>
-  <p>We received a request to reset the password for your VANTARA workshop account.</p>
-  <p>Please click the button below to set a new password:</p>
-  <div class="cta-container">
-    <a href="${url}" class="btn" target="_blank">Reset Password</a>
-  </div>
-  <p class="expiry">This password reset link expires after ${expiresMinutes} minutes.</p>
-  <p style="font-size: 13px; color: #8A8A93; margin-top: 20px;">If you did not request a password reset, you can safely ignore this email.</p>
-`);
+const verificationEmail = (name, url, language = 'en') => {
+  const isRtl = language === 'ar';
+  return baseTemplate(`
+    <h1>${isRtl ? 'تأكيد البريد الإلكتروني' : 'Verify Your Email'}</h1>
+    <p>${isRtl ? 'مرحباً' : 'Hello'} ${name},</p>
+    <p>${isRtl ? 'لقد أرسلنا رابط التحقق إلى بريدك الإلكتروني. يرجى التحقق من صندوق الوارد والضغط على زر التحقق لتفعيل حسابك.' : "We've sent a verification link to your email address. Please check your inbox and click the verification button to activate your account."}</p>
+    <div class="cta-container">
+      <a href="${url}" class="btn" target="_blank">${isRtl ? 'تأكيد البريد الإلكتروني' : 'Verify Email'}</a>
+    </div>
+    <p style="font-size: 13px; color: #64748b; margin-top: 20px;">
+      ${isRtl ? 'لم تصلك الرسالة؟ يمكنك إعادة إرسال رسالة التحقق من صفحة تسجيل الدخول.' : "Didn't receive the email? You can resend the verification email from the login page."}
+    </p>
+  `, language);
+};
 
-const welcomeEmail = (name, dashboardUrl) => baseTemplate(`
-  <h1>Welcome to VANTARA</h1>
-  <p>Hello ${name},</p>
-  <p>Your email address has been successfully verified.</p>
-  <p>Welcome to VANTARA. Your workshop staff account is now fully active.</p>
-  <div class="cta-container">
-    <a href="${dashboardUrl}" class="btn" target="_blank">Go to Dashboard</a>
-  </div>
-`);
+const passwordResetEmail = (name, url, language = 'en') => {
+  const isRtl = language === 'ar';
+  return baseTemplate(`
+    <h1>${isRtl ? 'هل نسيت كلمة المرور؟' : 'Forgot Password?'}</h1>
+    <p>${isRtl ? 'مرحباً' : 'Hello'} ${name},</p>
+    <p>${isRtl ? 'أدخلت بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور.' : 'Enter your email address and we will send you a link to reset your password.'}</p>
+    <div class="cta-container">
+      <a href="${url}" class="btn" target="_blank">${isRtl ? 'إعادة تعيين كلمة المرور' : 'Reset Password'}</a>
+    </div>
+  `, language);
+};
 
-const accountInvitationEmail = (role, url) => baseTemplate(`
-  <h1>VANTARA Staff Invitation</h1>
-  <p>Hello,</p>
-  <p>You have been invited to join the VANTARA workshop management team as a <strong>${role}</strong>.</p>
-  <p>Please click the button below to accept the invitation and activate your account:</p>
-  <div class="cta-container">
-    <a href="${url}" class="btn" target="_blank">Accept Invitation</a>
-  </div>
-  <p style="font-size: 13px; color: #8A8A93; margin-top: 20px;">If you were not expecting this invitation, you can safely ignore this email.</p>
-`);
+// -----------------------------------------------------------------------------
+// 28. EMAIL — TRACKING DETAILS
+// -----------------------------------------------------------------------------
 
-const workshopNotificationEmail = (title, message) => baseTemplate(`
-  <h1>${title}</h1>
-  <p>${message}</p>
-`);
+const trackingDetailsEmail = (vehicle, url, language = 'en') => {
+  const isRtl = language === 'ar';
+  return baseTemplate(`
+    <h1>${isRtl ? 'تم تسجيل مركبتك – المبرمج' : 'Your Vehicle Has Been Registered – AL Mubarmaja'}</h1>
+    <p>${isRtl ? 'مرحباً' : 'Hello'} ${vehicle.ownerName || 'العميل'},</p>
+    <p>${isRtl ? 'تم تسجيل مركبتك بنجاح لدى ورشة المبرمج.' : 'Your vehicle has been successfully registered at AL Mubarmaja.'}</p>
+    
+    <div class="details-box">
+      <div class="details-row">
+        <span class="details-label">${isRtl ? 'المركبة:' : 'Vehicle:'}</span>
+        <span class="details-value">${vehicle.make} ${vehicle.model}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">${isRtl ? 'رقم اللوحة:' : 'Registration:'}</span>
+        <span class="details-value ltr-text">${vehicle.plateNumber}</span>
+      </div>
+      <div class="details-row" style="margin-top: 15px;">
+        <span class="details-label" style="display:block; margin-bottom:5px;">${isRtl ? 'رمز التتبع:' : 'Tracking Code:'}</span>
+        <div style="${isRtl ? 'text-align: right;' : 'text-align: left;'}"><span class="tracking-code">${vehicle.trackingCode}</span></div>
+      </div>
+    </div>
+
+    <p>${isRtl ? 'يمكنك متابعة حالة إصلاح مركبتك من خلال الرابط أدناه.' : 'You can follow your vehicle’s repair progress using the link below.'}</p>
+
+    <div class="cta-container">
+      <a href="${url}" class="btn" target="_blank">${isRtl ? 'تتبع مركبتك' : 'Track Your Vehicle'}</a>
+    </div>
+    
+    <p style="font-size: 13px; color: #64748b; margin-top: 20px;">
+      ${isRtl ? 'يرجى الاحتفاظ برمز التتبع الخاص بك.' : 'Please keep your tracking code safe.'}
+    </p>
+    <p>${isRtl ? 'شكراً لك،<br>المبرمج' : 'Thank you,<br>AL Mubarmaja'}</p>
+  `, language);
+};
+
+// -----------------------------------------------------------------------------
+// 29. EMAIL — REPAIR COMPLETED
+// -----------------------------------------------------------------------------
+
+const completionNotificationEmail = (vehicle, language = 'en') => {
+  const isRtl = language === 'ar';
+  return baseTemplate(`
+    <h1>${isRtl ? 'تم الانتهاء من إصلاح مركبتك – المبرمج' : 'Your Vehicle Repair Is Complete – AL Mubarmaja'}</h1>
+    <p>${isRtl ? 'مرحباً' : 'Hello'} ${vehicle.ownerName || 'العميل'},</p>
+    <p>${isRtl ? 'يسرنا إبلاغك بأنه تم الانتهاء من أعمال إصلاح مركبتك.' : 'We are pleased to inform you that the repair work on your vehicle has been completed.'}</p>
+    
+    <div class="details-box">
+      <div class="details-row">
+        <span class="details-label">${isRtl ? 'المركبة:' : 'Vehicle:'}</span>
+        <span class="details-value">${vehicle.make} ${vehicle.model}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">${isRtl ? 'رقم اللوحة:' : 'Registration:'}</span>
+        <span class="details-value ltr-text">${vehicle.plateNumber}</span>
+      </div>
+    </div>
+
+    <p>${isRtl ? 'مركبتك الآن جاهزة للاستلام.' : 'Your vehicle is ready for collection.'}</p>
+    <p>${isRtl ? 'لمزيد من المعلومات، يرجى التواصل مع الورشة.' : 'For more information, please contact our workshop.'}</p>
+
+    <p style="margin-top: 25px;">${isRtl ? 'شكراً لاختيارك المبرمج.' : 'Thank you for choosing AL Mubarmaja.'}</p>
+  `, language);
+};
+
+const statusUpdateEmail = (vehicle, url, language = 'en') => {
+  const isRtl = language === 'ar';
+  return baseTemplate(`
+    <h1>${isRtl ? 'تحديث حالة المركبة – المبرمج' : 'Vehicle Status Update – AL Mubarmaja'}</h1>
+    <p>${isRtl ? 'مرحباً' : 'Hello'} ${vehicle.ownerName || 'العميل'},</p>
+    <p>${isRtl ? 'إليك تحديثاً بشأن مركبتك.' : 'Here is an update regarding your vehicle.'}</p>
+    
+    <div class="details-box">
+      <div class="details-row">
+        <span class="details-label">${isRtl ? 'المركبة:' : 'Vehicle:'}</span>
+        <span class="details-value">${vehicle.make} ${vehicle.model}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">${isRtl ? 'الحالة الحالية:' : 'Current Status:'}</span>
+        <span class="details-value">${vehicle.status}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">${isRtl ? 'رمز التتبع:' : 'Tracking Code:'}</span>
+        <span class="details-value ltr-text">${vehicle.trackingCode}</span>
+      </div>
+    </div>
+
+    <div class="cta-container">
+      <a href="${url}" class="btn" target="_blank">${isRtl ? 'تتبع مركبتك' : 'Track Your Vehicle'}</a>
+    </div>
+    <p>${isRtl ? 'شكراً لك،<br>المبرمج' : 'Thank you,<br>AL Mubarmaja'}</p>
+  `, language);
+};
+
+const pickupNotificationEmail = (vehicle, language = 'en') => {
+  const isRtl = language === 'ar';
+  return baseTemplate(`
+    <h1>${isRtl ? 'مركبتك جاهزة للاستلام – المبرمج' : 'Your Vehicle is Ready for Pickup – AL Mubarmaja'}</h1>
+    <p>${isRtl ? 'مرحباً' : 'Hello'} ${vehicle.ownerName || 'العميل'},</p>
+    <p>${isRtl ? 'مركبتك الآن جاهزة للاستلام.' : 'Your vehicle is now ready for pickup.'}</p>
+    
+    <div class="details-box">
+      <div class="details-row">
+        <span class="details-label">${isRtl ? 'المركبة:' : 'Vehicle:'}</span>
+        <span class="details-value">${vehicle.make} ${vehicle.model}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">${isRtl ? 'رقم اللوحة:' : 'Registration:'}</span>
+        <span class="details-value ltr-text">${vehicle.plateNumber}</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">${isRtl ? 'رمز التتبع:' : 'Tracking Code:'}</span>
+        <span class="details-value ltr-text">${vehicle.trackingCode}</span>
+      </div>
+    </div>
+
+    <p>${isRtl ? 'يرجى التواصل مع ورشة المبرمج لمعرفة تفاصيل الاستلام.' : 'Please contact AL Mubarmaja for pickup details.'}</p>
+    <p>${isRtl ? 'شكراً لك،<br>المبرمج' : 'Thank you,<br>AL Mubarmaja'}</p>
+  `, language);
+};
+
+const workshopNotificationEmail = (title, message, language = 'en') => {
+  return baseTemplate(`
+    <h1>${title}</h1>
+    <p>${message}</p>
+  `, language);
+};
 
 module.exports = {
   verificationEmail,
   passwordResetEmail,
-  welcomeEmail,
-  accountInvitationEmail,
+  trackingDetailsEmail,
+  statusUpdateEmail,
+  pickupNotificationEmail,
+  completionNotificationEmail,
   workshopNotificationEmail
 };

@@ -1,16 +1,310 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Menu, X, ChevronRight, FileText, Wrench, IndianRupee, Activity, 
-  MapPin, CheckCircle, Truck, ClipboardList, Eye, Users, 
-  Settings, PenTool, Search, ArrowRight, CalendarClock, Hammer, Key
+  Menu, X, Wrench, ShieldCheck, MapPin, 
+  Clock, CheckCircle, Search, Key, Phone, Mail, ChevronRight,
+  ClipboardCheck, Cpu, Users, Eye, ArrowRight, PhoneCall, Compass
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-// --- ANIMATION VARIANTS ---
+// --- DICTIONARY FOR AUTO WORKSHOP LOCALIZATION ---
+const dict = {
+  ar: {
+    // 1. BRANDING
+    title: "المبرمج",
+    subBrand: "صيانة وتشخيص وإصلاح المركبات باحترافية",
+    tagline: "عناية تتواجد مع كل عملية إصلاح.",
+
+    // 2. NAVIGATION
+    home: "الرئيسية",
+    servicesNav: "خدماتنا",
+    trackNav: "تتبع مركبتك",
+    aboutNav: "من نحن",
+    contactNav: "تواصل معنا",
+    employeeLogin: "تسجيل دخول الموظفين",
+    langToggle: "English",
+
+    // 3. HOME PAGE
+    heroHeading: "العناية بمركبتك تبدأ بالتشخيص الصحيح",
+    heroSubheading: "صيانة موثوقة، وتشخيص دقيق، وإصلاح احترافي — مع الاهتمام بكل تفاصيل مركبتك.",
+    servicesBtn: "خدماتنا",
+    trackBtn: "تتبع مركبتك",
+
+    // ABOUT THE WORKSHOP
+    aboutWorkshopTitle: "مركبتك مسؤوليتنا",
+    aboutWorkshopDesc: "في المبرمج، ندرك أن مركبتك جزء مهم من حياتك اليومية. نحرص في ورشتنا على الفحص الدقيق، والتشخيص الصحيح، والصيانة بجودة عالية، وتنفيذ أعمال الإصلاح باحترافية. كما نحرص على إبقائك على اطلاع بمراحل العمل على مركبتك طوال فترة الإصلاح.",
+
+    // 4. OUR SERVICES
+    servicesTitle: "خدماتنا",
+    servicesSubtitle: "خدمات احترافية للمحافظة على سلامة مركبتك واعتماديتها وجاهزيتها للطريق.",
+
+    // 5. WHY CHOOSE US
+    whyTitle: "لماذا تختار المبرمج؟",
+
+    // 6. HOW IT WORKS
+    howItWorksTitle: "كيف تتم عملية إصلاح المركبة؟",
+
+    // 7. TRACK YOUR VEHICLE
+    trackSecTitle: "تتبع مركبتك",
+    trackSecDesc: "تابع حالة إصلاح مركبتك مباشرة من خلال موقعنا. أدخل رمز التتبع الذي تم تزويدك به ورقم الجوال المسجل لدى الورشة.",
+    trackingCodeLabel: "رمز التتبع",
+    trackingCodePlaceholder: "أدخل رمز التتبع الخاص بك",
+    mobileNumberLabel: "رقم الجوال المسجل",
+    mobileNumberPlaceholder: "أدخل رقم الجوال المسجل لدى الورشة",
+    trackVehicleAction: "تتبع المركبة",
+    privacyNoticeTitle: "تنبيه الخصوصية",
+    privacyNotice: "حفاظاً على خصوصيتك، لا يتم عرض معلومات المركبة إلا عند تطابق رمز التتبع مع رقم الجوال المسجل في سجلات الورشة.",
+
+    // 9. ABOUT US
+    aboutUsTitle: "من نحن",
+    aboutUsDesc1: "المبرمج هي ورشة متخصصة في صيانة المركبات وفحصها وتشخيصها وإصلاحها.",
+    approachTitle: "منهجنا بسيط:",
+    approachMotto: "نفحص بعناية. نشخّص بدقة. نصلح باحترافية.",
+    aboutUsDesc2: "نؤمن بأن الخدمة الجيدة للمركبة تبدأ بفهم المشكلة الحقيقية. لذلك نركز على التشخيص الصحيح قبل الإصلاح، وجودة تنفيذ العمل أثناء عملية الإصلاح، والتواصل الواضح مع العملاء.",
+    ourGoalTitle: "هدفنا",
+    ourGoalDesc: "تقديم خدمة موثوقة للمركبات مع منح العملاء رؤية واضحة عن رحلة إصلاح مركباتهم.",
+
+    // 10. CONTACT US
+    contactTitle: "تواصل مع المبرمج",
+    contactSubtitle: "هل لديك استفسار حول خدماتنا أو مركبتك؟ تواصل مع فريق الورشة.",
+    workshopLabel: "الورشة",
+    workshopVal: "المبرمج",
+    locationLabel: "الموقع",
+    locationVal: "المحالة، أبها، المملكة العربية السعودية",
+    phoneLabel: "رقم الهاتف",
+    phoneVal: "+966 55 885 2934",
+    workingHoursLabel: "ساعات العمل",
+    workingDaysVal: "السبت – الخميس",
+    workingTimeVal: "8:30 صباحاً – 6:30 مساءً",
+    fridayLabel: "الجمعة",
+    fridayVal: "مغلق",
+    callWorkshopBtn: "اتصل بالورشة",
+    getDirectionsBtn: "الاتجاهات",
+
+    // 31. FOOTER
+    quickLinksTitle: "روابط سريعة",
+    copyright: "©️ 2026 المبرمج. جميع الحقوق محفوظة."
+  },
+  en: {
+    // 1. BRANDING
+    title: "AL Mubarmaja",
+    subBrand: "Professional Vehicle Maintenance, Diagnosis & Repair",
+    tagline: "Care Behind Every Repair.",
+
+    // 2. NAVIGATION
+    home: "Home",
+    servicesNav: "Our Services",
+    trackNav: "Track Your Vehicle",
+    aboutNav: "About Us",
+    contactNav: "Contact Us",
+    employeeLogin: "Employee Login",
+    langToggle: "العربية",
+
+    // 3. HOME PAGE
+    heroHeading: "Professional Vehicle Care Starts With the Right Diagnosis",
+    heroSubheading: "Reliable vehicle maintenance, accurate diagnosis, and professional repair — with attention to every detail of your vehicle.",
+    servicesBtn: "Our Services",
+    trackBtn: "Track Your Vehicle",
+
+    // ABOUT THE WORKSHOP
+    aboutWorkshopTitle: "Your Vehicle. Our Responsibility.",
+    aboutWorkshopDesc: "At AL Mubarmaja, we understand that your vehicle is an important part of your daily life. Our workshop focuses on proper inspection, accurate diagnosis, quality maintenance, and dependable repair work. We keep you informed about the progress of your vehicle throughout the repair process.",
+
+    // 4. OUR SERVICES
+    servicesTitle: "Our Services",
+    servicesSubtitle: "Professional services designed to keep your vehicle safe, reliable, and ready for the road.",
+
+    // 5. WHY CHOOSE US
+    whyTitle: "Why Choose AL Mubarmaja?",
+
+    // 6. HOW IT WORKS
+    howItWorksTitle: "How Vehicle Repair Works",
+
+    // 7. TRACK YOUR VEHICLE
+    trackSecTitle: "Track Your Vehicle",
+    trackSecDesc: "Follow your vehicle's repair progress directly from our website. Enter the tracking code provided to you and the mobile number registered with your vehicle.",
+    trackingCodeLabel: "Tracking Code",
+    trackingCodePlaceholder: "Enter your tracking code.",
+    mobileNumberLabel: "Registered Mobile Number",
+    mobileNumberPlaceholder: "Enter the mobile number registered with the workshop.",
+    trackVehicleAction: "Track Vehicle",
+    privacyNoticeTitle: "Privacy Notice",
+    privacyNotice: "For your privacy, vehicle information is only displayed when the tracking code and registered mobile number match our records.",
+
+    // 9. ABOUT US
+    aboutUsTitle: "About AL Mubarmaja",
+    aboutUsDesc1: "AL Mubarmaja is a professional vehicle workshop focused on vehicle maintenance, inspection, diagnosis, and repair.",
+    approachTitle: "Our approach is simple:",
+    approachMotto: "Inspect carefully. Diagnose accurately. Repair professionally.",
+    aboutUsDesc2: "We believe that good vehicle service begins with understanding the actual problem. That is why we focus on proper diagnosis before repair, careful workmanship during the repair process, and clear communication with our customers.",
+    ourGoalTitle: "Our Goal",
+    ourGoalDesc: "To provide reliable vehicle service while giving customers a clear understanding of their vehicle's repair journey.",
+
+    // 10. CONTACT US
+    contactTitle: "Contact AL Mubarmaja",
+    contactSubtitle: "Have a question about our services or your vehicle? Get in touch with our workshop team.",
+    workshopLabel: "Workshop",
+    workshopVal: "AL Mubarmaja",
+    locationLabel: "Location",
+    locationVal: "Almahalah, Abha, Saudi Arabia",
+    phoneLabel: "Phone",
+    phoneVal: "+966 55 885 2934",
+    workingHoursLabel: "Working Hours",
+    workingDaysVal: "Saturday – Thursday",
+    workingTimeVal: "8:30 AM – 6:30 PM",
+    fridayLabel: "Friday",
+    fridayVal: "Closed",
+    callWorkshopBtn: "Call Workshop",
+    getDirectionsBtn: "Get Directions",
+
+    // 31. FOOTER
+    quickLinksTitle: "Quick Links",
+    copyright: "©️ 2026 AL Mubarmaja. All rights reserved."
+  }
+};
+
+// --- 4. OUR SERVICES (EXACT 7 SERVICES) ---
+const servicesList = [
+  {
+    icon: Wrench,
+    nameAr: "صيانة المركبات",
+    nameEn: "Vehicle Maintenance",
+    descAr: "أعمال الصيانة الدورية والوقائية للمساعدة في الحفاظ على أداء المركبة واعتماديتها.",
+    descEn: "Routine and preventive maintenance to help maintain your vehicle's performance and reliability."
+  },
+  {
+    icon: Search,
+    nameAr: "تشخيص المركبات",
+    nameEn: "Vehicle Diagnosis",
+    descAr: "فحص وتشخيص دقيق لتحديد أسباب المشاكل قبل البدء في أعمال الإصلاح.",
+    descEn: "Accurate inspection and diagnosis to identify the cause of vehicle problems before repair work begins."
+  },
+  {
+    icon: ShieldCheck,
+    nameAr: "إصلاح المركبات",
+    nameEn: "Vehicle Repair",
+    descAr: "تنفيذ أعمال الإصلاح باحترافية وفقاً للحالة التي تم تشخيصها.",
+    descEn: "Professional repair services based on the diagnosed condition of the vehicle."
+  },
+  {
+    icon: ClipboardCheck,
+    nameAr: "فحص المركبات",
+    nameEn: "Vehicle Inspection",
+    descAr: "فحص شامل للمركبة للكشف عن المشاكل الميكانيكية والفنية.",
+    descEn: "Detailed inspection of the vehicle to identify mechanical and technical issues."
+  },
+  {
+    icon: Cpu,
+    nameAr: "التشخيص الفني",
+    nameEn: "Technical Diagnostics",
+    descAr: "اختبارات وتشخيص فني منهجي للوصول إلى الأعطال بدقة.",
+    descEn: "Systematic testing and technical diagnosis to identify faults accurately."
+  },
+  {
+    icon: Users,
+    nameAr: "فنيون متخصصون",
+    nameEn: "Specialized Technicians",
+    descAr: "فنيون ذوو خبرة في فحص المركبات وتشخيصها وصيانتها وإصلاحها.",
+    descEn: "Experienced technicians handling inspection, diagnosis, maintenance, and repair work."
+  },
+  {
+    icon: Eye,
+    nameAr: "متابعة كاملة للإصلاح",
+    nameEn: "Complete Repair Follow-up",
+    descAr: "متابعة واضحة لمركبتك منذ استلامها وحتى التشخيص والإصلاح والانتهاء من العمل.",
+    descEn: "Clear tracking of your vehicle from intake through diagnosis, repair, and completion."
+  }
+];
+
+// --- 5. WHY CHOOSE US (EXACT 6 VALUES) ---
+const whyChooseUsList = [
+  {
+    titleAr: "تشخيص دقيق",
+    titleEn: "Accurate Diagnosis",
+    descAr: "نركز على تحديد السبب الحقيقي للمشكلة قبل البدء في الإصلاح.",
+    descEn: "We focus on identifying the actual cause of the problem before repair work begins."
+  },
+  {
+    titleAr: "عمل احترافي",
+    titleEn: "Professional Work",
+    descAr: "نتعامل مع كل مركبة بعناية واهتمام بالتفاصيل.",
+    descEn: "Every vehicle is handled with care and attention to detail."
+  },
+  {
+    titleAr: "متابعة واضحة للإصلاح",
+    titleEn: "Clear Progress Tracking",
+    descAr: "يمكن للعميل متابعة حالة مركبته باستخدام رمز تتبع خاص ورقم الجوال المسجل.",
+    descEn: "Customers can follow the progress of their vehicle using a private tracking code and registered phone number."
+  },
+  {
+    titleAr: "فنيون ذوو خبرة",
+    titleEn: "Experienced Technicians",
+    descAr: "يعمل الفنيون لدينا في مجالات فحص المركبات وتشخيصها وصيانتها وإصلاحها.",
+    descEn: "Our technicians work across vehicle inspection, diagnosis, maintenance, and repair."
+  },
+  {
+    titleAr: "إجراءات واضحة",
+    titleEn: "Transparent Process",
+    descAr: "يمكنك معرفة حالة مركبتك ومراحل العمل عليها.",
+    descEn: "Stay informed about the status and progress of your vehicle."
+  },
+  {
+    titleAr: "اهتمام بالعميل",
+    titleEn: "Customer Focus",
+    descAr: "نسعى لتقديم خدمة موثوقة وتجربة إصلاح واضحة للعميل.",
+    descEn: "We aim to provide dependable service and a clear repair experience."
+  }
+];
+
+// --- 6. HOW IT WORKS (EXACT 6 STEPS) ---
+const howItWorksSteps = [
+  {
+    num: "01",
+    titleAr: "استلام المركبة",
+    titleEn: "Vehicle Received",
+    descAr: "يتم تسجيل المركبة وحفظ بياناتها.",
+    descEn: "Your vehicle is registered and its details are recorded."
+  },
+  {
+    num: "02",
+    titleAr: "الفحص والتشخيص",
+    titleEn: "Inspection & Diagnosis",
+    descAr: "يقوم الفنيون بفحص المركبة وتحديد المشاكل المبلغ عنها أو المكتشفة.",
+    descEn: "Our technicians inspect the vehicle and identify the reported or detected problems."
+  },
+  {
+    num: "03",
+    titleAr: "بدء الإصلاح",
+    titleEn: "Repair Begins",
+    descAr: "يتم تنفيذ أعمال الإصلاح المطلوبة بناءً على نتيجة التشخيص.",
+    descEn: "The required repair work is carried out based on the diagnosis."
+  },
+  {
+    num: "04",
+    titleAr: "تحديثات العمل",
+    titleEn: "Progress Updates",
+    descAr: "يتم تسجيل حالة الإصلاح وتقدم العمل طوال فترة الإصلاح.",
+    descEn: "The repair status and work progress are recorded throughout the process."
+  },
+  {
+    num: "05",
+    titleAr: "الفحص النهائي",
+    titleEn: "Final Check",
+    descAr: "يتم فحص المركبة بعد الانتهاء من أعمال الإصلاح.",
+    descEn: "The vehicle is checked after the repair work is completed."
+  },
+  {
+    num: "06",
+    titleAr: "جاهزية الاستلام",
+    titleEn: "Ready for Collection",
+    descAr: "يتم إشعارك عند جاهزية مركبتك للاستلام.",
+    descEn: "You receive a notification when your vehicle is ready for collection."
+  }
+];
+
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (custom = 0) => ({
@@ -20,715 +314,465 @@ const fadeUp = {
   })
 };
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 }
-  }
-};
-
-// --- SUB-COMPONENTS ---
-
-function Header() {
-  const [scrolled, setScrolled] = useState(false);
+export default function Home() {
+  const router = useRouter();
+  const [lang, setLang] = useState<'ar' | 'en'>('ar');
+  const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Quick tracking state
+  const [quickCode, setQuickCode] = useState('');
+  const [quickPhone, setQuickPhone] = useState('');
+
+  const t = dict[lang];
+
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    setMounted(true);
   }, []);
 
-  return (
-    <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-background/90 backdrop-blur-md border-b border-white/5 py-4' : 'bg-transparent py-6'}`}>
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded bg-surface-100 border border-white/10 flex items-center justify-center group-hover:border-primary/50 transition-colors">
-            <span className="font-display text-primary text-xl leading-none mt-1">V</span>
-          </div>
-          <span className="font-display text-2xl tracking-widest uppercase">Vantara</span>
-        </Link>
+  useEffect(() => {
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
+  }, [lang]);
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          <Link href="#how-it-works" className="text-sm font-medium text-secondary hover:text-foreground transition-colors">How It Works</Link>
-          <Link href="#features" className="text-sm font-medium text-secondary hover:text-foreground transition-colors">Features</Link>
-          <Link href="#about" className="text-sm font-medium text-secondary hover:text-foreground transition-colors">About</Link>
-        </nav>
-
-        {/* Desktop CTA */}
-        <div className="hidden md:flex items-center gap-6">
-          <Link href="/track" className="px-5 py-2.5 bg-transparent border border-white/20 text-foreground font-semibold text-sm rounded hover:bg-white/5 transition-colors">Check Vehicle Status</Link>
-          <Link href="/login" className="px-5 py-2.5 bg-primary text-black font-semibold text-sm rounded hover:bg-primary/90 transition-colors shadow-[0_0_20px_rgba(212,175,55,0.2)]">
-            Workshop Login
-          </Link>
-        </div>
-
-        {/* Mobile Toggle */}
-        <button className="md:hidden text-secondary hover:text-foreground" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-          {mobileMenuOpen ? <X /> : <Menu />}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-surface-50 border-b border-white/5 overflow-hidden"
-          >
-            <div className="px-6 py-6 flex flex-col gap-4">
-              <Link href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-secondary hover:text-foreground">How It Works</Link>
-              <Link href="#features" onClick={() => setMobileMenuOpen(false)} className="text-secondary hover:text-foreground">Features</Link>
-              <Link href="#about" onClick={() => setMobileMenuOpen(false)} className="text-secondary hover:text-foreground">About</Link>
-              <div className="h-px w-full bg-white/5 my-2" />
-              <Link href="/track" onClick={() => setMobileMenuOpen(false)} className="px-5 py-2.5 bg-transparent border border-white/20 text-center text-foreground font-semibold text-sm rounded hover:bg-white/5 transition-colors">Check Vehicle Status</Link>
-              <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="px-5 py-2.5 bg-primary text-black text-center font-semibold text-sm rounded hover:bg-primary/90 transition-colors shadow-[0_0_20px_rgba(212,175,55,0.2)]">Workshop Login</Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
-  );
-}
-
-function HeroSection() {
-  return (
-    <section className="relative min-h-[90vh] flex items-center justify-center pt-32 pb-20 overflow-hidden">
-      {/* Background Graphic elements */}
-      <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-center opacity-20">
-        <div className="w-[800px] h-[800px] rounded-full border border-white/5 absolute" />
-        <div className="w-[600px] h-[600px] rounded-full border border-white/5 absolute" />
-        <div className="w-[400px] h-[400px] rounded-full border border-primary/20 absolute blur-[1px]" />
-        
-        {/* Subtle grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px]" />
-        
-        {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-transparent" />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">
-        
-        <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible" className="mb-6 flex items-center gap-3 bg-surface-100 border border-white/10 px-4 py-1.5 rounded-full shadow-lg">
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-xs font-medium tracking-widest uppercase text-secondary">Vantara OS 1.0</span>
-        </motion.div>
-
-        <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="visible" className="text-5xl md:text-7xl lg:text-8xl font-display font-bold uppercase tracking-tight mb-8 leading-[0.9]">
-          The Journey Behind <br/>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60">Every Repair.</span>
-        </motion.h1>
-
-        <motion.p custom={2} variants={fadeUp} initial="hidden" animate="visible" className="text-lg md:text-xl text-secondary max-w-2xl mb-12 leading-relaxed">
-          From the moment your vehicle arrives to the moment it leaves, Vantara keeps every detail of its journey connected.
-        </motion.p>
-
-        <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-col sm:flex-row items-center gap-4">
-          <Link href="/login" className="px-8 py-4 bg-primary text-black font-semibold rounded hover:bg-primary/90 transition-all w-full sm:w-auto shadow-[0_0_30px_rgba(212,175,55,0.15)] hover:shadow-[0_0_40px_rgba(212,175,55,0.3)] text-center">
-            OPEN YOUR WORKSHOP
-          </Link>
-          <Link href="/track" className="px-8 py-4 bg-surface-100 border border-white/10 text-foreground font-semibold rounded hover:bg-surface-200 transition-colors w-full sm:w-auto flex items-center justify-center gap-2">
-            CHECK YOUR VEHICLE <ArrowRight size={18} className="text-secondary" />
-          </Link>
-        </motion.div>
-
-        {/* Abstract Vehicle Visual */}
-        <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible" className="mt-24 relative w-full max-w-4xl h-[300px] md:h-[400px] border border-white/10 bg-surface-50 rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center group">
-          {/* Diagnostic lines and glow */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-accent-steel/10 via-transparent to-primary/5" />
-          
-          {/* Central abstract vehicle representation */}
-          <div className="relative w-full h-full flex items-center justify-center opacity-80">
-            <svg width="600" height="200" viewBox="0 0 600 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto px-10">
-              <path d="M100 150 L150 80 L450 80 L500 150" stroke="rgba(255,255,255,0.1)" strokeWidth="2" fill="none" />
-              <path d="M50 150 L550 150" stroke="rgba(255,255,255,0.1)" strokeWidth="2" strokeDasharray="4 4" />
-              {/* Animated scanning line */}
-              <motion.line 
-                x1="150" y1="80" x2="150" y2="150" 
-                stroke="#D4AF37" strokeWidth="1" 
-                animate={{ x: [0, 300, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              />
-            </svg>
-          </div>
-
-          {/* Floating Data Labels */}
-          <div className="absolute top-10 left-10 text-left opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            <div className="text-[10px] font-mono text-primary mb-1">SYS.DIAG_01</div>
-            <div className="text-xs text-secondary">Engine Bay Scan</div>
-          </div>
-          
-          <div className="absolute bottom-10 right-10 text-right opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            <div className="text-[10px] font-mono text-accent-steel mb-1">TELEMETRY_SYNC</div>
-            <div className="text-xs text-secondary">Data Link Active</div>
-          </div>
-
-          {/* Floating Status Element */}
-          <motion.div 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 1, duration: 0.8 }}
-            className="absolute -right-4 md:right-10 top-1/2 -translate-y-1/2 bg-surface-100/90 backdrop-blur-md border border-white/10 p-4 rounded-xl shadow-xl flex flex-col gap-3"
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs font-medium uppercase tracking-widest text-secondary">Current Journey</span>
-            </div>
-            <div className="flex justify-between items-end gap-6">
-              <span className="text-sm font-medium">Repair in progress</span>
-              <span className="font-display text-xl text-primary">68%</span>
-            </div>
-            <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }} 
-                animate={{ width: '68%' }} 
-                transition={{ delay: 1.5, duration: 1.5, ease: "easeOut" }}
-                className="h-full bg-primary rounded-full" 
-              />
-            </div>
-          </motion.div>
-        </motion.div>
-
-        <motion.p custom={6} variants={fadeUp} initial="hidden" animate="visible" className="mt-12 text-sm text-secondary uppercase tracking-widest font-medium">
-          From the moment a vehicle arrives to the moment it leaves, Vantara keeps every detail connected.
-        </motion.p>
-      </div>
-    </section>
-  );
-}
-
-function CustomerTracking() {
-  const router = useRouter();
-  const [code, setCode] = useState('');
-  const [phone, setPhone] = useState('');
-
-  const handleTrack = (e: React.FormEvent) => {
+  const handleQuickTrackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push(`/track?code=${encodeURIComponent(code)}&phone=${encodeURIComponent(phone)}`);
+    if (quickCode.trim() && quickPhone.trim()) {
+      router.push(`/track?code=${encodeURIComponent(quickCode.trim())}&phone=${encodeURIComponent(quickPhone.trim())}`);
+    } else if (quickCode.trim()) {
+      router.push(`/track?code=${encodeURIComponent(quickCode.trim())}`);
+    } else {
+      router.push('/track');
+    }
   };
 
+  const googleMapsUrl = "https://maps.google.com/?q=18.2410405,42.5722994";
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-primary font-mono text-xs uppercase tracking-widest">
+        <span>Loading...</span>
+      </div>
+    );
+  }
+
   return (
-    <section className="py-24 relative overflow-hidden bg-background border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6">
+    <main className="w-full bg-background min-h-screen text-foreground selection:bg-primary/30 overflow-x-hidden">
+      
+      {/* 2. NAVIGATION */}
+      <header className="fixed top-0 w-full z-50 bg-white border-b border-border h-[85px] flex items-center shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 w-full flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3 group">
+              <img src="/logo.png" alt={t.title} className="h-[45px] md:h-[56px] w-auto object-contain group-hover:opacity-80 transition-opacity" />
+              <div className="hidden lg:flex flex-col">
+                <span className="font-display font-bold text-base text-foreground leading-tight">{t.title}</span>
+                <span className="text-[10px] text-secondary font-medium">{t.subBrand}</span>
+              </div>
+            </Link>
+          </div>
+
+          <nav className="hidden md:flex items-center gap-7">
+            <Link href="#hero" className="text-xs font-semibold uppercase tracking-wider text-[#475467] hover:text-[#3D5A0E] transition-colors">{t.home}</Link>
+            <Link href="#services" className="text-xs font-semibold uppercase tracking-wider text-[#475467] hover:text-[#3D5A0E] transition-colors">{t.servicesNav}</Link>
+            <Link href="#track" className="text-xs font-semibold uppercase tracking-wider text-[#475467] hover:text-[#3D5A0E] transition-colors">{t.trackNav}</Link>
+            <Link href="#about" className="text-xs font-semibold uppercase tracking-wider text-[#475467] hover:text-[#3D5A0E] transition-colors">{t.aboutNav}</Link>
+            <Link href="#contact" className="text-xs font-semibold uppercase tracking-wider text-[#475467] hover:text-[#3D5A0E] transition-colors">{t.contactNav}</Link>
+          </nav>
+
+          {/* CTAs */}
+          <div className="hidden md:flex items-center gap-4">
+            <button 
+              onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+              className="px-3 py-1.5 border border-[#D0D5DD] bg-white rounded text-xs font-mono text-[#344054] hover:bg-surface-200 transition-colors"
+            >
+              {t.langToggle}
+            </button>
+            <Link href="/login" className="px-4 py-2 bg-primary text-white font-bold text-xs rounded hover:bg-brand-hover transition-colors shadow-sm">
+              {t.employeeLogin}
+            </Link>
+          </div>
+
+          {/* Mobile toggle */}
+          <div className="flex md:hidden items-center gap-3">
+            <button 
+              onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+              className="px-2.5 py-1 border border-[#D0D5DD] bg-white rounded text-xs font-mono text-[#344054] hover:bg-surface-200 transition-colors"
+            >
+              {t.langToggle}
+            </button>
+            <button className="text-foreground hover:text-primary p-1" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-white border-b border-border overflow-hidden absolute top-[85px] w-full shadow-lg"
+            >
+              <div className="px-6 py-6 flex flex-col gap-4">
+                <Link href="#hero" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-secondary hover:text-primary">{t.home}</Link>
+                <Link href="#services" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-secondary hover:text-primary">{t.servicesNav}</Link>
+                <Link href="#track" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-secondary hover:text-primary">{t.trackNav}</Link>
+                <Link href="#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-secondary hover:text-primary">{t.aboutNav}</Link>
+                <Link href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold text-secondary hover:text-primary">{t.contactNav}</Link>
+                <div className="h-px bg-border my-1" />
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2.5 bg-primary text-white font-bold text-center text-xs rounded hover:bg-brand-hover transition-colors shadow-sm">
+                  {t.employeeLogin}
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      {/* 3. HOME PAGE - HERO */}
+      <section id="hero" className="relative min-h-[85vh] flex items-center justify-center pt-36 pb-20 overflow-hidden bg-background">
+        <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-center">
+          <div className="w-[800px] h-[800px] rounded-full border border-[#4C7111]/8 absolute" />
+          <div className="w-[500px] h-[500px] rounded-full border border-[#4C7111]/[0.025] absolute blur-[1px]" />
+        </div>
+
+        <div className="max-w-5xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">
+          <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible" className="mb-6 flex items-center gap-3 bg-surface-100 border border-border px-4 py-1.5 rounded-full shadow-sm">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs font-semibold tracking-wider text-secondary uppercase">{t.subBrand}</span>
+          </motion.div>
+
+          <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="visible" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-5 leading-[1.25] text-foreground max-w-4xl">
+            {t.heroHeading}
+          </motion.h1>
+
+          <motion.h2 custom={1.5} variants={fadeUp} initial="hidden" animate="visible" className="text-base sm:text-lg md:text-xl text-[#3D5A0E] font-medium tracking-wide mb-6 max-w-3xl leading-relaxed">
+            {t.heroSubheading}
+          </motion.h2>
+
+          <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="flex items-center gap-2 mb-10 text-xs md:text-sm font-semibold text-secondary italic">
+            <span>"{t.tagline}"</span>
+          </motion.div>
+
+          <motion.div custom={2.5} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <Link href="#services" className="px-8 py-3.5 bg-primary text-white font-bold rounded-lg hover:bg-brand-hover transition-all w-full sm:w-auto shadow-md text-center text-xs uppercase tracking-wider">
+              {t.servicesBtn}
+            </Link>
+            <Link href="#track" className="px-8 py-3.5 bg-white border border-primary text-foreground font-semibold rounded-lg hover:bg-surface-50 transition-colors w-full sm:w-auto text-center text-xs uppercase tracking-wider shadow-sm">
+              {t.trackBtn}
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ABOUT THE WORKSHOP (Section 3) */}
+      <section className="py-20 bg-surface-50 border-t border-border">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            {t.aboutWorkshopTitle}
+          </motion.h2>
+          <div className="w-16 h-1 bg-primary mx-auto mb-6" />
+          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="text-sm md:text-base text-secondary leading-relaxed max-w-3xl mx-auto">
+            {t.aboutWorkshopDesc}
+          </motion.p>
+        </div>
+      </section>
+
+      {/* 4. OUR SERVICES */}
+      <section id="services" className="py-24 max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-4xl md:text-5xl font-display font-bold uppercase mb-4">Where is your vehicle now?</motion.h2>
-          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-xl text-secondary max-w-2xl mx-auto">Your vehicle is on its own journey. Check its current repair status using the private tracking details provided by your workshop.</motion.p>
+          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-2xl md:text-3xl font-bold uppercase mb-3 text-foreground">
+            {t.servicesTitle}
+          </motion.h2>
+          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="text-xs md:text-sm text-secondary max-w-xl mx-auto">
+            {t.servicesSubtitle}
+          </motion.p>
+          <div className="w-16 h-1 bg-primary mx-auto mt-4" />
         </div>
-        
-        {/* Panel */}
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="max-w-5xl mx-auto bg-surface-50 border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
-          
-          {/* Visual Side */}
-          <div className="w-full md:w-1/2 bg-[#0a0a0a] relative p-12 flex flex-col justify-between overflow-hidden border-b md:border-b-0 md:border-r border-white/5">
-             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-50" />
-             <div className="relative z-10">
-               <div className="text-[10px] font-mono tracking-widest text-primary uppercase mb-4 border border-primary/20 bg-primary/10 inline-block px-3 py-1 rounded-full">Customer Vehicle Tracking</div>
-               <p className="text-secondary max-w-sm text-lg font-medium">Follow your vehicle's journey without calling the workshop.</p>
-             </div>
-             
-             {/* Abstract Vehicle Graphic */}
-             <div className="relative mt-12 w-full h-48 flex items-center justify-center opacity-70">
-                <svg width="100%" height="100%" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M50 150 L100 80 L300 80 L350 150" stroke="rgba(255,255,255,0.2)" strokeWidth="2" fill="none" />
-                  <path d="M20 150 L380 150" stroke="rgba(255,255,255,0.1)" strokeWidth="2" strokeDasharray="4 4" />
-                  <motion.circle cx="100" cy="150" r="25" stroke="rgba(212,175,55,0.5)" strokeWidth="2" fill="none" animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }} />
-                  <motion.circle cx="300" cy="150" r="25" stroke="rgba(212,175,55,0.5)" strokeWidth="2" fill="none" animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }} />
-                </svg>
-             </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {servicesList.map((svc, i) => {
+            const Icon = svc.icon;
+            return (
+              <motion.div 
+                key={i}
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.5}
+                className="p-8 border border-border bg-white rounded-2xl hover:border-primary/50 transition-all group flex flex-col justify-between shadow-[0_4px_18px_rgba(30,37,43,0.05)] hover:shadow-md"
+              >
+                <div>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-surface-50 text-primary border border-border group-hover:bg-primary group-hover:text-white transition-colors">
+                    <Icon size={22} />
+                  </div>
+                  <h3 className="text-base md:text-lg font-bold mb-3 text-foreground">
+                    {lang === 'ar' ? svc.nameAr : svc.nameEn}
+                  </h3>
+                  <p className="text-xs md:text-sm text-secondary leading-relaxed">
+                    {lang === 'ar' ? svc.descAr : svc.descEn}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 5. WHY CHOOSE US */}
+      <section id="why-choose-us" className="py-24 bg-surface-50 border-t border-border">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{t.whyTitle}</h2>
+            <div className="w-16 h-1 bg-primary mx-auto" />
           </div>
-          
-          {/* Form Side */}
-          <div className="w-full md:w-1/2 p-10 md:p-12">
-            <h3 className="text-2xl font-display uppercase tracking-wider mb-8 text-white">Track Your Vehicle</h3>
-            <form onSubmit={handleTrack} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-xs font-medium uppercase tracking-wider text-secondary">Vantara Tracking Code</label>
-                <input 
-                  type="text" 
-                  required 
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  placeholder="[ Enter your tracking code ]" 
-                  className="w-full bg-background border border-white/10 rounded-lg px-4 py-4 font-mono tracking-widest text-sm focus:outline-none focus:border-primary/50 transition-all uppercase placeholder-white/20"
-                />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {whyChooseUsList.map((item, idx) => (
+              <div key={idx} className="p-6 bg-white border border-border rounded-xl shadow-sm hover:border-primary/40 transition-all">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <CheckCircle size={18} />
+                  </div>
+                  <h3 className="text-sm md:text-base font-bold text-foreground">
+                    {lang === 'ar' ? item.titleAr : item.titleEn}
+                  </h3>
+                </div>
+                <p className="text-xs md:text-sm text-secondary leading-relaxed">
+                  {lang === 'ar' ? item.descAr : item.descEn}
+                </p>
               </div>
-              <div className="space-y-2">
-                <label className="text-xs font-medium uppercase tracking-wider text-secondary">Registered Phone Number</label>
-                <input 
-                  type="tel" 
-                  required 
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="[ Enter your phone number ]" 
-                  className="w-full bg-background border border-white/10 rounded-lg px-4 py-4 text-sm focus:outline-none focus:border-primary/50 transition-all placeholder-white/20"
-                />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. HOW IT WORKS */}
+      <section id="how-it-works" className="py-24 max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{t.howItWorksTitle}</h2>
+          <div className="w-16 h-1 bg-primary mx-auto mt-3" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {howItWorksSteps.map((step, idx) => (
+            <div key={idx} className="relative p-6 bg-white border border-border rounded-2xl shadow-sm flex flex-col group hover:border-primary/40 transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-2xl font-mono font-bold text-primary">{step.num}</span>
+                <span className="w-8 h-8 rounded-full bg-surface-50 border border-border flex items-center justify-center text-secondary text-xs font-mono">
+                  0{idx + 1}
+                </span>
               </div>
-              <button type="submit" className="w-full bg-surface-200 border border-white/10 hover:border-primary/50 hover:bg-surface-300 text-white font-semibold rounded-lg py-4 transition-all flex items-center justify-center gap-2 uppercase tracking-wider text-sm mt-4 group">
-                Check Vehicle Status <ArrowRight size={18} className="text-secondary group-hover:text-primary transition-colors" />
-              </button>
-            </form>
-            <div className="mt-8 flex items-start gap-3 p-4 bg-background border border-white/5 rounded-lg text-secondary">
-               <Key size={16} className="shrink-0 mt-0.5" />
-               <p className="text-xs leading-relaxed">Your tracking code is private and is provided by your workshop.</p>
+              <h3 className="text-base font-bold text-foreground mb-2">
+                {lang === 'ar' ? step.titleAr : step.titleEn}
+              </h3>
+              <p className="text-xs md:text-sm text-secondary leading-relaxed">
+                {lang === 'ar' ? step.descAr : step.descEn}
+              </p>
             </div>
-          </div>
-
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-function ProblemSection() {
-  const problems = [
-    { icon: ClipboardList, title: "Complaints", desc: "Know exactly what the customer reported." },
-    { icon: Wrench, title: "Repairs", desc: "Track what has been diagnosed and completed." },
-    { icon: IndianRupee, title: "Costs", desc: "Keep parts, labor, and total repair costs visible." },
-    { icon: Activity, title: "Progress", desc: "Know exactly where every vehicle stands." },
-  ];
-
-  return (
-    <section className="py-24 border-t border-white/5 bg-surface-50">
-      <div className="max-w-7xl mx-auto px-6">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="max-w-3xl mb-20">
-          <h2 className="text-4xl md:text-5xl font-display font-bold uppercase mb-6">Every vehicle has a story.</h2>
-          <p className="text-xl text-secondary leading-relaxed">
-            Complaints get written on paper.<br/>
-            Repair updates get lost in conversations.<br/>
-            Costs change during the job.<br/>
-            Customers call to ask what is happening.<br/><br/>
-            <span className="text-foreground font-medium">Vantara turns that scattered process into one connected journey.</span>
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {problems.map((item, i) => (
-            <motion.div 
-              key={i}
-              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeUp} custom={i}
-              className="p-8 border border-white/5 bg-background rounded-xl hover:border-primary/20 transition-colors group"
-            >
-              <item.icon className="w-8 h-8 text-secondary group-hover:text-primary transition-colors mb-6" />
-              <h3 className="text-lg font-medium mb-3 uppercase tracking-wider">{item.title}</h3>
-              <p className="text-sm text-secondary leading-relaxed">{item.desc}</p>
-            </motion.div>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-function JourneySection() {
-  const stages = [
-    { icon: MapPin, title: "Vehicle Arrives" },
-    { icon: Search, title: "Inspection" },
-    { icon: Activity, title: "Diagnosis" },
-    { icon: Wrench, title: "Repair" },
-    { icon: CheckCircle, title: "Quality Check" },
-    { icon: Eye, title: "Ready" },
-    { icon: Truck, title: "Delivered" },
-  ];
-
-  return (
-    <section id="how-it-works" className="py-32 overflow-hidden relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent pointer-events-none" />
-      
-      <div className="max-w-7xl mx-auto px-6 mb-16 text-center">
-        <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-4xl md:text-5xl font-display font-bold uppercase">
-          One vehicle. One journey.
-        </motion.h2>
-      </div>
-
-      <div className="relative w-full overflow-x-auto pb-12 hide-scrollbar px-6">
-        <div className="min-w-[1000px] max-w-7xl mx-auto relative flex items-center justify-between py-10">
-          {/* Connecting Line */}
-          <div className="absolute top-1/2 left-0 right-0 h-px bg-white/10 -translate-y-1/2 z-0" />
-          
-          {stages.map((stage, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
-              className="relative z-10 flex flex-col items-center gap-4 group"
-            >
-              <div className="w-12 h-12 rounded-full bg-surface-100 border border-white/10 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/10 transition-all duration-300">
-                <stage.icon className="w-5 h-5 text-secondary group-hover:text-primary transition-colors" />
-              </div>
-              <span className="text-xs font-medium uppercase tracking-widest text-secondary group-hover:text-foreground transition-colors text-center w-24">
-                {stage.title}
-              </span>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ProductPreview() {
-  return (
-    <section className="py-24 bg-surface-50 border-y border-white/5 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 mb-16 text-center">
-        <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-4xl md:text-5xl font-display font-bold uppercase mb-6">
-          See the whole workshop at a glance.
-        </motion.h2>
-      </div>
-
-      {/* Dashboard Mockup */}
-      <motion.div 
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.8 }}
-        className="max-w-6xl mx-auto relative perspective-1000"
-      >
-        <div className="w-full bg-[#121212] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-          {/* Header */}
-          <div className="h-14 border-b border-white/5 flex items-center px-6 justify-between bg-[#0A0A0A]">
-            <div className="flex items-center gap-4">
-              <div className="w-6 h-6 bg-surface-200 rounded flex items-center justify-center text-xs font-display text-primary">V</div>
-              <span className="text-sm font-medium tracking-wide">Workshop Dashboard</span>
+      {/* 7. TRACK YOUR VEHICLE (CTA TO DEDICATED PAGE) */}
+      <section id="track" className="py-24 bg-surface-50 border-t border-border">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="bg-white border border-border rounded-2xl p-8 md:p-12 shadow-xl text-center">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
+              <Key size={30} />
             </div>
-            <div className="flex items-center gap-4 text-secondary">
-              <Search size={16} />
-              <Settings size={16} />
-            </div>
-          </div>
-          
-          {/* Content */}
-          <div className="p-6 bg-[#0E0E0E] flex flex-col gap-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">{t.trackSecTitle}</h2>
+            <p className="text-sm md:text-base text-secondary max-w-2xl mx-auto leading-relaxed mb-8">{t.trackSecDesc}</p>
             
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {[
-                { label: "Total Vehicles", val: "24", col: "text-foreground" },
-                { label: "Active Jobs", val: "11", col: "text-primary" },
-                { label: "Awaiting Parts", val: "4", col: "text-accent-rust" },
-                { label: "Ready Pickup", val: "5", col: "text-accent-green" },
-                { label: "Outstanding", val: "₹86,450", col: "text-accent-steel" },
-              ].map((s,i) => (
-                <div key={i} className="p-4 bg-surface-50 border border-white/5 rounded-lg flex flex-col gap-1">
-                  <span className="text-xs text-secondary uppercase tracking-wider">{s.label}</span>
-                  <span className={`text-2xl font-display font-bold ${s.col}`}>{s.val}</span>
-                </div>
-              ))}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto mb-8">
+              <Link 
+                href="/track"
+                className="w-full sm:w-auto px-8 py-4 bg-primary text-white font-bold rounded-xl hover:bg-brand-hover transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider shadow-md"
+              >
+                <span>{t.trackVehicleAction}</span>
+                <ArrowRight size={18} className={lang === 'ar' ? 'rotate-180' : ''} />
+              </Link>
             </div>
 
-            {/* Active Jobs Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="pt-6 border-t border-border flex items-center justify-center gap-3 bg-surface-50 p-4 rounded-xl max-w-xl mx-auto">
+              <ShieldCheck size={20} className="text-primary shrink-0" />
+              <div className="text-xs leading-relaxed text-secondary text-start">
+                <span className="font-bold text-foreground">{t.privacyNoticeTitle}: </span>
+                {t.privacyNotice}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. ABOUT US */}
+      <section id="about" className="py-24 max-w-7xl mx-auto px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{t.aboutUsTitle}</h2>
+            <div className="w-16 h-1 bg-primary mx-auto" />
+          </div>
+
+          <div className="bg-white border border-border rounded-2xl p-8 md:p-12 shadow-sm space-y-8">
+            <p className="text-base md:text-lg text-foreground leading-relaxed font-medium">
+              {t.aboutUsDesc1}
+            </p>
+
+            <div className="p-6 bg-surface-50 border-r-4 md:border-r-4 border-primary rounded-xl space-y-2">
+              <h3 className="text-sm font-bold text-primary uppercase tracking-wider">{t.approachTitle}</h3>
+              <p className="text-base md:text-xl font-bold text-foreground italic">
+                {t.approachMotto}
+              </p>
+            </div>
+
+            <p className="text-sm md:text-base text-secondary leading-relaxed">
+              {t.aboutUsDesc2}
+            </p>
+
+            <div className="pt-6 border-t border-border">
+              <h3 className="text-base font-bold text-foreground mb-2">{t.ourGoalTitle}</h3>
+              <p className="text-sm md:text-base text-secondary leading-relaxed">
+                {t.ourGoalDesc}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 10. CONTACT US */}
+      <section id="contact" className="py-24 bg-surface-50 border-t border-border">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{t.contactTitle}</h2>
+            <p className="text-xs md:text-sm text-secondary max-w-xl mx-auto leading-relaxed">{t.contactSubtitle}</p>
+            <div className="w-16 h-1 bg-primary mx-auto mt-4" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            
+            {/* Contact Details Card */}
+            <div className="bg-white border border-border rounded-2xl p-8 shadow-sm space-y-6">
+              <div className="flex items-start gap-4 p-4 bg-surface-50 border border-border rounded-xl">
+                <MapPin className="text-primary shrink-0 mt-1" size={22} />
+                <div>
+                  <div className="text-xs font-semibold text-secondary">{t.locationLabel}</div>
+                  <div className="text-sm font-bold text-foreground mt-0.5">{t.locationVal}</div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-4 bg-surface-50 border border-border rounded-xl">
+                <Phone className="text-primary shrink-0 mt-1" size={22} />
+                <div>
+                  <div className="text-xs font-semibold text-secondary">{t.phoneLabel}</div>
+                  <div className="text-sm font-bold text-foreground mt-0.5 phone-number">{t.phoneVal}</div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-4 bg-surface-50 border border-border rounded-xl">
+                <Clock className="text-primary shrink-0 mt-1" size={22} />
+                <div className="space-y-1">
+                  <div className="text-xs font-semibold text-secondary">{t.workingHoursLabel}</div>
+                  <div className="text-sm font-bold text-foreground">
+                    {t.workingDaysVal}: <span className="font-normal text-secondary">{t.workingTimeVal}</span>
+                  </div>
+                  <div className="text-xs font-bold text-accent-rust">
+                    {t.fridayLabel}: <span className="font-normal">{t.fridayVal}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 flex flex-col sm:flex-row gap-3">
+                <a 
+                  href="tel:+966558852934"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shadow-md text-center"
+                >
+                  <PhoneCall size={16} />
+                  {t.callWorkshopBtn}
+                </a>
+                <a 
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white border border-primary text-foreground font-semibold text-xs uppercase tracking-wider rounded-lg hover:bg-surface-50 transition-colors shadow-sm text-center"
+                >
+                  <Compass size={16} />
+                  {t.getDirectionsBtn}
+                </a>
+              </div>
+            </div>
+
+            {/* Map Placeholder Card */}
+            <div className="relative w-full h-[400px] border border-border bg-white rounded-2xl overflow-hidden shadow-sm flex items-center justify-center p-8 text-center">
+              <div className="absolute inset-0 bg-[radial-gradient(rgba(75,120,8,0.05)_1px,transparent_1px)] bg-[size:20px_20px]" />
               
-              {/* Job Card 1 */}
-              <div className="p-5 bg-surface-50 border border-white/5 rounded-xl hover:border-primary/30 transition-colors">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <div className="text-lg font-display font-bold tracking-wide">KL 10 AB 1234</div>
-                    <div className="text-sm text-secondary">Toyota Innova • Ameena</div>
-                  </div>
-                  <div className="px-2 py-1 bg-primary/10 border border-primary/20 rounded text-[10px] uppercase tracking-widest text-primary font-medium">
-                    In Progress
-                  </div>
-                </div>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-start gap-2 text-sm text-foreground/80">
-                    <FileText size={16} className="text-secondary shrink-0 mt-0.5" />
-                    <span>AC not cooling, Front suspension noise</span>
-                  </div>
-                </div>
-                <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                  <div className="text-xs text-secondary flex items-center gap-1"><CalendarClock size={14}/> Today, 09:30 AM</div>
-                  <div className="text-sm font-medium">Est: ₹12,500</div>
-                </div>
+              <div className="relative z-10 flex flex-col items-center">
+                <MapPin className="text-primary animate-bounce mb-4" size={48} />
+                <h4 className="text-xl font-bold text-foreground mb-2">{t.workshopVal}</h4>
+                <p className="text-xs text-secondary max-w-xs mb-6 leading-relaxed">
+                  {t.locationVal}
+                </p>
+                <a 
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shadow-md"
+                >
+                  <Compass size={14} />
+                  {t.getDirectionsBtn}
+                </a>
               </div>
-
-              {/* Job Card 2 */}
-              <div className="p-5 bg-surface-50 border border-white/5 rounded-xl hover:border-accent-rust/30 transition-colors">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <div className="text-lg font-display font-bold tracking-wide">KL 07 CD 4582</div>
-                    <div className="text-sm text-secondary">Hyundai Creta • Rahul</div>
-                  </div>
-                  <div className="px-2 py-1 bg-accent-rust/10 border border-accent-rust/20 rounded text-[10px] uppercase tracking-widest text-accent-rust font-medium">
-                    Awaiting Parts
-                  </div>
-                </div>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-start gap-2 text-sm text-foreground/80">
-                    <FileText size={16} className="text-secondary shrink-0 mt-0.5" />
-                    <span>Brake vibration during high speed</span>
-                  </div>
-                </div>
-                <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                  <div className="text-xs text-secondary flex items-center gap-1"><CalendarClock size={14}/> Yesterday, 14:15</div>
-                  <div className="text-sm font-medium">Est: ₹8,400</div>
-                </div>
-              </div>
-
             </div>
 
           </div>
         </div>
-      </motion.div>
+      </section>
 
-      <div className="mt-16 text-center">
-        <Link href="#features" className="inline-flex items-center gap-2 text-primary font-medium uppercase tracking-widest text-sm hover:text-primary/80 transition-colors">
-          See How It Works <ArrowRight size={16} />
-        </Link>
-      </div>
-    </section>
-  );
-}
+      {/* 31. FOOTER */}
+      <footer className="bg-white border-t border-border py-14">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+            
+            {/* Col 1: Brand */}
+            <div className="space-y-3">
+              <span className="font-display text-2xl font-bold text-foreground block">{t.title}</span>
+              <p className="text-xs text-secondary leading-relaxed">{t.subBrand}</p>
+              <p className="text-xs text-primary font-medium italic">{t.tagline}</p>
+            </div>
 
-function FeaturesSection() {
-  const features = [
-    { num: "01", title: "Vehicle Intake", desc: "Capture vehicle, VIN, owner, complaints, and arrival details instantly." },
-    { num: "02", title: "Repair Tracking", desc: "Follow every repair step from initial diagnosis to final completion." },
-    { num: "03", title: "Work Progress", desc: "Maintain a timestamped, immutable history of all work performed." },
-    { num: "04", title: "Cost Control", desc: "Separate parts and labor costs with automatic totals and clear margins." },
-    { num: "05", title: "Job Sheets", desc: "Generate professional, printable job sheets for technicians and customers." },
-    { num: "06", title: "Workshop Overview", desc: "See the complete workshop workload, bottlenecks, and revenue in one place." },
-  ];
+            {/* Col 2: Quick links */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold font-mono uppercase tracking-wider text-foreground">{t.quickLinksTitle}</h4>
+              <ul className="space-y-2 text-xs">
+                <li><Link href="#hero" className="text-secondary hover:text-primary transition-colors">{t.home}</Link></li>
+                <li><Link href="#services" className="text-secondary hover:text-primary transition-colors">{t.servicesNav}</Link></li>
+                <li><Link href="/track" className="text-secondary hover:text-primary transition-colors">{t.trackNav}</Link></li>
+                <li><Link href="#about" className="text-secondary hover:text-primary transition-colors">{t.aboutNav}</Link></li>
+                <li><Link href="#contact" className="text-secondary hover:text-primary transition-colors">{t.contactNav}</Link></li>
+              </ul>
+            </div>
 
-  return (
-    <section id="features" className="py-24 max-w-7xl mx-auto px-6">
-      <div className="mb-16">
-        <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-4xl md:text-5xl font-display font-bold uppercase text-center">
-          Everything behind the repair.
-        </motion.h2>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {features.map((feat, i) => (
-          <motion.div 
-            key={i}
-            initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeUp} custom={i}
-            className="p-8 border border-white/5 bg-surface-50 hover:bg-surface-100 rounded-xl transition-all group"
-          >
-            <div className="font-display text-4xl text-white/10 group-hover:text-primary/30 transition-colors mb-6">{feat.num}</div>
-            <h3 className="text-xl font-medium mb-3 uppercase tracking-wider">{feat.title}</h3>
-            <p className="text-sm text-secondary leading-relaxed">{feat.desc}</p>
-          </motion.div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function PeopleSection() {
-  return (
-    <section className="py-24 bg-surface-50 border-y border-white/5">
-      <div className="max-w-7xl mx-auto px-6">
-        <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-4xl md:text-5xl font-display font-bold uppercase text-center mb-20">
-          Built around the workshop.
-        </motion.h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left divide-y md:divide-y-0 md:divide-x divide-white/10">
-          
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0} className="pt-8 md:pt-0 md:px-8 first:pt-0 first:pl-0 last:pr-0">
-            <h3 className="text-lg font-bold mb-4 uppercase tracking-widest text-primary">Workshop Owners</h3>
-            <p className="text-secondary text-lg leading-relaxed">"See what is happening across your entire workshop, identify bottlenecks, and control costs."</p>
-          </motion.div>
-
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="pt-8 md:pt-0 md:px-8">
-            <h3 className="text-lg font-bold mb-4 uppercase tracking-widest text-accent-steel">Service Advisors</h3>
-            <p className="text-secondary text-lg leading-relaxed">"Keep every complaint, estimate, and customer communication organized in one place."</p>
-          </motion.div>
-
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={2} className="pt-8 md:pt-0 md:px-8">
-            <h3 className="text-lg font-bold mb-4 uppercase tracking-widest text-accent-green">Technicians</h3>
-            <p className="text-secondary text-lg leading-relaxed">"Know exactly what needs to be done and easily record what was completed on every vehicle."</p>
-          </motion.div>
-
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function CinematicJourney() {
-  const timeline = [
-    { time: "09:20", text: "Vehicle received", color: "text-foreground" },
-    { time: "10:15", text: "Initial inspection completed", color: "text-foreground" },
-    { time: "11:40", text: "Brake issue diagnosed", color: "text-accent-rust" },
-    { time: "13:10", text: "Customer approval received", color: "text-primary" },
-    { time: "14:30", text: "Repair started", color: "text-accent-steel" },
-    { time: "16:45", text: "Parts replaced", color: "text-foreground" },
-    { time: "18:00", text: "Quality check", color: "text-accent-green" },
-  ];
-
-  return (
-    <section className="py-32 relative overflow-hidden bg-background">
-      {/* Background gradients */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
-      
-      <div className="max-w-4xl mx-auto px-6 text-center mb-20 relative z-10">
-        <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-4xl md:text-6xl font-display font-bold uppercase mb-6">
-          Nothing gets lost<br/> along the way.
-        </motion.h2>
-        <p className="text-secondary uppercase tracking-widest text-sm">A permanent record of the repair journey.</p>
-      </div>
-
-      <div className="max-w-2xl mx-auto px-6 relative z-10">
-        <div className="absolute left-[39px] md:left-[50%] top-0 bottom-0 w-px bg-white/10" />
-        
-        <div className="flex flex-col gap-12">
-          {timeline.map((item, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-10%" }}
-              transition={{ delay: i * 0.1, duration: 0.6 }}
-              className="flex flex-row md:justify-center items-center gap-6 md:gap-12 relative"
-            >
-              <div className="hidden md:block w-1/2 text-right">
-                {i % 2 === 0 ? (
-                  <span className={`text-xl font-medium tracking-wide ${item.color}`}>{item.text}</span>
-                ) : (
-                  <span className="font-mono text-sm text-secondary">{item.time}</span>
-                )}
+            {/* Col 3: Contact & Hours */}
+            <div className="space-y-3 text-xs">
+              <h4 className="text-xs font-bold font-mono uppercase tracking-wider text-foreground">{t.contactNav}</h4>
+              <p className="text-secondary">{t.locationVal}</p>
+              <p className="text-foreground font-mono font-bold phone-number">{t.phoneVal}</p>
+              <div className="pt-2 border-t border-border space-y-1 text-secondary">
+                <div>{t.workingDaysVal}: <span className="font-semibold text-foreground">{t.workingTimeVal}</span></div>
+                <div>{t.fridayLabel}: <span className="font-semibold text-accent-rust">{t.fridayVal}</span></div>
               </div>
-              
-              <div className="w-4 h-4 rounded-full bg-background border-2 border-primary relative z-10 shrink-0 shadow-[0_0_10px_rgba(212,175,55,0.5)]" />
-              
-              <div className="w-full md:w-1/2 text-left flex flex-col md:block">
-                <span className="md:hidden font-mono text-xs text-secondary mb-1">{item.time}</span>
-                {i % 2 === 0 ? (
-                  <span className={`md:hidden text-lg font-medium tracking-wide ${item.color}`}>{item.text}</span>
-                ) : (
-                  <span className={`text-lg md:text-xl font-medium tracking-wide ${item.color}`}>{item.text}</span>
-                )}
-                {i % 2 !== 0 && <span className="hidden md:block text-lg font-medium tracking-wide invisible">Spacer</span>}
-                {i % 2 === 0 && <span className="hidden md:block font-mono text-sm text-secondary">{item.time}</span>}
-              </div>
-            </motion.div>
-          ))}
+            </div>
+
+          </div>
+
+          <div className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
+            <div>{t.copyright}</div>
+            <div>
+              <Link href="/login" className="hover:text-primary transition-colors">{t.employeeLogin}</Link>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </footer>
 
-function BrandStatement() {
-  return (
-    <section id="about" className="py-40 bg-surface-50 border-y border-white/5">
-      <div className="max-w-5xl mx-auto px-6 text-center">
-        <motion.h2 
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1 }}
-          className="text-4xl md:text-6xl lg:text-7xl font-display font-bold uppercase leading-tight mb-8"
-        >
-          Because a repair is<br/> <span className="text-secondary">more than a repair.</span>
-        </motion.h2>
-        
-        <motion.p 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 1 }}
-          className="text-xl md:text-2xl text-secondary max-w-2xl mx-auto font-medium"
-        >
-          It's a journey of diagnosis, decisions, work, and trust.
-        </motion.p>
-      </div>
-    </section>
-  );
-}
-
-function CustomerCTASection() {
-  return (
-    <section className="py-24 relative overflow-hidden bg-background border-y border-white/5">
-      <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-        <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-4xl md:text-5xl font-display font-bold uppercase mb-6">
-          Already have a vehicle with us?
-        </motion.h2>
-        <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-xl text-secondary mb-10 max-w-2xl mx-auto">
-          Follow its journey from inspection to repair to pickup.
-        </motion.p>
-        
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="flex justify-center">
-          <Link href="/track" className="px-8 py-4 bg-transparent border border-white/20 text-foreground font-semibold rounded hover:bg-white/5 transition-colors shadow-lg">
-            Check Vehicle Status
-          </Link>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-function CTASection() {
-  return (
-    <section className="py-32 relative overflow-hidden">
-      <div className="absolute inset-0 bg-primary/5 pointer-events-none" />
-      <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-        <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-4xl md:text-6xl font-display font-bold uppercase mb-6">
-          Run your workshop with clarity.
-        </motion.h2>
-        <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-xl text-secondary mb-12 max-w-2xl mx-auto">
-          Manage every vehicle, complaint, repair, estimate, and progress update in one place.
-        </motion.p>
-        
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="flex justify-center">
-          <Link href="/login" className="px-8 py-4 bg-primary text-black font-semibold rounded hover:bg-primary/90 transition-all shadow-[0_0_30px_rgba(212,175,55,0.15)]">
-            Workshop Login
-          </Link>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="bg-background border-t border-white/5 py-12">
-      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="flex flex-col items-center md:items-start gap-2">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="font-display text-xl tracking-widest uppercase">Vantara</span>
-          </Link>
-          <span className="text-sm text-secondary italic">"The Journey Behind Every Repair."</span>
-        </div>
-        
-        <nav className="flex items-center gap-6">
-          <Link href="#" className="text-sm text-secondary hover:text-foreground transition-colors">Home</Link>
-          <Link href="#how-it-works" className="text-sm text-secondary hover:text-foreground transition-colors">How It Works</Link>
-          <Link href="#features" className="text-sm text-secondary hover:text-foreground transition-colors">Features</Link>
-          <Link href="#about" className="text-sm text-secondary hover:text-foreground transition-colors">About</Link>
-        </nav>
-        
-        <div className="text-sm text-white/30">
-          © 2026 Vantara. All rights reserved.
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-// --- MAIN PAGE ---
-export default function Home() {
-  return (
-    <main className="w-full bg-background min-h-screen text-foreground selection:bg-primary/30">
-      <Header />
-      <HeroSection />
-      <CustomerTracking />
-      <ProblemSection />
-      <JourneySection />
-      <ProductPreview />
-      <FeaturesSection />
-      <CinematicJourney />
-      <CustomerCTASection />
-      <CTASection />
-      <Footer />
     </main>
   );
 }

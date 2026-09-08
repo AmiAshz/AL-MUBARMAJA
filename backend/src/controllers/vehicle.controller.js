@@ -1,4 +1,7 @@
 const vehicleService = require('../services/vehicle.service');
+const EmailService = require('../services/email.service');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const ApiResponse = require('../utils/apiResponse');
 
 const getVehicles = async (req, res, next) => {
@@ -33,9 +36,9 @@ const createVehicle = async (req, res, next) => {
 
 const updateStatus = async (req, res, next) => {
   try {
-    const { status } = req.body;
+    const { status, lang } = req.body;
     const userId = req.user ? req.user.id : null;
-    const vehicle = await vehicleService.updateVehicleStatus(req.params.id, status, userId);
+    const vehicle = await vehicleService.updateVehicleStatus(req.params.id, status, userId, lang);
     res.status(200).json(new ApiResponse(200, vehicle, 'Status updated successfully'));
   } catch (error) {
     next(error);
@@ -204,6 +207,99 @@ const sendWhatsappNotification = async (req, res, next) => {
   }
 };
 
+// ==========================================
+// EMAIL NOTIFICATION CONTROLLERS
+// ==========================================
+
+const getVehicleEmails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const emails = await prisma.emailLog.findMany({
+      where: { vehicleId: id },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.status(200).json(new ApiResponse(200, emails, 'Email logs retrieved successfully'));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const sendTrackingEmail = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { email, language = 'en' } = req.body;
+    
+    if (!email) throw new Error('Customer email is required');
+    
+    const vehicle = await prisma.vehicle.findUnique({ where: { id } });
+    if (!vehicle) throw new Error('Vehicle not found');
+
+    const result = await EmailService.sendTrackingDetails(vehicle, email, req.user.id, language);
+    if (!result.success) throw new Error(result.error);
+
+    res.status(200).json(new ApiResponse(200, result, 'Tracking email sent successfully'));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const sendStatusEmail = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { email, language = 'en' } = req.body;
+    
+    if (!email) throw new Error('Customer email is required');
+
+    const vehicle = await prisma.vehicle.findUnique({ where: { id } });
+    if (!vehicle) throw new Error('Vehicle not found');
+
+    const result = await EmailService.sendStatusUpdate(vehicle, email, req.user.id, language);
+    if (!result.success) throw new Error(result.error);
+
+    res.status(200).json(new ApiResponse(200, result, 'Status update email sent successfully'));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const sendPickupEmail = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { email, language = 'en' } = req.body;
+    
+    if (!email) throw new Error('Customer email is required');
+
+    const vehicle = await prisma.vehicle.findUnique({ where: { id } });
+    if (!vehicle) throw new Error('Vehicle not found');
+
+    const result = await EmailService.sendPickupNotification(vehicle, email, req.user.id, language);
+    if (!result.success) throw new Error(result.error);
+
+    res.status(200).json(new ApiResponse(200, result, 'Pickup notification email sent successfully'));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const sendCompletionEmail = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { email, language = 'en' } = req.body;
+    
+    if (!email) throw new Error('Customer email is required');
+
+    const vehicle = await prisma.vehicle.findUnique({ where: { id } });
+    if (!vehicle) throw new Error('Vehicle not found');
+
+    const result = await EmailService.sendCompletionNotification(vehicle, email, req.user.id, language);
+    if (!result.success) throw new Error(result.error);
+
+    res.status(200).json(new ApiResponse(200, result, 'Completion notification email sent successfully'));
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getVehicles,
   getVehicle,
@@ -224,5 +320,10 @@ module.exports = {
   updateTrackingStatus,
   resendTrackingMessage,
   resendCompletionMessage,
-  sendWhatsappNotification
+  sendWhatsappNotification,
+  getVehicleEmails,
+  sendTrackingEmail,
+  sendStatusEmail,
+  sendPickupEmail,
+  sendCompletionEmail
 };

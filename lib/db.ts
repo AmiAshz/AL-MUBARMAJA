@@ -74,7 +74,7 @@ interface DBSchema {
   additional_repairs: DBAdditionalRepair[];
 }
 
-const DB_PATH = path.join(process.cwd(), 'vantara_db_v2.json');
+const DB_PATH = path.join(process.cwd(), 'al_mubarmaja_db_v2.json');
 
 const initDB = () => {
   if (!fs.existsSync(DB_PATH)) {
