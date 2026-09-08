@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 const dict = {
   ar: {
     // 1. BRANDING
@@ -107,7 +109,7 @@ function ResetPasswordContent() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/reset-password', {
+      const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password })

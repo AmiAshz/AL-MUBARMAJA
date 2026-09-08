@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 const dict = {
   ar: {
     // 1. BRANDING
@@ -170,7 +172,7 @@ function TrackContent() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/public/vehicle-tracking', {
+      const res = await fetch(`${API_BASE}/api/public/vehicle-tracking`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ trackingCode: activeCode, phone: activePhone })

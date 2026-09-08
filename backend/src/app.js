@@ -17,8 +17,25 @@ const serviceRoutes = require('./routes/service.routes');
 const settingsRoutes = require('./routes/settings.routes');
 
 const app = express();
-// Middleware
-app.use(cors());
+
+// Middleware & CORS
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://al-mubarmaja.ameenaamiaan.workers.dev',
+  process.env.APP_URL,
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true
+}));
+
 app.use(express.json({ limit: '50mb' })); // For base64 photos
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 

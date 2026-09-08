@@ -15,6 +15,8 @@ import { processImageFile } from '@/lib/imageUtils';
 import Link from 'next/link';
 import { openWhatsAppWeb } from '@/lib/whatsapp';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 // --- STYLES & STATUS COLORS ---
 const STATUS_COLORS: Record<VehicleStatus, string> = {
   'AWAITING_DIAGNOSIS': 'bg-[#F4F8EF] text-[#4C7111] border-[#C5DBAA]/40',
@@ -1531,7 +1533,7 @@ function VehicleDetailModal({
     }
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/vehicles/${vehicle.id}/${endpoint}`, {
+      const res = await fetch(`${API_BASE}/api/vehicles/${vehicle.id}/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ email: recipient, language: lang })

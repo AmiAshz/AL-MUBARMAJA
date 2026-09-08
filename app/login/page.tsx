@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Mail, ArrowRight, Loader2, AlertCircle, UserPlus, LogIn, CheckCircle2, User, Phone } from 'lucide-react';
 import Link from 'next/link';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 const dict = {
   ar: {
     // 1. BRANDING
@@ -138,7 +140,7 @@ export default function LoginPage() {
     setShowResend(false);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password })
@@ -184,7 +186,7 @@ export default function LoginPage() {
     setSuccess('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim(), email: email.trim(), phone: phone.trim(), password, role: 'ADMIN' })
@@ -214,7 +216,7 @@ export default function LoginPage() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('http://localhost:5000/api/auth/resend-verification', {
+      const res = await fetch(`${API_BASE}/api/auth/resend-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() })
@@ -238,7 +240,7 @@ export default function LoginPage() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch('http://localhost:5000/api/auth/forgot-password', {
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() })

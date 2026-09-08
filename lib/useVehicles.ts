@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Vehicle, VehiclePhoto } from './types';
 import io from 'socket.io-client';
 
-const API_URL = 'http://localhost:5000/api';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = `${BACKEND_URL}/api`;
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -47,7 +48,7 @@ export function useVehicles() {
     fetchVehicles();
     
     const token = localStorage.getItem('token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-    const socket = io('http://localhost:5000', {
+    const socket = io(BACKEND_URL, {
       auth: { token }
     });
     

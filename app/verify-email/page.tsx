@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, XCircle, Loader2, Mail, AlertCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 const dict = {
   ar: {
     // 1. BRANDING
@@ -87,7 +89,7 @@ function VerifyEmailContent() {
 
     const performVerification = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/auth/verify-email', {
+        const res = await fetch(`${API_BASE}/api/auth/verify-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token })
@@ -118,7 +120,7 @@ function VerifyEmailContent() {
     setResendSuccess('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/resend-verification', {
+      const res = await fetch(`${API_BASE}/api/auth/resend-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() })
