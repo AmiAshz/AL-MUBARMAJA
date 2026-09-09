@@ -185,6 +185,16 @@ const passwordResetEmail = (name, url, language = 'en') => {
   `, language);
 };
 
+const welcomeEmail = (name, language = 'en') => {
+  const isRtl = language === 'ar';
+  return baseTemplate(`
+    <h1>${isRtl ? 'مرحباً بك في المبرمج' : 'Welcome to AL Mubarmaja'}</h1>
+    <p>${isRtl ? 'مرحباً' : 'Hello'} ${name},</p>
+    <p>${isRtl ? 'تم تفعيل حسابك بنجاح. يمكنك الآن تسجيل الدخول والبدء في استخدام منصة إدارة الورشة.' : 'Your account has been successfully verified and activated. You can now log in and manage workshop operations.'}</p>
+    <p style="margin-top: 25px;">${isRtl ? 'شكراً لاختيارك المبرمج.' : 'Thank you for choosing AL Mubarmaja.'}</p>
+  `, language);
+};
+
 // -----------------------------------------------------------------------------
 // 28. EMAIL — TRACKING DETAILS
 // -----------------------------------------------------------------------------
@@ -318,6 +328,7 @@ const workshopNotificationEmail = (title, message, language = 'en') => {
 
 module.exports = {
   verificationEmail,
+  welcomeEmail,
   passwordResetEmail,
   trackingDetailsEmail,
   statusUpdateEmail,

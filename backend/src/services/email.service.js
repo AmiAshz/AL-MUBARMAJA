@@ -2,15 +2,15 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const templates = require('../utils/emailTemplates');
 
-const resendApiKey = process.env.RESEND_API_KEY;
-const isMockMode = !resendApiKey || resendApiKey === 'your_resend_api_key';
-
 class EmailService {
   /**
    * Internal reusable method to send an email using the Resend REST API.
    * Handles database logging (EmailLog), error parsing, and rate-limits.
    */
   static async sendEmail({ recipientEmail, subject, html, emailType, vehicleId = null, customerId = null, sentById = null, language = 'en' }) {
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const isMockMode = !resendApiKey || resendApiKey === 'your_resend_api_key' || resendApiKey.trim() === '';
+
     // 1. Create a PENDING log in the database
     const log = await prisma.emailLog.create({
       data: {
@@ -36,13 +36,13 @@ class EmailService {
         console.log(`-----------------------------\n`);
         resendEmailId = `mock_${Math.random().toString(36).substring(2, 11).toUpperCase()}`;
       } else {
-        const fromEmail = process.env.EMAIL_FROM || 'Workshop Name <onboarding@resend.dev>';
+        const fromEmail = process.env.EMAIL_FROM || 'AL Mubarmaja <onboarding@resend.dev>';
         
         // Use native fetch to POST to Resend REST API
         const response = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${resendApiKey}`,
+            'Authorization': `Bearer ${resendApiKey.trim()}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -106,6 +106,20 @@ class EmailService {
       recipientEmail: user.email,
       subject,
       emailType: 'EMAIL_VERIFICATION',
+      html,
+      language,
+      customerId: user.id
+    });
+  }
+
+  static async sendWelcomeEmail(user, language = 'en') {
+    const subject = language === 'ar' ? 'مرحباً بك في المبرمج' : 'Welcome to AL Mubarmaja';
+    const html = templates.welcomeEmail ? templates.welcomeEmail(user.name, language) : `<p>Welcome to AL Mubarmaja, ${user.name}!</p>`;
+
+    return this.sendEmail({
+      recipientEmail: user.email,
+      subject,
+      emailType: 'WELCOME',
       html,
       language,
       customerId: user.id
