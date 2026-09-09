@@ -16,7 +16,7 @@ const dict = {
     langToggle: "English",
 
     // 11. EMPLOYEE LOGIN
-    employeeLoginTitle: "دخول الموظفين",
+    employeeLoginTitle: "تسجيل الدخول",
     secureAccessTitle: "دخول آمن إلى نظام الورشة",
     loginDesc: "سجّل الدخول لإدارة المركبات والإصلاحات والتكاليف وتقدم العمل وإشعارات العملاء.",
     emailLabel: "البريد الإلكتروني",
@@ -65,7 +65,7 @@ const dict = {
     langToggle: "العربية",
 
     // 11. EMPLOYEE LOGIN
-    employeeLoginTitle: "Employee Login",
+    employeeLoginTitle: "Login",
     secureAccessTitle: "Secure Workshop Access",
     loginDesc: "Sign in to manage vehicles, repairs, costs, work progress, and customer notifications.",
     emailLabel: "Email Address",

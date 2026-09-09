@@ -83,7 +83,7 @@ const dict = {
     trackVehicleNav: "تتبع مركبتك",
     aboutUsNav: "من نحن",
     contactUsNav: "تواصل معنا",
-    employeeLoginNav: "تسجيل دخول الموظفين",
+    employeeLoginNav: "تسجيل الدخول",
     logout: "تسجيل الخروج",
 
     // 15. DASHBOARD
@@ -284,7 +284,7 @@ const dict = {
     trackVehicleNav: "Track Your Vehicle",
     aboutUsNav: "About Us",
     contactUsNav: "Contact Us",
-    employeeLoginNav: "Employee Login",
+    employeeLoginNav: "Login",
     logout: "Logout",
 
     // 15. DASHBOARD

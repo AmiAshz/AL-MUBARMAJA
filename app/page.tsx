@@ -24,7 +24,7 @@ const dict = {
     trackNav: "تتبع مركبتك",
     aboutNav: "من نحن",
     contactNav: "تواصل معنا",
-    employeeLogin: "تسجيل دخول الموظفين",
+    employeeLogin: "تسجيل الدخول",
     langToggle: "English",
 
     // 3. HOME PAGE
@@ -100,7 +100,7 @@ const dict = {
     trackNav: "Track Your Vehicle",
     aboutNav: "About Us",
     contactNav: "Contact Us",
-    employeeLogin: "Employee Login",
+    employeeLogin: "Login",
     langToggle: "العربية",
 
     // 3. HOME PAGE
