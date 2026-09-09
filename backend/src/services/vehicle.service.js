@@ -102,15 +102,15 @@ const getVehicleById = async (id) => {
       complaints: true,
       inspections: { include: { technician: { select: { name: true } } } },
       repairs: { include: { technician: { select: { name: true } } } },
-      estimates: { 
-        include: { 
+      estimates: {
+        include: {
           items: true,
           approvals: { include: { approvedBy: { select: { name: true } } } },
           creator: { select: { name: true } }
         }
       },
       additionalRepairs: { include: { creator: { select: { name: true } } } },
-      progressLogs: { 
+      progressLogs: {
         orderBy: { createdAt: 'desc' },
         include: { user: { select: { name: true } } }
       },
@@ -139,14 +139,14 @@ const getVehicleById = async (id) => {
  */
 const createVehicle = async (data, userId) => {
   const { complaints, ...vehicleData } = data;
-  
+
   if (!vehicleData.make || !vehicleData.model || !vehicleData.plateNumber || !vehicleData.ownerName || !vehicleData.ownerPhone) {
     throw new ApiError(400, 'Missing required vehicle details. Make, Model, Plate Number, Owner Name, and Phone Number are required.');
   }
 
   const jobNumber = await generateJobNumber();
   const trackingCode = generateTrackingCode();
-  
+
   const vehicle = await prisma.vehicle.create({
     data: {
       ...vehicleData,
@@ -158,10 +158,10 @@ const createVehicle = async (data, userId) => {
         create: complaints?.map(desc => ({ description: desc })) || []
       },
       progressLogs: {
-        create: [{ 
-          type: 'VEHICLE_RECEIVED', 
+        create: [{
+          type: 'VEHICLE_RECEIVED',
           message: 'Vehicle received.',
-          userId: userId || null
+          userId
         }]
       }
     },
@@ -220,7 +220,7 @@ const updateVehicleStatus = async (id, newStatus, userId, lang = 'ar') => {
   }
 
   const vehicle = await getVehicleById(id);
-  
+
   if (vehicle.status === newStatus) {
     throw new ApiError(400, `Vehicle is already in status ${newStatus}`);
   }
@@ -244,13 +244,13 @@ const updateVehicleStatus = async (id, newStatus, userId, lang = 'ar') => {
   const prevStatusLabel = (lang === 'en' ? STATUS_EN : STATUS_AR)[vehicle.status] || vehicle.status;
   const newStatusLabel = (lang === 'en' ? STATUS_EN : STATUS_AR)[newStatus] || newStatus;
 
-  const logMessage = lang === 'en' 
+  const logMessage = lang === 'en'
     ? `Repair status changed from "${prevStatusLabel}" to "${newStatusLabel}".`
     : `تم تغيير حالة الإصلاح من "${prevStatusLabel}" إلى "${newStatusLabel}".`;
 
   const updatedVehicle = await prisma.vehicle.update({
     where: { id },
-    data: { 
+    data: {
       status: newStatus,
       jobStatusHistory: {
         create: [{
@@ -319,7 +319,7 @@ const updateVehicleStatus = async (id, newStatus, userId, lang = 'ar') => {
  */
 const addInspection = async (id, data, technicianId) => {
   const { findings, diagnosis, recommendation } = data;
-  
+
   await prisma.inspection.create({
     data: {
       vehicleId: id,
@@ -341,7 +341,7 @@ const addInspection = async (id, data, technicianId) => {
 
   // Automatically shift status if still awaiting
   const vehicle = await getVehicleById(id);
-  
+
   try {
     await NotificationService.sendMilestoneMessage(vehicle, 'DIAGNOSIS', 'Your vehicle inspection is complete. A repair estimate is being prepared.');
   } catch (err) {
@@ -360,13 +360,13 @@ const addInspection = async (id, data, technicianId) => {
  */
 const getJobSheet = async (id) => {
   const vehicle = await getVehicleById(id);
-  
+
   // Format the job sheet explicitly following business rules
   let costStatus = 'NOT ESTIMATED';
   let displayCost = 0;
-  
+
   const approvedEstimate = vehicle.estimates.find(e => e.status === 'APPROVED');
-  
+
   if (vehicle.finalTotalCost !== null && vehicle.finalTotalCost !== undefined) {
     costStatus = 'FINAL REPAIR COST';
     displayCost = vehicle.finalTotalCost;
@@ -526,7 +526,7 @@ const regenerateTrackingCode = async (id, userId) => {
   const newCode = generateTrackingCode();
   const vehicle = await prisma.vehicle.update({
     where: { id },
-    data: { 
+    data: {
       trackingCode: newCode,
       progressLogs: {
         create: [{
