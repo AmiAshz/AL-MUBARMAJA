@@ -143,6 +143,10 @@
   .hover\:text-brand-hover:hover {
     color: #3D5A0E !important;
   }
+  .group:hover .group-hover\:text-white,
+  .group-hover\:text-white:hover {
+    color: #FFFFFF !important;
+  }
 }
 
 /* ── Premium light scrollbar ── */

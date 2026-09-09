@@ -500,7 +500,7 @@ export default function Home() {
               >
                 <div>
                   <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 bg-surface-50 text-primary border border-border group-hover:bg-primary group-hover:text-white transition-colors">
-                    <Icon size={26} />
+                    <Icon size={26} className="transition-colors group-hover:text-white text-current" />
                   </div>
                   <h3 className="text-lg md:text-xl font-bold mb-3 text-foreground">
                     {lang === 'ar' ? svc.nameAr : svc.nameEn}
