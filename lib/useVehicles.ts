@@ -83,25 +83,26 @@ export function useVehicles() {
         body: JSON.stringify({
           make: vehicleData.make,
           model: vehicleData.model,
-          year: vehicleData.year,
-          plateNumber: vehicleData.plateNumber, // Mapped
+          year: String(vehicleData.year || new Date().getFullYear()),
+          plateNumber: vehicleData.plateNumber,
           vin: vehicleData.vin,
           ownerName: vehicleData.ownerName,
           ownerPhone: vehicleData.ownerPhone,
           dateBroughtIn: vehicleData.dateBroughtIn || new Date().toISOString().split('T')[0],
-          status: vehicleData.status,
-          complaints: vehicleData.complaints.map((c: any) => c.description || c) // Flatten if needed
+          status: vehicleData.status || 'AWAITING_DIAGNOSIS',
+          complaints: (vehicleData.complaints || []).map((c: any) => (typeof c === 'string' ? c : c?.description || ''))
         })
       });
-      if (res.ok) {
-        const data = await res.json();
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.data) {
         fetchVehicles();
         return data.data;
       }
-      return null;
+      const errorMsg = data?.message || `Failed to register vehicle (Status: ${res.status})`;
+      throw new Error(errorMsg);
     } catch (e) {
-      console.error(e);
-      return null;
+      console.error("addVehicle error:", e);
+      throw e;
     }
   };
 

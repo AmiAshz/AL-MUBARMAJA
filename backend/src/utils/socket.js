@@ -22,7 +22,11 @@ module.exports = {
   },
   getIO: () => {
     if (!io) {
-      throw new Error('Socket.io not initialized!');
+      return {
+        emit: () => {},
+        to: () => ({ emit: () => {} }),
+        in: () => ({ emit: () => {} })
+      };
     }
     return io;
   }

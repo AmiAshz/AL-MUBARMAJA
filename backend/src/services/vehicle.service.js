@@ -138,24 +138,54 @@ const getVehicleById = async (id) => {
  * Intake a new vehicle with initial complaints and audit logs
  */
 const createVehicle = async (data, userId) => {
-  const { complaints, ...vehicleData } = data;
+  const { complaints, ...rawVehicleData } = data;
 
-  if (!vehicleData.make || !vehicleData.model || !vehicleData.plateNumber || !vehicleData.ownerName || !vehicleData.ownerPhone) {
+  const make = rawVehicleData.make ? String(rawVehicleData.make).trim() : '';
+  const model = rawVehicleData.model ? String(rawVehicleData.model).trim() : '';
+  const plateNumber = rawVehicleData.plateNumber ? String(rawVehicleData.plateNumber).trim() : '';
+  const ownerName = rawVehicleData.ownerName ? String(rawVehicleData.ownerName).trim() : '';
+  const ownerPhone = rawVehicleData.ownerPhone ? String(rawVehicleData.ownerPhone).trim() : '';
+  const year = rawVehicleData.year !== undefined && rawVehicleData.year !== null && String(rawVehicleData.year).trim() !== ''
+    ? String(rawVehicleData.year).trim()
+    : String(new Date().getFullYear());
+  const vin = rawVehicleData.vin ? String(rawVehicleData.vin).trim() : null;
+  const dateBroughtIn = rawVehicleData.dateBroughtIn ? String(rawVehicleData.dateBroughtIn) : new Date().toISOString().split('T')[0];
+  const timeBroughtIn = rawVehicleData.timeBroughtIn ? String(rawVehicleData.timeBroughtIn) : null;
+  const initialCondition = rawVehicleData.initialCondition ? String(rawVehicleData.initialCondition) : null;
+  const status = rawVehicleData.status || 'AWAITING_DIAGNOSIS';
+
+  if (!make || !model || !plateNumber || !ownerName || !ownerPhone) {
     throw new ApiError(400, 'Missing required vehicle details. Make, Model, Plate Number, Owner Name, and Phone Number are required.');
   }
 
   const jobNumber = await generateJobNumber();
   const trackingCode = generateTrackingCode();
 
+  const formattedComplaints = Array.isArray(complaints)
+    ? complaints
+        .map(c => (typeof c === 'string' ? c.trim() : c?.description ? String(c.description).trim() : ''))
+        .filter(desc => desc.length > 0)
+        .map(description => ({ description }))
+    : [];
+
   const vehicle = await prisma.vehicle.create({
     data: {
-      ...vehicleData,
+      make,
+      model,
+      year,
+      plateNumber,
+      vin,
+      ownerName,
+      ownerPhone,
+      dateBroughtIn,
+      timeBroughtIn,
+      initialCondition,
+      status,
       jobNumber,
       trackingCode,
       isTrackingEnabled: true,
-      status: vehicleData.status || 'AWAITING_DIAGNOSIS',
       complaints: {
-        create: complaints?.map(desc => ({ description: desc })) || []
+        create: formattedComplaints
       },
       progressLogs: {
         create: [{
@@ -186,9 +216,22 @@ const createVehicle = async (data, userId) => {
  * Update Vehicle Details
  */
 const updateVehicle = async (id, data) => {
+  const updateData = {};
+  if (data.make !== undefined) updateData.make = String(data.make).trim();
+  if (data.model !== undefined) updateData.model = String(data.model).trim();
+  if (data.year !== undefined && data.year !== null) updateData.year = String(data.year).trim();
+  if (data.plateNumber !== undefined) updateData.plateNumber = String(data.plateNumber).trim();
+  if (data.vin !== undefined) updateData.vin = data.vin ? String(data.vin).trim() : null;
+  if (data.ownerName !== undefined) updateData.ownerName = String(data.ownerName).trim();
+  if (data.ownerPhone !== undefined) updateData.ownerPhone = String(data.ownerPhone).trim();
+  if (data.dateBroughtIn !== undefined) updateData.dateBroughtIn = String(data.dateBroughtIn);
+  if (data.timeBroughtIn !== undefined) updateData.timeBroughtIn = data.timeBroughtIn ? String(data.timeBroughtIn) : null;
+  if (data.initialCondition !== undefined) updateData.initialCondition = data.initialCondition ? String(data.initialCondition) : null;
+  if (data.status !== undefined) updateData.status = data.status;
+
   const updatedVehicle = await prisma.vehicle.update({
     where: { id },
-    data
+    data: updateData
   });
   socket.getIO().emit('vehicle:updated', updatedVehicle);
   return updatedVehicle;

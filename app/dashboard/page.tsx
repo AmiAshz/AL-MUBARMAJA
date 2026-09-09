@@ -1279,14 +1279,20 @@ function VehicleIntakeForm({ vehicle, onSave, showToast, t, lang }: any) {
     setSaving(true);
     try {
       const payload = {
-        make, model, year: parseInt(year) || null, plateNumber, vin,
-        ownerName, ownerPhone, ownerEmail, dateBroughtIn: dateReceived,
+        make: String(make).trim(),
+        model: String(model).trim(),
+        year: String(year || new Date().getFullYear()).trim(),
+        plateNumber: String(plateNumber).trim(),
+        vin: vin ? String(vin).trim() : null,
+        ownerName: String(ownerName).trim(),
+        ownerPhone: String(ownerPhone).trim(),
+        dateBroughtIn: dateReceived || new Date().toISOString().split('T')[0],
         status: 'AWAITING_DIAGNOSIS',
-        complaints: complaints.filter(c => c.trim() !== '')
+        complaints: complaints.filter(c => c && c.trim() !== '').map(c => c.trim())
       };
       await onSave(payload);
     } catch (err: any) {
-      showToast(t.msgEnterAllRequiredFields, 'error');
+      showToast(err?.message || t.msgEnterAllRequiredFields, 'error');
     } finally {
       setSaving(false);
     }

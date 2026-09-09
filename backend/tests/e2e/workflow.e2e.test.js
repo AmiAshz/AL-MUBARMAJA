@@ -19,39 +19,36 @@ describe('ورشة المبرمج End-to-End Workflow & Data Integrity', () => {
 
   const testPlate = `E2E-${Date.now().toString().slice(-6)}`;
   
+  let adminUser;
+
   beforeAll(async () => {
-    // 1. Create a test ADMIN user if not exists
-    let admin = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
-    if (!admin) {
-      const bcrypt = require('bcryptjs');
-      admin = await prisma.user.create({
-        data: {
-          name: 'E2E Admin',
-          email: `admin_${Date.now()}@al-mbarmaj.com`,
-          passwordHash: await bcrypt.hash('password123', 10),
-          role: 'ADMIN',
-          emailVerified: true,
-          isActive: true
-        }
-      });
-    } else {
-      admin = await prisma.user.update({
-        where: { id: admin.id },
-        data: { emailVerified: true, isActive: true }
-      });
-    }
+    // Create a dedicated test ADMIN user
+    const bcrypt = require('bcryptjs');
+    adminUser = await prisma.user.create({
+      data: {
+        name: 'Workflow E2E Admin',
+        email: `workflow_admin_${Date.now()}@test.com`,
+        passwordHash: await bcrypt.hash('password123', 10),
+        role: 'ADMIN',
+        emailVerified: true,
+        isActive: true
+      }
+    });
 
     // Login to get token
     const res = await request(app)
       .post('/api/auth/login')
-      .send({ email: admin.email, password: 'password123' });
+      .send({ email: adminUser.email, password: 'password123' });
     token = res.body.data.token;
   });
 
   afterAll(async () => {
     // Cleanup the created vehicle and its relations
     if (vehicleId) {
-      await prisma.vehicle.delete({ where: { id: vehicleId } });
+      await prisma.vehicle.delete({ where: { id: vehicleId } }).catch(() => {});
+    }
+    if (adminUser) {
+      await prisma.user.delete({ where: { id: adminUser.id } }).catch(() => {});
     }
     await prisma.$disconnect();
   });
