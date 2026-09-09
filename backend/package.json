@@ -4,7 +4,7 @@
   "description": "AL Mubarmaja Vehicle Workshop Management Platform API",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "prisma db push && node server.js",
     "dev": "nodemon server.js",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
