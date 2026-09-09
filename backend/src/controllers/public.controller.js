@@ -3,26 +3,23 @@ const { recordFailedAttempt } = require('../middleware/rateLimiter.middleware');
 
 const getVehicleTracking = async (req, res, next) => {
   try {
-    const { trackingCode, phone } = req.body;
+    const { trackingCode } = req.body;
 
-    if (!trackingCode || !phone) {
-      // Record failure for rate limiting
+    if (!trackingCode || !String(trackingCode).trim()) {
       recordFailedAttempt(req.clientIp);
-      // Return 400 for bad request format, but don't leak whether the format was the issue vs the credentials
-      // Actually, standardizing on a 404 generic message is safest for ALL credential errors.
       return res.status(404).json({
         success: false,
-        message: "We couldn't find a vehicle with those details."
+        message: "We couldn't find a vehicle with that tracking code."
       });
     }
 
-    const trackingData = await publicService.getCustomerTrackingInfo(trackingCode, phone);
+    const trackingData = await publicService.getCustomerTrackingInfo(trackingCode);
 
     if (!trackingData) {
       recordFailedAttempt(req.clientIp);
       return res.status(404).json({
         success: false,
-        message: "We couldn't find a vehicle with those details."
+        message: "We couldn't find a vehicle with that tracking code."
       });
     }
 
@@ -31,7 +28,6 @@ const getVehicleTracking = async (req, res, next) => {
       data: trackingData
     });
   } catch (error) {
-    // Internal server errors can fall through to next, but we shouldn't leak them
     next(error);
   }
 };

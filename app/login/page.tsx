@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Mail, ArrowRight, Loader2, AlertCircle, UserPlus, LogIn, CheckCircle2, User, Phone } from 'lucide-react';
+import { Lock, Mail, Loader2, AlertCircle, LogIn, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -25,23 +25,6 @@ const dict = {
     passwordPlaceholder: "أدخل كلمة المرور.",
     forgotPasswordLink: "هل نسيت كلمة المرور؟",
     loginBtn: "تسجيل الدخول",
-    dontHaveAccount: "ليس لديك حساب؟",
-    createAccountLink: "إنشاء حساب",
-
-    // 12. EMPLOYEE REGISTRATION
-    createEmployeeTitle: "إنشاء حساب موظف",
-    createEmployeeDesc: "أنشئ حساباً للوصول إلى نظام إدارة الورشة.",
-    fullNameLabel: "الاسم الكامل",
-    fullNamePlaceholder: "أدخل الاسم الكامل.",
-    regEmailPlaceholder: "أدخل البريد الإلكتروني.",
-    mobileNumberLabel: "رقم الجوال",
-    mobileNumberPlaceholder: "أدخل رقم الجوال.",
-    createPasswordLabel: "كلمة المرور",
-    createPasswordPlaceholder: "أنشئ كلمة مرور.",
-    confirmPasswordLabel: "تأكيد كلمة المرور",
-    confirmPasswordPlaceholder: "أعد إدخال كلمة المرور.",
-    createAccountBtn: "إنشاء الحساب",
-    alreadyHaveAccount: "لديك حساب بالفعل؟",
 
     // 14. FORGOT PASSWORD
     forgotPasswordTitle: "هل نسيت كلمة المرور؟",
@@ -54,7 +37,6 @@ const dict = {
     resendVerificationPrompt: "لم تصلك الرسالة؟",
     resendVerificationBtn: "إعادة إرسال رسالة التحقق",
     passwordResetSent: "تم إرسال رسالة إعادة تعيين كلمة المرور.",
-    passwordsDoNotMatch: "كلمتا المرور غير متطابقتين.",
     requiredFieldsError: "يرجى إدخال جميع الحقول المطلوبة."
   },
   en: {
@@ -74,23 +56,6 @@ const dict = {
     passwordPlaceholder: "Enter your password.",
     forgotPasswordLink: "Forgot Password?",
     loginBtn: "Login",
-    dontHaveAccount: "Don't have an account?",
-    createAccountLink: "Create Account",
-
-    // 12. EMPLOYEE REGISTRATION
-    createEmployeeTitle: "Create Employee Account",
-    createEmployeeDesc: "Create an account to access the workshop management system.",
-    fullNameLabel: "Full Name",
-    fullNamePlaceholder: "Enter full name.",
-    regEmailPlaceholder: "Enter email address.",
-    mobileNumberLabel: "Mobile Number",
-    mobileNumberPlaceholder: "Enter mobile number.",
-    createPasswordLabel: "Password",
-    createPasswordPlaceholder: "Create password.",
-    confirmPasswordLabel: "Confirm Password",
-    confirmPasswordPlaceholder: "Confirm password.",
-    createAccountBtn: "Create Account",
-    alreadyHaveAccount: "Already have an account?",
 
     // 14. FORGOT PASSWORD
     forgotPasswordTitle: "Forgot Password?",
@@ -99,31 +64,28 @@ const dict = {
     backToLoginBtn: "Back to Login",
 
     // 13 & 30. POP-UP & SYSTEM MESSAGES
-    verificationSentSuccess: "We've sent a verification link to your email address. Please check your inbox and click the verification button to activate your account.",
+    verificationSentSuccess: "We've sent a verification link to your email address. Please check your inbox to activate your account.",
     resendVerificationPrompt: "Didn't receive the email?",
     resendVerificationBtn: "Resend Verification Email",
-    passwordResetSent: "Password reset email sent.",
-    passwordsDoNotMatch: "Passwords do not match.",
-    requiredFieldsError: "Please enter all required fields."
+    passwordResetSent: "Password reset link has been sent to your email address.",
+    requiredFieldsError: "Please fill in all required fields."
   }
 };
 
 export default function LoginPage() {
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
-  const [mode, setMode] = useState<'login' | 'register' | 'forgot-password'>('login');
+  const [mode, setMode] = useState<'login' | 'forgot-password'>('login');
   
-  // Form fields
-  const [name, setName] = useState('');
+  // Form States
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Status states
   const [loading, setLoading] = useState(false);
-  const [resendLoading, setResendLoading] = useState(false);
-  const [showResend, setShowResend] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showResend, setShowResend] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   const t = dict[lang];
 
@@ -132,141 +94,121 @@ export default function LoginPage() {
     document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
   }, [lang]);
 
+  // Handle Login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
     setSuccess('');
     setShowResend(false);
 
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (data.message && data.message.toLowerCase().includes('verify your email')) {
-          setShowResend(true);
-        }
-        throw new Error(data.message || t.requiredFieldsError);
-      }
-
-      const token = data.data?.token;
-      const user = data.data?.user;
-
-      if (!token) {
-        throw new Error('Authentication token not received.');
-      }
-
-      document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-
-      window.location.replace('/dashboard');
-    } catch (err: any) {
-      setError(err.message || t.requiredFieldsError);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      setError(t.passwordsDoNotMatch);
+    if (!email || !password) {
+      setError(t.requiredFieldsError);
       return;
     }
 
     setLoading(true);
-    setError('');
-    setSuccess('');
-
     try {
-      const res = await fetch(`${API_BASE}/api/auth/register`, {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), phone: phone.trim(), password, role: 'ADMIN' })
+        body: JSON.stringify({ email, password })
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-      if (!res.ok) {
-        throw new Error(data.message || t.requiredFieldsError);
+      if (res.ok && data?.data?.token) {
+        document.cookie = `token=${data.data.token}; path=/; max-age=86400; SameSite=Lax`;
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+
+        if (data.data.user?.role === 'ADMIN') {
+          window.location.replace('/admin');
+        } else {
+          window.location.replace('/dashboard');
+        }
+      } else {
+        const errorMsg = data?.message || (lang === 'ar' ? 'فشل تسجيل الدخول. يرجى التحقق من بياناتك.' : 'Login failed. Please verify your credentials.');
+        setError(errorMsg);
+
+        if (res.status === 403 && (errorMsg.toLowerCase().includes('verify') || errorMsg.includes('تفعيل') || errorMsg.includes('تحقق'))) {
+          setShowResend(true);
+        }
       }
-
-      setSuccess(t.verificationSentSuccess);
-      setMode('login');
-      setName('');
-      setPhone('');
-      setPassword('');
-      setConfirmPassword('');
-    } catch (err: any) {
-      setError(err.message || t.requiredFieldsError);
+    } catch {
+      setError(lang === 'ar' ? 'حدث خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.' : 'Network connection error. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle Resend Verification
   const handleResendVerification = async () => {
+    if (!email) return;
     setResendLoading(true);
     setError('');
-    setSuccess('');
     try {
       const res = await fetch(`${API_BASE}/api/auth/resend-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() })
+        body: JSON.stringify({ email })
       });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to resend verification email.');
+      const data = await res.json().catch(() => null);
+      if (res.ok) {
+        setSuccess(t.verificationSentSuccess);
+        setShowResend(false);
+      } else {
+        setError(data?.message || (lang === 'ar' ? 'تعذر إعادة إرسال رابط التحقق.' : 'Failed to resend verification email.'));
       }
-      setSuccess(t.verificationSentSuccess);
-      setShowResend(false);
-    } catch (err: any) {
-      setError(err.message || t.requiredFieldsError);
+    } catch {
+      setError(lang === 'ar' ? 'فشل الاتصال بالخادم.' : 'Connection failed.');
     } finally {
       setResendLoading(false);
     }
   };
 
+  // Handle Forgot Password
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
     setSuccess('');
+
+    if (!email) {
+      setError(t.requiredFieldsError);
+      return;
+    }
+
+    setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() })
+        body: JSON.stringify({ email })
       });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to request password reset link.');
+
+      const data = await res.json().catch(() => null);
+
+      if (res.ok) {
+        setSuccess(t.passwordResetSent);
+      } else {
+        setError(data?.message || (lang === 'ar' ? 'تعذر إرسال رابط إعادة التعيين.' : 'Failed to send password reset link.'));
       }
-      setSuccess(t.passwordResetSent);
-      setEmail('');
-    } catch (err: any) {
-      setError(err.message || t.requiredFieldsError);
+    } catch {
+      setError(lang === 'ar' ? 'فشل الاتصال بالخادم.' : 'Connection failed.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden py-16">
-      {/* Background Graphic Elements */}
-      <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-center opacity-20">
-        <div className="w-[600px] h-[600px] rounded-full border border-primary/20 absolute blur-[1px]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center p-6 relative font-sans selection:bg-primary/30">
+
+      {/* Background Decor */}
+      <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-center overflow-hidden">
+        <div className="w-[600px] h-[600px] rounded-full border border-primary/10 absolute" />
+        <div className="w-[400px] h-[400px] rounded-full border border-primary/5 absolute blur-[1px]" />
       </div>
 
-      {/* Top Header Row */}
+      {/* Top Bar Header */}
       <div className="absolute top-6 max-w-md w-full flex items-center justify-between px-6 z-20">
         <Link href="/" className="text-xs font-semibold text-secondary hover:text-foreground transition-colors flex items-center gap-1">
           <span>{lang === 'ar' ? '→' : '←'}</span> {t.home}
@@ -290,23 +232,6 @@ export default function LoginPage() {
         </Link>
 
         <div className="bg-white border border-border rounded-2xl p-8 shadow-xl">
-          {/* Sign In / Sign Up Tabs */}
-          {mode !== 'forgot-password' && (
-            <div className="flex bg-surface-50 border border-border rounded-lg p-1 mb-8">
-              <button
-                onClick={() => { setMode('login'); setError(''); setSuccess(''); setShowResend(false); }}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all ${mode === 'login' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-foreground'}`}
-              >
-                <LogIn size={14} /> {t.employeeLoginTitle}
-              </button>
-              <button
-                onClick={() => { setMode('register'); setError(''); setSuccess(''); setShowResend(false); }}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider transition-all ${mode === 'register' ? 'bg-primary text-white shadow-sm' : 'text-secondary hover:text-foreground'}`}
-              >
-                <UserPlus size={14} /> {t.createAccountLink}
-              </button>
-            </div>
-          )}
 
           {/* Validation & Error Messages */}
           <AnimatePresence>
@@ -412,147 +337,6 @@ export default function LoginPage() {
                 >
                   {loading ? <Loader2 size={18} className="animate-spin" /> : <><LogIn size={16} /> {t.loginBtn}</>}
                 </button>
-
-                <div className="text-center pt-2 text-xs text-secondary">
-                  <span>{t.dontHaveAccount} </span>
-                  <button
-                    type="button"
-                    onClick={() => { setMode('register'); setError(''); setSuccess(''); }}
-                    className="text-primary font-bold hover:underline"
-                  >
-                    {t.createAccountLink}
-                  </button>
-                </div>
-              </motion.form>
-            )}
-
-            {/* 12. EMPLOYEE REGISTRATION FORM */}
-            {mode === 'register' && (
-              <motion.form
-                key="register"
-                initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
-                onSubmit={handleRegister}
-                className="space-y-4"
-              >
-                <div className="text-center mb-6">
-                  <h1 className="text-xl font-bold uppercase tracking-wider mb-1 text-foreground">{t.createEmployeeTitle}</h1>
-                  <p className="text-secondary text-xs leading-relaxed">{t.createEmployeeDesc}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-secondary block">
-                    {t.fullNameLabel}
-                  </label>
-                  <div className="relative">
-                    <div className={`absolute inset-y-0 ${lang === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none text-secondary`}>
-                      <User size={16} />
-                    </div>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className={`w-full bg-surface-50 border border-border rounded-lg ${lang === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 text-sm focus:outline-none focus:border-primary transition-all text-foreground`}
-                      placeholder={t.fullNamePlaceholder}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-secondary block">
-                    {t.emailLabel}
-                  </label>
-                  <div className="relative">
-                    <div className={`absolute inset-y-0 ${lang === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none text-secondary`}>
-                      <Mail size={16} />
-                    </div>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className={`w-full bg-surface-50 border border-border rounded-lg ${lang === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 text-sm focus:outline-none focus:border-primary transition-all text-foreground`}
-                      placeholder={t.regEmailPlaceholder}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-secondary block">
-                    {t.mobileNumberLabel}
-                  </label>
-                  <div className="relative">
-                    <div className={`absolute inset-y-0 ${lang === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none text-secondary`}>
-                      <Phone size={16} />
-                    </div>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className={`w-full bg-surface-50 border border-border rounded-lg ${lang === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 text-sm focus:outline-none focus:border-primary transition-all text-foreground phone-number`}
-                      placeholder={t.mobileNumberPlaceholder}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-secondary block">
-                    {t.createPasswordLabel}
-                  </label>
-                  <div className="relative">
-                    <div className={`absolute inset-y-0 ${lang === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none text-secondary`}>
-                      <Lock size={16} />
-                    </div>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className={`w-full bg-surface-50 border border-border rounded-lg ${lang === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 text-sm focus:outline-none focus:border-primary transition-all text-foreground`}
-                      placeholder={t.createPasswordPlaceholder}
-                      minLength={6}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-secondary block">
-                    {t.confirmPasswordLabel}
-                  </label>
-                  <div className="relative">
-                    <div className={`absolute inset-y-0 ${lang === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none text-secondary`}>
-                      <Lock size={16} />
-                    </div>
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className={`w-full bg-surface-50 border border-border rounded-lg ${lang === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 text-sm focus:outline-none focus:border-primary transition-all text-foreground`}
-                      placeholder={t.confirmPasswordPlaceholder}
-                      minLength={6}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-primary text-white font-bold rounded-lg py-3.5 mt-4 hover:bg-brand-hover transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-wider text-xs shadow-md"
-                >
-                  {loading ? <Loader2 size={18} className="animate-spin" /> : <><UserPlus size={16} /> {t.createAccountBtn}</>}
-                </button>
-
-                <div className="text-center pt-2 text-xs text-secondary">
-                  <span>{t.alreadyHaveAccount} </span>
-                  <button
-                    type="button"
-                    onClick={() => { setMode('login'); setError(''); setSuccess(''); }}
-                    className="text-primary font-bold hover:underline"
-                  >
-                    {t.loginBtn}
-                  </button>
-                </div>
               </motion.form>
             )}
 

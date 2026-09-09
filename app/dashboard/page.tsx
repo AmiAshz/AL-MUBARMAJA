@@ -716,7 +716,20 @@ export default function DashboardPage() {
               <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 border border-border bg-surface-50 rounded-lg">
                 <User size={14} className="text-primary" />
                 <span className="text-xs font-semibold text-foreground">{currentUser.name}</span>
+                {currentUser.role === 'ADMIN' && (
+                  <span className="text-[10px] px-1.5 py-0.5 bg-primary text-white rounded font-mono font-bold">ADMIN</span>
+                )}
               </div>
+            )}
+
+            {currentUser?.role === 'ADMIN' && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors shadow-xs"
+              >
+                <ShieldCheck size={14} />
+                <span className="hidden sm:inline">{lang === 'ar' ? 'بوابة الإدارة' : 'Admin Portal'}</span>
+              </Link>
             )}
 
             <button 

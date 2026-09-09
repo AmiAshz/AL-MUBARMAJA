@@ -15,6 +15,7 @@ const publicRoutes = require('./routes/public.routes');
 const webhookRoutes = require('./routes/webhook.routes');
 const serviceRoutes = require('./routes/service.routes');
 const settingsRoutes = require('./routes/settings.routes');
+const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use('/api/public', publicRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error Handling Middleware (must be last)
 app.use(errorHandler);

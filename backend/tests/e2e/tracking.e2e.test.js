@@ -68,11 +68,21 @@ describe('Public Customer Vehicle Tracking API', () => {
     await prisma.$disconnect();
   });
 
-  it('1. Should return 404 for tracking request with only phone number', async () => {
+  it('1. Should return 404 for tracking request with missing tracking code', async () => {
+    const res = await request(app)
+      .post('/api/public/vehicle-tracking')
+      .send({});
+      
+    expect(res.statusCode).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain("We couldn't find a vehicle");
+  });
+
+  it('2. Should return 404 for tracking request with invalid tracking code', async () => {
     const res = await request(app)
       .post('/api/public/vehicle-tracking')
       .send({
-        phone: '+919999999999'
+        trackingCode: 'VT-INVALID-CODE'
       });
       
     expect(res.statusCode).toBe(404);
@@ -80,36 +90,11 @@ describe('Public Customer Vehicle Tracking API', () => {
     expect(res.body.message).toContain("We couldn't find a vehicle");
   });
 
-  it('2. Should return 404 for tracking request with wrong tracking code', async () => {
+  it('3. Should successfully return sanitized tracking data with correct tracking code', async () => {
     const res = await request(app)
       .post('/api/public/vehicle-tracking')
       .send({
-        trackingCode: 'VT-INVALID-CODE',
-        phone: '+919999999999'
-      });
-      
-    expect(res.statusCode).toBe(404);
-    expect(res.body.message).toContain("We couldn't find a vehicle");
-  });
-
-  it('3. Should return 404 for tracking request with correct code but wrong phone', async () => {
-    const res = await request(app)
-      .post('/api/public/vehicle-tracking')
-      .send({
-        trackingCode,
-        phone: '+910000000000'
-      });
-      
-    expect(res.statusCode).toBe(404);
-    expect(res.body.message).toContain("We couldn't find a vehicle");
-  });
-
-  it('4. Should successfully return sanitized tracking data with correct credentials', async () => {
-    const res = await request(app)
-      .post('/api/public/vehicle-tracking')
-      .send({
-        trackingCode,
-        phone: '+919999999999'
+        trackingCode
       });
       
     expect(res.statusCode).toBe(200);
@@ -131,7 +116,7 @@ describe('Public Customer Vehicle Tracking API', () => {
     expect(data.finalCost).toBeUndefined();
   });
 
-  it('5. Should invalidate old tracking code after regeneration', async () => {
+  it('4. Should invalidate old tracking code after regeneration', async () => {
     // Regenerate code
     const regenRes = await request(app)
       .post(`/api/vehicles/${testVehicle.id}/tracking/regenerate`)
@@ -144,18 +129,18 @@ describe('Public Customer Vehicle Tracking API', () => {
     // Try old code
     const oldCodeRes = await request(app)
       .post('/api/public/vehicle-tracking')
-      .send({ trackingCode, phone: '+919999999999' });
+      .send({ trackingCode });
     expect(oldCodeRes.statusCode).toBe(404);
   });
 
-  it('6. Should trigger rate limit after 5 failed attempts (6th fails with 429)', async () => {
+  it('5. Should trigger rate limit after 5 failed attempts (6th fails with 429)', async () => {
     // 5 failures
     for (let i = 0; i < 5; i++) {
-      await request(app).post('/api/public/vehicle-tracking').send({ trackingCode: 'FAIL', phone: 'FAIL' });
+      await request(app).post('/api/public/vehicle-tracking').send({ trackingCode: 'FAIL' });
     }
     
     // 6th attempt should be rate limited
-    const res = await request(app).post('/api/public/vehicle-tracking').send({ trackingCode: 'FAIL', phone: 'FAIL' });
+    const res = await request(app).post('/api/public/vehicle-tracking').send({ trackingCode: 'FAIL' });
     
     expect(res.statusCode).toBe(429);
     expect(res.body.message).toContain("Too many attempts");

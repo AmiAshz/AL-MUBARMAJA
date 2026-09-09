@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Menu, X, Wrench, ShieldCheck, MapPin, 
+import {
+  Menu, X, Wrench, ShieldCheck, MapPin,
   Clock, CheckCircle, Search, Key, Phone, Mail, ChevronRight,
   ClipboardCheck, Cpu, Users, Eye, ArrowRight, PhoneCall, Compass
 } from 'lucide-react';
@@ -308,7 +308,7 @@ const howItWorksSteps = [
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (custom = 0) => ({
-    opacity: 1, 
+    opacity: 1,
     y: 0,
     transition: { delay: custom * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }
   })
@@ -358,7 +358,7 @@ export default function Home() {
 
   return (
     <main className="w-full bg-background min-h-screen text-foreground selection:bg-primary/30 overflow-x-hidden">
-      
+
       {/* 2. NAVIGATION */}
       <header className="fixed top-0 w-full z-50 bg-white border-b border-border h-[85px] flex items-center shadow-sm">
         <div className="max-w-7xl mx-auto px-6 w-full flex items-center justify-between">
@@ -378,7 +378,7 @@ export default function Home() {
 
           {/* CTAs */}
           <div className="hidden md:flex items-center gap-4">
-            <button 
+            <button
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
               className="px-3.5 py-1.5 border-2 border-border bg-white rounded-lg text-xs font-bold font-mono text-foreground hover:bg-surface-50 transition-colors shadow-sm"
             >
@@ -391,7 +391,7 @@ export default function Home() {
 
           {/* Mobile toggle */}
           <div className="flex md:hidden items-center gap-3">
-            <button 
+            <button
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
               className="px-2.5 py-1 border border-border bg-white rounded text-xs font-bold font-mono text-foreground hover:bg-surface-50 transition-colors"
             >
@@ -406,7 +406,7 @@ export default function Home() {
         {/* Mobile Menu */}
         <AnimatePresence>
           {mobileMenuOpen && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -493,7 +493,7 @@ export default function Home() {
           {servicesList.map((svc, i) => {
             const Icon = svc.icon;
             return (
-              <motion.div 
+              <motion.div
                 key={i}
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.5}
                 className="p-8 border-2 border-border bg-white rounded-2xl hover:border-primary transition-all group flex flex-col justify-between shadow-sm hover:shadow-lg"
@@ -579,9 +579,9 @@ export default function Home() {
             </div>
             <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">{t.trackSecTitle}</h2>
             <p className="text-base text-secondary font-medium max-w-2xl mx-auto leading-relaxed mb-8">{t.trackSecDesc}</p>
-            
+
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto mb-8">
-              <Link 
+              <Link
                 href="/track"
                 className="w-full sm:w-auto px-10 py-4 bg-primary text-white font-bold rounded-xl hover:bg-brand-hover transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider shadow-md"
               >
@@ -645,7 +645,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            
+
             {/* Contact Details Card */}
             <div className="bg-white border border-border rounded-2xl p-8 shadow-sm space-y-6">
               <div className="flex items-start gap-4 p-4 bg-surface-50 border border-border rounded-xl">
@@ -678,14 +678,14 @@ export default function Home() {
               </div>
 
               <div className="pt-4 flex flex-col sm:flex-row gap-3">
-                <a 
+                <a
                   href="tel:+966558852934"
                   className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shadow-md text-center"
                 >
                   <PhoneCall size={16} />
                   {t.callWorkshopBtn}
                 </a>
-                <a 
+                <a
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -740,7 +740,7 @@ export default function Home() {
       <footer className="bg-white border-t border-border py-14">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
-            
+
             {/* Col 1: Brand */}
             <div className="space-y-3">
               <span className="font-display text-2xl font-extrabold text-foreground block">{t.title}</span>

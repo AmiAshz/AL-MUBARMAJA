@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Key, Phone, ArrowRight, Loader2, AlertCircle, CheckCircle2, Circle, Clock, ShieldCheck } from 'lucide-react';
+import { Key, ArrowRight, Loader2, AlertCircle, CheckCircle2, Circle, Clock, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
@@ -19,15 +19,13 @@ const dict = {
 
     // 7. TRACK YOUR VEHICLE
     trackTitle: "تتبع مركبتك",
-    trackDesc: "تابع حالة إصلاح مركبتك مباشرة من خلال موقعنا.",
-    trackInstruction: "أدخل رمز التتبع الذي تم تزويدك به ورقم الجوال المسجل لدى الورشة.",
+    trackDesc: "تابع حالة إصلاح ومراحل صيانة مركبتك مباشرة وفورياً من خلال موقعنا.",
+    trackInstruction: "أدخل رمز التتبع الخاص بمركبتك لمتابعة تفاصيل الإصلاح.",
     codeLabel: "رمز التتبع",
-    codePlaceholder: "أدخل رمز التتبع الخاص بك.",
-    phoneLabel: "رقم الجوال المسجل",
-    phonePlaceholder: "أدخل رقم الجوال المسجل لدى الورشة.",
+    codePlaceholder: "أدخل رمز التتبع الخاص بك (مثال: VT-ABC123)",
     trackAction: "تتبع المركبة",
-    privacyNoticeTitle: "تنبيه الخصوصية",
-    privacyNotice: "حفاظاً على خصوصيتك، لا يتم عرض معلومات المركبة إلا عند تطابق رمز التتبع مع رقم الجوال المسجل في سجلات الورشة.",
+    privacyNoticeTitle: "خدمة التتبع المباشر",
+    privacyNotice: "يمكنك متابعة حالة الصيانة ومراحل العمل المكتملة وآخر التحديثات وتكاليف الإصلاح المعتمدة فورياً باستخدام رمز التتبع.",
 
     // 8. VEHICLE TRACKING RESULT
     vehicleStatusTitle: "حالة المركبة",
@@ -49,21 +47,19 @@ const dict = {
 
     // Repair Progress Stages
     stageVehicleReceived: "تم استلام المركبة",
-    stageVehicleReceivedDesc: "تم استلام المركبة.",
-    stageDiagnosis: "التشخيص",
-    stageDiagnosisCompletedDesc: "تم الانتهاء من التشخيص.",
-    stageRepair: "الإصلاح",
-    stageRepairInProgressDesc: "الإصلاح قيد التنفيذ.",
-    stageFinalCheck: "الفحص النهائي",
+    stageVehicleReceivedDesc: "تم استلام المركبة في الورشة.",
+    stageDiagnosis: "التشخيص والفحص",
+    stageDiagnosisCompletedDesc: "تم الانتهاء من فحص وتشخيص المركبة.",
+    stageRepair: "الإصلاح والصيانة",
+    stageRepairInProgressDesc: "أعمال الإصلاح والصيانة جارية.",
+    stageFinalCheck: "الفحص النهائي والجودة",
     stagePending: "لم يبدأ بعد.",
-    stageCompleted: "تم الانتهاء.",
+    stageCompleted: "تم الانتهاء بنجاح.",
     stageReadyForCollection: "جاهزة للاستلام",
 
     // 30. POP-UP / SYSTEM MESSAGES
-    vehicleNotFound: "لم يتم العثور على المركبة.",
-    invalidCodeOrPhone: "رمز التتبع أو رقم الجوال غير صحيح.",
-    enterTrackingCode: "يرجى إدخال رمز التتبع.",
-    enterMobileNumber: "يرجى إدخال رقم الجوال."
+    vehicleNotFound: "لم يتم العثور على مركبة بهذا الرمز. يرجى التحقق من صحة رمز التتبع والمحاولة مجدداً.",
+    enterTrackingCode: "يرجى إدخال رمز التتبع."
   },
   en: {
     // 1. BRANDING
@@ -74,15 +70,13 @@ const dict = {
 
     // 7. TRACK YOUR VEHICLE
     trackTitle: "Track Your Vehicle",
-    trackDesc: "Follow your vehicle's repair progress directly from our website.",
-    trackInstruction: "Enter the tracking code provided to you and the mobile number registered with your vehicle.",
+    trackDesc: "Follow your vehicle's repair progress and status directly in real-time.",
+    trackInstruction: "Enter your vehicle's tracking code to view live repair progress.",
     codeLabel: "Tracking Code",
-    codePlaceholder: "Enter your tracking code.",
-    phoneLabel: "Registered Mobile Number",
-    phonePlaceholder: "Enter the mobile number registered with the workshop.",
+    codePlaceholder: "Enter your tracking code (e.g. VT-ABC123)",
     trackAction: "Track Vehicle",
-    privacyNoticeTitle: "Privacy Notice",
-    privacyNotice: "For your privacy, vehicle information is only displayed when the tracking code and registered mobile number match our records.",
+    privacyNoticeTitle: "Live Tracking Portal",
+    privacyNotice: "You can track vehicle repair status, completed workflow stages, latest technician updates, and approved estimates in real-time.",
 
     // 8. VEHICLE TRACKING RESULT
     vehicleStatusTitle: "Vehicle Status",
@@ -104,21 +98,19 @@ const dict = {
 
     // Repair Progress Stages
     stageVehicleReceived: "Vehicle Received",
-    stageVehicleReceivedDesc: "Vehicle received.",
-    stageDiagnosis: "Diagnosis",
-    stageDiagnosisCompletedDesc: "Diagnosis completed.",
-    stageRepair: "Repair",
-    stageRepairInProgressDesc: "Repair in progress.",
-    stageFinalCheck: "Final Check",
+    stageVehicleReceivedDesc: "Vehicle received at the workshop.",
+    stageDiagnosis: "Diagnosis & Inspection",
+    stageDiagnosisCompletedDesc: "Diagnosis and inspection completed.",
+    stageRepair: "Repair & Service",
+    stageRepairInProgressDesc: "Repair and service in progress.",
+    stageFinalCheck: "Final Quality Check",
     stagePending: "Pending.",
-    stageCompleted: "Completed.",
+    stageCompleted: "Completed successfully.",
     stageReadyForCollection: "Ready for Collection",
 
     // 30. POP-UP / SYSTEM MESSAGES
-    vehicleNotFound: "Vehicle not found.",
-    invalidCodeOrPhone: "The tracking code or mobile number is incorrect.",
-    enterTrackingCode: "Please enter your tracking code.",
-    enterMobileNumber: "Please enter your mobile number."
+    vehicleNotFound: "No vehicle found with this tracking code. Please verify the code and try again.",
+    enterTrackingCode: "Please enter your tracking code."
   }
 };
 
@@ -126,7 +118,6 @@ function TrackContent() {
   const searchParams = useSearchParams();
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [trackingCode, setTrackingCode] = useState('');
-  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [trackingData, setTrackingData] = useState<any>(null);
@@ -138,34 +129,26 @@ function TrackContent() {
     document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
   }, [lang]);
 
-  // Auto-submit if both params are present on load
+  // Auto-submit if code param is present on load
   useEffect(() => {
     const codeParam = searchParams.get('code') || '';
-    const phoneParam = searchParams.get('phone') || '';
 
-    if (codeParam) setTrackingCode(codeParam);
-    if (phoneParam) setPhone(phoneParam);
-
-    if (codeParam && phoneParam) {
+    if (codeParam) {
+      setTrackingCode(codeParam);
       const formEvent = { preventDefault: () => {} } as React.FormEvent;
-      handleTrack(formEvent, codeParam, phoneParam);
+      handleTrack(formEvent, codeParam);
     }
   }, [searchParams]);
 
-  const handleTrack = async (e: React.FormEvent, overrideCode?: string, overridePhone?: string) => {
+  const handleTrack = async (e: React.FormEvent, overrideCode?: string) => {
     e.preventDefault();
     setError('');
     setTrackingData(null);
 
     const activeCode = (overrideCode ?? trackingCode).trim();
-    const activePhone = (overridePhone ?? phone).trim();
 
     if (!activeCode) {
       setError(t.enterTrackingCode);
-      return;
-    }
-    if (!activePhone) {
-      setError(t.enterMobileNumber);
       return;
     }
 
@@ -175,18 +158,18 @@ function TrackContent() {
       const res = await fetch(`${API_BASE}/api/public/vehicle-tracking`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trackingCode: activeCode, phone: activePhone })
+        body: JSON.stringify({ trackingCode: activeCode })
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-      if (!res.ok) {
-        throw new Error(data.message || t.invalidCodeOrPhone);
+      if (!res.ok || !data?.success) {
+        throw new Error(data?.message || t.vehicleNotFound);
       }
 
       setTrackingData(data.data);
     } catch (err: any) {
-      setError(t.invalidCodeOrPhone);
+      setError(err?.message || t.vehicleNotFound);
     } finally {
       setLoading(false);
     }
@@ -311,25 +294,6 @@ function TrackContent() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-secondary block mb-1">
-                    {t.phoneLabel}
-                  </label>
-                  <div className="relative">
-                    <div className={`absolute inset-y-0 ${lang === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none text-secondary`}>
-                      <Phone size={18} />
-                    </div>
-                    <input 
-                      type="tel" 
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className={`w-full bg-surface-50 border border-border rounded-lg ${lang === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-3.5 text-sm focus:outline-none focus:border-primary transition-all text-foreground phone-number`}
-                      placeholder={t.phonePlaceholder}
-                      required
-                    />
-                  </div>
-                </div>
-
                 <button 
                   type="submit" 
                   disabled={loading}
@@ -442,15 +406,15 @@ function TrackContent() {
                   {t.latestUpdateTitle}
                 </h3>
 
-                {trackingData.vehicle.progressLogs && trackingData.vehicle.progressLogs.length > 0 ? (
+                {((trackingData.customerUpdates && trackingData.customerUpdates.length > 0) || (trackingData.vehicle?.progressLogs && trackingData.vehicle.progressLogs.length > 0)) ? (
                   <div className="p-4 bg-surface-50 border border-border rounded-xl flex items-start gap-3">
                     <Clock size={18} className="text-primary shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        {trackingData.vehicle.progressLogs[0].message}
+                        {trackingData.customerUpdates?.[0]?.message || trackingData.vehicle.progressLogs[0].message}
                       </p>
                       <span className="text-[10px] text-secondary font-mono mt-1 block">
-                        {new Date(trackingData.vehicle.progressLogs[0].createdAt).toLocaleString(lang === 'ar' ? 'ar-SA' : 'en-US')}
+                        {new Date(trackingData.customerUpdates?.[0]?.createdAt || trackingData.vehicle.progressLogs[0].createdAt).toLocaleString(lang === 'ar' ? 'ar-SA' : 'en-US')}
                       </span>
                     </div>
                   </div>

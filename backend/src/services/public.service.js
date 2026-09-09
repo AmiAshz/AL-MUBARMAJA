@@ -1,12 +1,16 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const getCustomerTrackingInfo = async (trackingCode, phone) => {
-  const cleanInputPhone = (phone || '').replace(/\D/g, '');
+const getCustomerTrackingInfo = async (trackingCode) => {
+  if (!trackingCode || !String(trackingCode).trim()) {
+    return null;
+  }
 
-  const vehicles = await prisma.vehicle.findMany({
+  const cleanCode = String(trackingCode).trim();
+
+  const vehicle = await prisma.vehicle.findFirst({
     where: {
-      trackingCode: (trackingCode || '').trim(),
+      trackingCode: cleanCode,
       isTrackingEnabled: true
     },
     include: {
@@ -22,34 +26,29 @@ const getCustomerTrackingInfo = async (trackingCode, phone) => {
     }
   });
 
-  // Match tolerant to format differences by comparing last 9 digits
-  const vehicle = vehicles.find(v => {
-    const cleanDbPhone = (v.ownerPhone || '').replace(/\D/g, '');
-    if (cleanInputPhone.length >= 9 && cleanDbPhone.length >= 9) {
-      return cleanInputPhone.slice(-9) === cleanDbPhone.slice(-9);
-    }
-    return cleanInputPhone === cleanDbPhone;
-  });
-
   if (!vehicle) {
     return null; 
   }
 
   // Sanitize and map the response strictly for customer view
+  const progressLogsDto = vehicle.progressLogs.map(log => ({
+    id: log.id,
+    type: log.type,
+    message: log.message,
+    createdAt: log.createdAt
+  }));
+
   const dto = {
     vehicle: {
       make: vehicle.make,
       model: vehicle.model,
       year: vehicle.year,
-      plateNumber: vehicle.plateNumber
+      plateNumber: vehicle.plateNumber,
+      trackingCode: vehicle.trackingCode,
+      progressLogs: progressLogsDto
     },
     status: vehicle.status,
-    customerUpdates: vehicle.progressLogs.map(log => ({
-      id: log.id,
-      type: log.type,
-      message: log.message,
-      createdAt: log.createdAt
-    }))
+    customerUpdates: progressLogsDto
   };
 
   // Conditionally attach estimate or final cost

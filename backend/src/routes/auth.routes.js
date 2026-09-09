@@ -8,12 +8,12 @@ const {
   forgotPassword, 
   resetPassword 
 } = require('../controllers/auth.controller');
-const { protect } = require('../middleware/auth.middleware');
+const { protect, authorize } = require('../middleware/auth.middleware');
 const { resendVerificationLimiter } = require('../middleware/rateLimiter.middleware');
 
 const router = express.Router();
 
-router.post('/register', register);
+router.post('/register', protect, authorize('ADMIN'), register);
 router.post('/login', login);
 router.get('/me', protect, getMe);
 

@@ -27,6 +27,33 @@ const seedDatabase = async () => {
       console.log('[DATABASE] Seeded default workshop settings.');
     }
 
+    const bcrypt = require('bcryptjs');
+    const userCount = await prisma.user.count();
+    if (userCount === 0) {
+      const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'Admin@123456';
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(defaultPassword, salt);
+
+      await prisma.user.create({
+        data: {
+          name: 'Workshop Administrator',
+          email: process.env.ADMIN_EMAIL || 'admin@almubarmaja.com',
+          passwordHash,
+          phone: '+966 55 885 2934',
+          role: 'ADMIN',
+          emailVerified: true,
+          isActive: true
+        }
+      });
+      console.log('[DATABASE] Seeded initial default administrator account.');
+    }
+
+    // Ensure owner account has ADMIN role
+    await prisma.user.updateMany({
+      where: { email: 'ameenaamiaan@gmail.com' },
+      data: { role: 'ADMIN', emailVerified: true, isActive: true }
+    });
+
     const servicesCount = await prisma.service.count();
     if (servicesCount === 0) {
       const defaultServices = [
