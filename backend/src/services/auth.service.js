@@ -35,13 +35,16 @@ const registerUser = async (data) => {
   const salt = await bcrypt.genSalt(10);
   const passwordHash = await bcrypt.hash(password, salt);
 
+  const userCount = await prisma.user.count();
+  const assignedRole = role || (userCount === 0 ? 'ADMIN' : 'SERVICE_ADVISOR');
+
   const user = await prisma.user.create({
     data: {
       name,
       email,
       passwordHash,
       phone,
-      role: role || 'TECHNICIAN',
+      role: assignedRole,
       emailVerified: false,
       isActive: true
     },

@@ -913,10 +913,14 @@ export default function DashboardPage() {
 
               <VehicleIntakeForm 
                 onSave={async (data: any) => {
-                  const res = await addVehicle(data);
-                  if (res) {
-                    showToast(t.msgVehicleRegistered, 'success');
-                    setActiveTab('vehicles');
+                  try {
+                    const res = await addVehicle(data);
+                    if (res) {
+                      showToast(t.msgVehicleRegistered, 'success');
+                      setActiveTab('vehicles');
+                    }
+                  } catch (err: any) {
+                    showToast(err?.message || t.msgEnterAllRequiredFields, 'error');
                   }
                 }}
                 showToast={showToast}
@@ -1270,14 +1274,20 @@ function VehicleIntakeForm({ vehicle, onSave, showToast, t, lang }: any) {
     setSaving(true);
     try {
       const payload = {
-        make, model, year: parseInt(year) || null, plateNumber, vin,
-        ownerName, ownerPhone, ownerEmail, dateBroughtIn: dateReceived,
+        make: make.trim(),
+        model: model.trim(),
+        year: year ? String(year).trim() : new Date().getFullYear().toString(),
+        plateNumber: plateNumber.trim(),
+        vin: vin.trim() || undefined,
+        ownerName: ownerName.trim(),
+        ownerPhone: ownerPhone.trim(),
+        dateBroughtIn: dateReceived || new Date().toISOString().split('T')[0],
         status: 'AWAITING_DIAGNOSIS',
         complaints: complaints.filter(c => c.trim() !== '')
       };
       await onSave(payload);
     } catch (err: any) {
-      showToast(t.msgEnterAllRequiredFields, 'error');
+      showToast(err?.message || t.msgEnterAllRequiredFields, 'error');
     } finally {
       setSaving(false);
     }
@@ -1417,11 +1427,15 @@ function VehicleFormModal({ vehicle, onClose, onSave, markWhatsappAsSent, showTo
             <VehicleIntakeForm 
               vehicle={vehicle} 
               onSave={async (data: any) => {
-                const res = await onSave(data);
-                if (res && res.id) {
-                  setCreatedVehicle(res);
-                } else {
-                  onClose();
+                try {
+                  const res = await onSave(data);
+                  if (res && res.id) {
+                    setCreatedVehicle(res);
+                  } else {
+                    onClose();
+                  }
+                } catch (err: any) {
+                  showToast(err?.message || t.msgEnterAllRequiredFields, 'error');
                 }
               }} 
               showToast={showToast} 

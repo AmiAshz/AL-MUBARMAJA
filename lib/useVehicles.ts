@@ -77,31 +77,42 @@ export function useVehicles() {
 
   const addVehicle = async (vehicleData: any) => {
     try {
+      const complaintsArray = Array.isArray(vehicleData.complaints)
+        ? vehicleData.complaints
+            .map((c: any) => typeof c === 'string' ? c.trim() : (c?.description || '').trim())
+            .filter(Boolean)
+        : [];
+
       const res = await fetch(`${API_URL}/vehicles`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({
           make: vehicleData.make,
           model: vehicleData.model,
-          year: vehicleData.year,
-          plateNumber: vehicleData.plateNumber, // Mapped
-          vin: vehicleData.vin,
+          year: String(vehicleData.year || new Date().getFullYear()),
+          plateNumber: vehicleData.plateNumber,
+          vin: vehicleData.vin || null,
           ownerName: vehicleData.ownerName,
           ownerPhone: vehicleData.ownerPhone,
           dateBroughtIn: vehicleData.dateBroughtIn || new Date().toISOString().split('T')[0],
-          status: vehicleData.status,
-          complaints: vehicleData.complaints.map((c: any) => c.description || c) // Flatten if needed
+          status: vehicleData.status || 'AWAITING_DIAGNOSIS',
+          complaints: complaintsArray
         })
       });
+
+      const data = await res.json().catch(() => null);
+
       if (res.ok) {
-        const data = await res.json();
         fetchVehicles();
-        return data.data;
+        return data?.data || data;
       }
-      return null;
-    } catch (e) {
-      console.error(e);
-      return null;
+
+      const errMsg = data?.message || `Failed to register vehicle (${res.status})`;
+      console.error(errMsg);
+      throw new Error(errMsg);
+    } catch (e: any) {
+      console.error('addVehicle error:', e);
+      throw e;
     }
   };
 
