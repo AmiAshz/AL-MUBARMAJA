@@ -697,24 +697,37 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Map Placeholder Card */}
-            <div className="relative w-full h-[400px] border border-border bg-white rounded-2xl overflow-hidden shadow-sm flex items-center justify-center p-8 text-center">
-              <div className="absolute inset-0 bg-[radial-gradient(rgba(61,90,14,0.06)_1px,transparent_1px)] bg-[size:20px_20px]" />
-              
-              <div className="relative z-10 flex flex-col items-center">
-                <MapPin className="text-primary animate-bounce mb-4" size={48} />
-                <h4 className="text-xl font-extrabold text-foreground mb-2">{t.workshopVal}</h4>
-                <p className="text-sm text-secondary font-medium max-w-xs mb-6 leading-relaxed">
-                  {t.locationVal}
-                </p>
-                <a 
+            {/* Interactive Embedded Google Map */}
+            <div className="relative w-full h-[420px] border-2 border-border bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col group">
+              <iframe
+                title={t.workshopVal}
+                src="https://maps.google.com/maps?q=18.2410405,42.5722994&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen={false}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute bottom-4 start-4 end-4 sm:end-auto bg-white/95 backdrop-blur-sm border border-border p-3.5 rounded-xl shadow-lg flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-surface-50 text-primary flex items-center justify-center shrink-0 border border-border">
+                    <MapPin size={18} />
+                  </div>
+                  <div className="text-start">
+                    <div className="text-xs font-bold text-foreground">{t.workshopVal}</div>
+                    <div className="text-[11px] text-secondary font-medium truncate max-w-[200px]">{t.locationVal}</div>
+                  </div>
+                </div>
+                <a
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shadow-md"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shrink-0 shadow-sm"
                 >
-                  <Compass size={16} />
-                  {t.getDirectionsBtn}
+                  <Compass size={14} />
+                  <span>{t.getDirectionsBtn}</span>
                 </a>
               </div>
             </div>
