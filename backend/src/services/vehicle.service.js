@@ -138,54 +138,24 @@ const getVehicleById = async (id) => {
  * Intake a new vehicle with initial complaints and audit logs
  */
 const createVehicle = async (data, userId) => {
-  const {
-    make,
-    model,
-    year,
-    plateNumber,
-    vin,
-    ownerName,
-    ownerPhone,
-    dateBroughtIn,
-    timeBroughtIn,
-    initialCondition,
-    status,
-    complaints
-  } = data;
+  const { complaints, ...vehicleData } = data;
   
-  if (!make || !model || !plateNumber || !ownerName || !ownerPhone) {
+  if (!vehicleData.make || !vehicleData.model || !vehicleData.plateNumber || !vehicleData.ownerName || !vehicleData.ownerPhone) {
     throw new ApiError(400, 'Missing required vehicle details. Make, Model, Plate Number, Owner Name, and Phone Number are required.');
   }
 
   const jobNumber = await generateJobNumber();
   const trackingCode = generateTrackingCode();
   
-  // Clean and format complaints
-  const formattedComplaints = Array.isArray(complaints)
-    ? complaints
-        .map(c => typeof c === 'string' ? c.trim() : (c?.description?.trim() || ''))
-        .filter(Boolean)
-        .map(description => ({ description }))
-    : [];
-
   const vehicle = await prisma.vehicle.create({
     data: {
-      make: String(make).trim(),
-      model: String(model).trim(),
-      year: year ? String(year).trim() : new Date().getFullYear().toString(),
-      plateNumber: String(plateNumber).trim(),
-      vin: vin ? String(vin).trim() : null,
-      ownerName: String(ownerName).trim(),
-      ownerPhone: String(ownerPhone).trim(),
-      dateBroughtIn: dateBroughtIn || new Date().toISOString().split('T')[0],
-      timeBroughtIn: timeBroughtIn || null,
-      initialCondition: initialCondition || null,
+      ...vehicleData,
       jobNumber,
       trackingCode,
       isTrackingEnabled: true,
-      status: status || 'AWAITING_DIAGNOSIS',
+      status: vehicleData.status || 'AWAITING_DIAGNOSIS',
       complaints: {
-        create: formattedComplaints
+        create: complaints?.map(desc => ({ description: desc })) || []
       },
       progressLogs: {
         create: [{ 
@@ -198,17 +168,16 @@ const createVehicle = async (data, userId) => {
     include: { complaints: true, progressLogs: true }
   });
 
+  // No automatic WhatsApp messages sent on registration
+  const latestNotification = null;
+
   const vehicleWithNotification = {
     ...vehicle,
-    latestNotification: null
+    latestNotification
   };
 
-  try {
-    socket.getIO().emit('vehicle:created', vehicleWithNotification);
-    socket.getIO().emit('progress:added', { vehicleId: vehicle.id });
-  } catch (sockErr) {
-    console.warn('[SOCKET WARNING] Real-time event emission skipped:', sockErr.message);
-  }
+  socket.getIO().emit('vehicle:created', vehicleWithNotification);
+  socket.getIO().emit('progress:added', { vehicleId: vehicle.id });
 
   return vehicleWithNotification;
 };

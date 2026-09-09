@@ -363,12 +363,8 @@ export default function Home() {
       <header className="fixed top-0 w-full z-50 bg-white border-b border-border h-[85px] flex items-center shadow-sm">
         <div className="max-w-7xl mx-auto px-6 w-full flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link href="/" className="flex items-center group">
               <img src="/logo.png" alt={t.title} className="h-[48px] md:h-[58px] w-auto object-contain group-hover:opacity-85 transition-opacity" />
-              <div className="hidden lg:flex flex-col">
-                <span className="font-display font-extrabold text-lg text-foreground leading-tight">{t.title}</span>
-                <span className="text-xs text-secondary font-semibold">{t.subBrand}</span>
-              </div>
             </Link>
           </div>
 

@@ -33,26 +33,26 @@ router.use(protect); // All routes require authentication
 
 router.route('/')
   .get(getVehicles)
-  .post(authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST', 'TECHNICIAN'), createVehicle);
+  .post(authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), createVehicle);
 
 router.route('/:id')
   .get(getVehicle)
-  .put(authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST', 'TECHNICIAN'), updateVehicle)
+  .put(authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), updateVehicle)
   .delete(authorize('ADMIN', 'MANAGER'), deleteVehicle);
 
-router.patch('/:id/status', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST', 'TECHNICIAN'), updateStatus);
+router.patch('/:id/status', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR'), updateStatus);
 
 // Tracking Management
-router.post('/:id/tracking/regenerate', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'TECHNICIAN'), regenerateTrackingCode);
-router.patch('/:id/tracking/status', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'TECHNICIAN'), updateTrackingStatus);
-router.post('/:id/whatsapp-notifications', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST', 'TECHNICIAN'), sendWhatsappNotification);
+router.post('/:id/tracking/regenerate', authorize('ADMIN', 'MANAGER'), regenerateTrackingCode);
+router.patch('/:id/tracking/status', authorize('ADMIN', 'MANAGER'), updateTrackingStatus);
+router.post('/:id/whatsapp-notifications', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), sendWhatsappNotification);
 
 // Email Notifications
-router.post('/:id/send-tracking-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST', 'TECHNICIAN'), sendTrackingEmail);
-router.post('/:id/send-status-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST', 'TECHNICIAN'), sendStatusEmail);
-router.post('/:id/send-pickup-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST', 'TECHNICIAN'), sendPickupEmail);
-router.post('/:id/send-completion-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST', 'TECHNICIAN'), sendCompletionEmail);
-router.get('/:id/emails', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST', 'TECHNICIAN'), getVehicleEmails);
+router.post('/:id/send-tracking-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), sendTrackingEmail);
+router.post('/:id/send-status-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), sendStatusEmail);
+router.post('/:id/send-pickup-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), sendPickupEmail);
+router.post('/:id/send-completion-email', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), sendCompletionEmail);
+router.get('/:id/emails', authorize('ADMIN', 'MANAGER', 'SERVICE_ADVISOR', 'RECEPTIONIST'), getVehicleEmails);
 
 // Progress Logs
 router.route('/:id/progress')

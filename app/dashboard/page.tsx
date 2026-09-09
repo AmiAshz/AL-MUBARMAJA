@@ -699,12 +699,8 @@ export default function DashboardPage() {
       <header className="print:hidden border-b border-border bg-white sticky top-0 z-30 h-[85px] flex items-center shadow-sm">
         <div className="px-8 py-2 w-full flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link href="/" className="flex items-center group">
               <img src="/logo.png" alt={t.title} className="h-[45px] md:h-[54px] w-auto object-contain group-hover:opacity-80 transition-opacity" />
-              <div className="hidden lg:flex flex-col">
-                <span className="font-display font-bold text-base text-foreground leading-tight">{t.title}</span>
-                <span className="text-[10px] text-secondary font-medium">{t.subBrand}</span>
-              </div>
             </Link>
           </div>
 
@@ -913,14 +909,10 @@ export default function DashboardPage() {
 
               <VehicleIntakeForm 
                 onSave={async (data: any) => {
-                  try {
-                    const res = await addVehicle(data);
-                    if (res) {
-                      showToast(t.msgVehicleRegistered, 'success');
-                      setActiveTab('vehicles');
-                    }
-                  } catch (err: any) {
-                    showToast(err?.message || t.msgEnterAllRequiredFields, 'error');
+                  const res = await addVehicle(data);
+                  if (res) {
+                    showToast(t.msgVehicleRegistered, 'success');
+                    setActiveTab('vehicles');
                   }
                 }}
                 showToast={showToast}
@@ -1274,20 +1266,14 @@ function VehicleIntakeForm({ vehicle, onSave, showToast, t, lang }: any) {
     setSaving(true);
     try {
       const payload = {
-        make: make.trim(),
-        model: model.trim(),
-        year: year ? String(year).trim() : new Date().getFullYear().toString(),
-        plateNumber: plateNumber.trim(),
-        vin: vin.trim() || undefined,
-        ownerName: ownerName.trim(),
-        ownerPhone: ownerPhone.trim(),
-        dateBroughtIn: dateReceived || new Date().toISOString().split('T')[0],
+        make, model, year: parseInt(year) || null, plateNumber, vin,
+        ownerName, ownerPhone, ownerEmail, dateBroughtIn: dateReceived,
         status: 'AWAITING_DIAGNOSIS',
         complaints: complaints.filter(c => c.trim() !== '')
       };
       await onSave(payload);
     } catch (err: any) {
-      showToast(err?.message || t.msgEnterAllRequiredFields, 'error');
+      showToast(t.msgEnterAllRequiredFields, 'error');
     } finally {
       setSaving(false);
     }
@@ -1427,15 +1413,11 @@ function VehicleFormModal({ vehicle, onClose, onSave, markWhatsappAsSent, showTo
             <VehicleIntakeForm 
               vehicle={vehicle} 
               onSave={async (data: any) => {
-                try {
-                  const res = await onSave(data);
-                  if (res && res.id) {
-                    setCreatedVehicle(res);
-                  } else {
-                    onClose();
-                  }
-                } catch (err: any) {
-                  showToast(err?.message || t.msgEnterAllRequiredFields, 'error');
+                const res = await onSave(data);
+                if (res && res.id) {
+                  setCreatedVehicle(res);
+                } else {
+                  onClose();
                 }
               }} 
               showToast={showToast} 
