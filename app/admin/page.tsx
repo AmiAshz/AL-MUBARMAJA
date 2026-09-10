@@ -355,7 +355,7 @@ export default function AdminPage() {
 
       const data = await res.json();
       if (res.ok && data?.data) {
-        setEmployees(data.data);
+        setEmployees(Array.isArray(data.data) ? data.data : Array.isArray(data.data?.employees) ? data.data.employees : []);
       } else {
         showToast(data?.message || t.errorGeneric, 'error');
       }
@@ -584,22 +584,25 @@ export default function AdminPage() {
 
   // Computed KPIs
   const stats = useMemo(() => {
-    const total = employees.length;
-    const active = employees.filter(e => e.isActive).length;
-    const admins = employees.filter(e => e.role === 'ADMIN').length;
-    const techsAndAdvisors = employees.filter(e => e.role === 'TECHNICIAN' || e.role === 'SERVICE_ADVISOR').length;
+    const list = Array.isArray(employees) ? employees : [];
+    const total = list.length;
+    const active = list.filter(e => e?.isActive).length;
+    const admins = list.filter(e => e?.role === 'ADMIN').length;
+    const techsAndAdvisors = list.filter(e => e?.role === 'TECHNICIAN' || e?.role === 'SERVICE_ADVISOR').length;
     return { total, active, admins, techsAndAdvisors };
   }, [employees]);
 
   // Filtered list
   const filteredEmployees = useMemo(() => {
-    return employees.filter(e => {
+    const list = Array.isArray(employees) ? employees : [];
+    return list.filter(e => {
+      if (!e) return false;
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch = !q ||
-        e.name.toLowerCase().includes(q) ||
-        e.email.toLowerCase().includes(q) ||
+        (e.name && e.name.toLowerCase().includes(q)) ||
+        (e.email && e.email.toLowerCase().includes(q)) ||
         (e.phone && e.phone.includes(q)) ||
-        e.role.toLowerCase().includes(q);
+        (e.role && e.role.toLowerCase().includes(q));
 
       const matchesRole = !selectedRole || e.role === selectedRole;
       const matchesStatus = !selectedStatus ||

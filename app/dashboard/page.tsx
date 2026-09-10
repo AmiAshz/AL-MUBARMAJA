@@ -594,6 +594,8 @@ export default function DashboardPage() {
     regenerateTrackingCode, resendCompletionMessage, markWhatsappAsSent 
   } = useVehicles();
   
+  const [mounted, setMounted] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [activeTab, setActiveTab] = useState<'dashboard' | 'vehicles' | 'intake' | 'costs' | 'logs' | 'reports' | 'settings'>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -616,8 +618,13 @@ export default function DashboardPage() {
   const t = dict[lang];
 
   useEffect(() => {
+    setMounted(true);
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
+    try {
+      const u = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+      if (u) setCurrentUser(JSON.parse(u));
+    } catch {}
   }, [lang]);
 
   const showToast = (message: string, type: 'success' | 'info' | 'error' = 'info') => {
@@ -627,38 +634,35 @@ export default function DashboardPage() {
     }, 4500);
   };
 
-  const currentUser = React.useMemo(() => {
-    try {
-      const u = localStorage.getItem('user');
-      return u ? JSON.parse(u) : null;
-    } catch { return null; }
-  }, []);
-
   const handleLogout = () => {
-    document.cookie = 'token=; Max-Age=0; path=/';
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.replace('/login');
+    if (typeof document !== 'undefined') document.cookie = 'token=; Max-Age=0; path=/;';
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.replace('/login');
+    }
   };
 
   // 15. DASHBOARD STATS
   const stats = useMemo(() => {
-    const total = vehicles.length;
-    const active = vehicles.filter(v => ACTIVE_STATUSES.includes(v.status)).length;
-    const awaitingDiag = vehicles.filter(v => v.status === 'AWAITING_DIAGNOSIS').length;
-    const awaitingParts = vehicles.filter(v => v.status === 'AWAITING_PARTS').length;
-    const readyForPickup = vehicles.filter(v => v.status === 'READY_FOR_PICKUP').length;
-    const completed = vehicles.filter(v => v.status === 'COMPLETED').length;
+    const list = Array.isArray(vehicles) ? vehicles : [];
+    const total = list.length;
+    const active = list.filter(v => v && ACTIVE_STATUSES.includes(v.status)).length;
+    const awaitingDiag = list.filter(v => v?.status === 'AWAITING_DIAGNOSIS').length;
+    const awaitingParts = list.filter(v => v?.status === 'AWAITING_PARTS').length;
+    const readyForPickup = list.filter(v => v?.status === 'READY_FOR_PICKUP').length;
+    const completed = list.filter(v => v?.status === 'COMPLETED').length;
     
     let outstandingCosts = 0;
 
-    vehicles.forEach(v => {
+    list.forEach(v => {
+      if (!v) return;
       const payments = v.payments || [];
-      const totalPaid = payments.reduce((sum: number, p: any) => sum + p.amount, 0);
+      const totalPaid = payments.reduce((sum: number, p: any) => sum + (p?.amount || 0), 0);
       if (v.finalTotalCost !== null && v.finalTotalCost !== undefined) {
         outstandingCosts += Math.max(0, v.finalTotalCost - totalPaid);
-      } else if (v.estimates && v.estimates.length > 0) {
-        outstandingCosts += Math.max(0, v.estimates[0].total - totalPaid);
+      } else if (v.estimates && v.estimates.length > 0 && v.estimates[0]) {
+        outstandingCosts += Math.max(0, (v.estimates[0].total || 0) - totalPaid);
       }
     });
 
@@ -667,7 +671,9 @@ export default function DashboardPage() {
 
   // 16. VEHICLES SEARCH & FILTERS
   const filteredVehicles = useMemo(() => {
-    return vehicles.filter(v => {
+    const list = Array.isArray(vehicles) ? vehicles : [];
+    return list.filter(v => {
+      if (!v) return false;
       const matchesSearch = 
         (v.plateNumber?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
         (v.ownerName?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
@@ -675,7 +681,7 @@ export default function DashboardPage() {
         (v.model?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
         (v.vin?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
         (v.trackingCode?.toLowerCase() || '').includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === 'All' || FILTER_MAP[statusFilter].includes(v.status);
+      const matchesStatus = statusFilter === 'All' || FILTER_MAP[statusFilter]?.includes(v.status);
       return matchesSearch && matchesStatus;
     });
   }, [vehicles, searchQuery, statusFilter]);
@@ -691,7 +697,7 @@ export default function DashboardPage() {
     { id: 'settings', label: t.settings, icon: Settings },
   ] as const;
 
-  if (!isLoaded) return <div className="min-h-screen bg-background flex items-center justify-center text-primary font-mono text-xs tracking-widest uppercase">Loading...</div>;
+  if (!mounted || !isLoaded) return <div className="min-h-screen bg-background flex items-center justify-center text-primary font-mono text-xs tracking-widest uppercase">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">

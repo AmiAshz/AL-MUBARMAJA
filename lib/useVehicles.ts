@@ -5,12 +5,17 @@ import io from 'socket.io-client';
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 const API_URL = `${BACKEND_URL}/api`;
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+const getAuthHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json'
   };
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token') || (typeof document !== 'undefined' ? document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] : null);
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+  return headers;
 };
 
 export function useVehicles() {
@@ -25,14 +30,16 @@ export function useVehicles() {
       if (res.ok) {
         const data = await res.json();
         // Backend returns: { success, data: { data: [...vehicles], meta: {...} } }
-        setVehicles(data.data?.data || []);
+        setVehicles(Array.isArray(data?.data?.data) ? data.data.data : Array.isArray(data?.data) ? data.data : []);
         setIsLoaded(true);
       } else {
         console.error("Failed to fetch vehicles", res.status);
         if (res.status === 401 || res.status === 403) {
-          document.cookie = 'token=; Max-Age=0; path=/;';
-          localStorage.removeItem('token');
-          window.location.href = '/login';
+          if (typeof document !== 'undefined') document.cookie = 'token=; Max-Age=0; path=/;';
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+          }
         } else {
           setIsLoaded(true);
         }
@@ -47,31 +54,42 @@ export function useVehicles() {
   useEffect(() => {
     fetchVehicles();
     
-    const token = localStorage.getItem('token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-    const socket = io(BACKEND_URL, {
-      auth: { token }
-    });
-    
-    socket.on('connect', () => {
-      console.log('Connected to AL Mubarmaja real-time server');
-    });
+    let socket: any = null;
+    try {
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1]) : null;
+      if (BACKEND_URL && typeof window !== 'undefined') {
+        socket = io(BACKEND_URL, {
+          auth: { token },
+          transports: ['polling', 'websocket'],
+          reconnectionAttempts: 2,
+          timeout: 4000
+        });
+        
+        socket.on('connect', () => {
+          console.log('Connected to AL Mubarmaja real-time server');
+        });
 
-    const triggerUpdate = () => {
-      console.log('Real-time event received, fetching updates...');
-      fetchVehicles();
-    };
+        const triggerUpdate = () => {
+          fetchVehicles();
+        };
 
-    socket.on('vehicle:created', triggerUpdate);
-    socket.on('vehicle:updated', triggerUpdate);
-    socket.on('vehicle:deleted', triggerUpdate);
-    socket.on('vehicle:statusChanged', triggerUpdate);
-    socket.on('estimate:updated', triggerUpdate);
-    socket.on('repair:updated', triggerUpdate);
-    socket.on('progress:added', triggerUpdate);
-    socket.on('payment:added', triggerUpdate);
+        socket.on('vehicle:created', triggerUpdate);
+        socket.on('vehicle:updated', triggerUpdate);
+        socket.on('vehicle:deleted', triggerUpdate);
+        socket.on('vehicle:statusChanged', triggerUpdate);
+        socket.on('estimate:updated', triggerUpdate);
+        socket.on('repair:updated', triggerUpdate);
+        socket.on('progress:added', triggerUpdate);
+        socket.on('payment:added', triggerUpdate);
+      }
+    } catch (err) {
+      console.warn("Socket.io initialization skipped:", err);
+    }
 
     return () => {
-      socket.disconnect();
+      if (socket) {
+        try { socket.disconnect(); } catch {}
+      }
     };
   }, [fetchVehicles]);
 
