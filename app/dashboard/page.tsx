@@ -779,9 +779,8 @@ export default function DashboardPage() {
               animate={{ x: 0 }}
               exit={{ x: lang === 'ar' ? '100%' : '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className={`relative z-10 w-72 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col justify-between ${
-                lang === 'ar' ? 'mr-auto' : 'ml-auto'
-              }`}
+              className={`fixed top-0 bottom-0 ${lang === 'ar' ? 'right-0' : 'left-0'} z-50 w-72 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col justify-between`}
+              style={{ backgroundColor: '#ffffff' }}
             >
               <div className="p-5 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-2.5">

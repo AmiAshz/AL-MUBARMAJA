@@ -406,31 +406,81 @@ export default function Home() {
             </button>
           </div>
         </div>
+      </header>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
+      {/* Mobile Menu Backdrop & Drawer */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <div className="md:hidden">
+            {/* Dark backdrop overlay */}
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white/98 backdrop-blur-lg border-b border-border overflow-hidden absolute top-[72px] sm:top-[85px] w-full shadow-2xl z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 top-[72px] sm:top-[85px] bg-black/60 backdrop-blur-sm z-40"
+            />
+
+            {/* Solid Opaque Mobile Menu Panel */}
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="fixed top-[72px] sm:top-[85px] left-0 right-0 w-full bg-white border-b-2 border-border shadow-2xl z-50 overflow-hidden"
+              style={{ backgroundColor: '#ffffff' }}
             >
-              <div className="px-5 py-6 flex flex-col gap-3.5">
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-foreground hover:text-primary py-1">{t.home}</Link>
-                <Link href="#services" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary py-1">{t.servicesNav}</Link>
-                <Link href="/track" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-primary hover:text-brand-dark py-1">{t.trackNav}</Link>
-                <Link href="#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary py-1">{t.aboutNav}</Link>
-                <Link href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary py-1">{t.contactNav}</Link>
+              <div className="max-w-7xl mx-auto px-5 py-6 flex flex-col gap-3.5 bg-white">
+                <Link 
+                  href="/" 
+                  onClick={() => setMobileMenuOpen(false)} 
+                  className="text-sm font-bold text-foreground hover:text-primary py-2 px-3 rounded-lg hover:bg-surface-50 transition-colors"
+                >
+                  {t.home}
+                </Link>
+                <Link 
+                  href="#services" 
+                  onClick={() => setMobileMenuOpen(false)} 
+                  className="text-sm font-bold text-secondary hover:text-primary py-2 px-3 rounded-lg hover:bg-surface-50 transition-colors"
+                >
+                  {t.servicesNav}
+                </Link>
+                <Link 
+                  href="/track" 
+                  onClick={() => setMobileMenuOpen(false)} 
+                  className="text-sm font-bold text-primary hover:text-brand-dark py-2 px-3 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors flex items-center justify-between"
+                >
+                  <span>{t.trackNav}</span>
+                  <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-mono font-bold uppercase">Live</span>
+                </Link>
+                <Link 
+                  href="#about" 
+                  onClick={() => setMobileMenuOpen(false)} 
+                  className="text-sm font-bold text-secondary hover:text-primary py-2 px-3 rounded-lg hover:bg-surface-50 transition-colors"
+                >
+                  {t.aboutNav}
+                </Link>
+                <Link 
+                  href="#contact" 
+                  onClick={() => setMobileMenuOpen(false)} 
+                  className="text-sm font-bold text-secondary hover:text-primary py-2 px-3 rounded-lg hover:bg-surface-50 transition-colors"
+                >
+                  {t.contactNav}
+                </Link>
                 <div className="h-px bg-border my-1" />
-                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 bg-primary text-white font-bold text-center text-xs rounded-xl hover:bg-brand-hover transition-colors shadow-md">
-                  {t.employeeLogin}
+                <Link 
+                  href="/login" 
+                  onClick={() => setMobileMenuOpen(false)} 
+                  className="w-full py-3.5 bg-primary text-white font-bold text-center text-xs uppercase tracking-wider rounded-xl hover:bg-brand-hover transition-colors shadow-md flex items-center justify-center gap-2"
+                >
+                  <Key size={16} />
+                  <span>{t.employeeLogin}</span>
                 </Link>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* 3. HOME PAGE - HERO */}
       <section id="hero" className="relative min-h-[80vh] flex items-center justify-center pt-28 sm:pt-36 pb-16 sm:pb-20 overflow-hidden bg-background">
