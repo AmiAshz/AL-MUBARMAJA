@@ -130,7 +130,7 @@ function ResetPasswordContent() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden py-16">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden pt-16 pb-10 sm:py-16">
       {/* Background */}
       <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-center opacity-20">
         <div className="w-[600px] h-[600px] rounded-full border border-primary/20 absolute blur-[1px]" />
@@ -138,7 +138,7 @@ function ResetPasswordContent() {
       </div>
 
       {/* Language Header */}
-      <div className="absolute top-6 max-w-md w-full flex items-center justify-between px-6 z-20">
+      <div className="absolute top-4 sm:top-6 max-w-md w-full flex items-center justify-between px-4 sm:px-6 z-20">
         <Link href="/" className="text-xs font-semibold text-secondary hover:text-foreground transition-colors flex items-center gap-1">
           <span>{lang === 'ar' ? '→' : '←'}</span> {t.home}
         </Link>
@@ -155,11 +155,11 @@ function ResetPasswordContent() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md relative z-10"
       >
-        <Link href="/" className="flex flex-col items-center justify-center mb-8">
-          <img src="/logo.png" alt={t.title} className="w-[140px] md:w-[190px] h-auto max-h-[55px] md:max-h-[65px] object-contain" />
+        <Link href="/" className="flex flex-col items-center justify-center mb-6 sm:mb-8">
+          <img src="/logo.png" alt={t.title} className="w-[140px] md:w-[190px] h-auto max-h-[50px] sm:max-h-[55px] md:max-h-[65px] object-contain" />
         </Link>
 
-        <div className="bg-white border border-border rounded-2xl p-8 shadow-xl">
+        <div className="bg-white border border-border rounded-2xl p-5 sm:p-8 shadow-xl">
           <div className="text-center mb-6">
             <h1 className="text-xl font-bold uppercase tracking-wider mb-1 text-foreground">{t.resetPassTitle}</h1>
           </div>

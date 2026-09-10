@@ -200,7 +200,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center p-6 relative font-sans selection:bg-primary/30">
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center p-4 sm:p-6 relative font-sans selection:bg-primary/30 pt-16 pb-10 sm:py-6">
 
       {/* Background Decor */}
       <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-center overflow-hidden">
@@ -209,7 +209,7 @@ export default function LoginPage() {
       </div>
 
       {/* Top Bar Header */}
-      <div className="absolute top-6 max-w-md w-full flex items-center justify-between px-6 z-20">
+      <div className="absolute top-4 sm:top-6 max-w-md w-full flex items-center justify-between px-4 sm:px-6 z-20">
         <Link href="/" className="text-xs font-semibold text-secondary hover:text-foreground transition-colors flex items-center gap-1">
           <span>{lang === 'ar' ? '→' : '←'}</span> {t.home}
         </Link>
@@ -226,12 +226,12 @@ export default function LoginPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md relative z-10"
       >
-        <Link href="/" className="flex flex-col items-center justify-center mb-8 group">
-          <img src="/logo.png" alt={t.title} className="w-[140px] md:w-[190px] h-auto max-h-[55px] md:max-h-[65px] object-contain group-hover:opacity-80 transition-opacity" />
-          <span className="text-xs text-secondary tracking-widest uppercase mt-1 opacity-80">{t.tagline}</span>
+        <Link href="/" className="flex flex-col items-center justify-center mb-6 sm:mb-8 group">
+          <img src="/logo.png" alt={t.title} className="w-[140px] md:w-[190px] h-auto max-h-[50px] sm:max-h-[55px] md:max-h-[65px] object-contain group-hover:opacity-80 transition-opacity" />
+          <span className="text-xs text-secondary tracking-widest uppercase mt-1 opacity-80 text-center px-4">{t.tagline}</span>
         </Link>
 
-        <div className="bg-white border border-border rounded-2xl p-8 shadow-xl">
+        <div className="bg-white border border-border rounded-2xl p-5 sm:p-8 shadow-xl">
 
           {/* Validation & Error Messages */}
           <AnimatePresence>

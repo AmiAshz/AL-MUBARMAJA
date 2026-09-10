@@ -7,7 +7,7 @@ import {
   CheckCircle, Camera, LogOut, User, AlertCircle,
   LayoutDashboard, Car, ClipboardList, Wallet, History,
   BarChart3, Settings, ShieldCheck, Mail, Phone, MapPin, Check, PlusCircle, Loader2,
-  FileText, Download, MessageSquare, Send
+  FileText, Download, MessageSquare, Send, Menu
 } from 'lucide-react';
 import { useVehicles } from '@/lib/useVehicles';
 import { Vehicle, VehicleStatus, VehiclePhoto, PhotoCategory } from '@/lib/types';
@@ -596,6 +596,7 @@ export default function DashboardPage() {
   
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [activeTab, setActiveTab] = useState<'dashboard' | 'vehicles' | 'intake' | 'costs' | 'logs' | 'reports' | 'settings'>('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<FilterCategory | 'All'>('All');
@@ -696,26 +697,33 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
       
       {/* Top Header */}
-      <header className="print:hidden border-b border-border bg-white sticky top-0 z-30 h-[85px] flex items-center shadow-sm">
-        <div className="px-8 py-2 w-full flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-6">
+      <header className="print:hidden border-b border-border bg-white sticky top-0 z-30 h-[70px] sm:h-[85px] flex items-center shadow-xs">
+        <div className="px-4 sm:px-6 lg:px-8 py-2 w-full flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-3 sm:gap-6">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 text-foreground hover:text-primary rounded-lg bg-surface-50 border border-border transition-colors"
+              aria-label="Open navigation menu"
+            >
+              <Menu size={20} />
+            </button>
             <Link href="/" className="flex items-center group">
-              <img src="/logo.png" alt={t.title} className="h-[45px] md:h-[54px] w-auto object-contain group-hover:opacity-80 transition-opacity" />
+              <img src="/logo.png" alt={t.title} className="h-[36px] sm:h-[45px] md:h-[54px] w-auto object-contain group-hover:opacity-80 transition-opacity" />
             </Link>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             <button 
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="px-3 py-1.5 border border-border bg-white rounded text-xs font-mono text-secondary hover:text-foreground transition-colors"
+              className="px-2.5 py-1.5 sm:px-3 border border-border bg-white rounded-lg text-xs font-mono text-secondary hover:text-foreground transition-colors shadow-xs"
             >
               {t.langToggle}
             </button>
 
             {currentUser && (
-              <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 border border-border bg-surface-50 rounded-lg">
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 border border-border bg-surface-50 rounded-lg">
                 <User size={14} className="text-primary" />
-                <span className="text-xs font-semibold text-foreground">{currentUser.name}</span>
+                <span className="text-xs font-semibold text-foreground truncate max-w-[120px]">{currentUser.name}</span>
                 {currentUser.role === 'ADMIN' && (
                   <span className="text-[10px] px-1.5 py-0.5 bg-primary text-white rounded font-mono font-bold">ADMIN</span>
                 )}
@@ -725,7 +733,7 @@ export default function DashboardPage() {
             {currentUser?.role === 'ADMIN' && (
               <Link
                 href="/admin"
-                className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors shadow-xs"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors shadow-xs"
               >
                 <ShieldCheck size={14} />
                 <span className="hidden sm:inline">{lang === 'ar' ? 'بوابة الإدارة' : 'Admin Portal'}</span>
@@ -734,27 +742,122 @@ export default function DashboardPage() {
 
             <button 
               onClick={() => { setFormVehicle(null); setIsFormOpen(true); }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shadow-sm"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shadow-sm"
             >
-              <Plus className="w-4 h-4" /> {t.newVehicleIntake}
+              <Plus className="w-4 h-4" /> 
+              <span className="hidden sm:inline">{t.newVehicleIntake}</span>
+              <span className="sm:hidden">{lang === 'ar' ? 'إضافة' : 'Intake'}</span>
             </button>
 
             <button
               onClick={handleLogout}
               title={t.logout}
-              className="flex items-center gap-2 px-3 py-2 border border-border text-secondary hover:text-foreground hover:bg-surface-50 rounded-lg transition-colors text-xs font-semibold"
+              className="p-2 sm:px-3 sm:py-2 border border-border text-secondary hover:text-foreground hover:bg-surface-50 rounded-lg transition-colors text-xs font-semibold"
             >
-              <LogOut size={14} /> <span className="hidden sm:inline">{t.logout}</span>
+              <LogOut size={16} /> <span className="hidden sm:inline">{t.logout}</span>
             </button>
           </div>
         </div>
       </header>
 
+      {/* Mobile Navigation Drawer */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden flex">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-xs"
+            />
+
+            {/* Slide-over Panel */}
+            <motion.div
+              initial={{ x: lang === 'ar' ? '100%' : '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: lang === 'ar' ? '100%' : '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className={`relative z-10 w-72 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col justify-between ${
+                lang === 'ar' ? 'mr-auto' : 'ml-auto'
+              }`}
+            >
+              <div className="p-5 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-surface-50 text-primary flex items-center justify-center border border-border">
+                    <User size={18} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-foreground">{currentUser?.name || 'Staff User'}</div>
+                    <div className="text-[10px] text-muted font-mono">{currentUser?.role || 'STAFF'}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1.5 text-secondary hover:text-foreground rounded-lg hover:bg-surface-50"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <nav className="p-4 flex-1 overflow-y-auto flex flex-col gap-1.5">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  const isSelected = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id as any);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition-all ${
+                        isSelected 
+                          ? 'bg-primary/10 text-primary border border-primary/20 font-bold' 
+                          : 'text-secondary hover:text-primary hover:bg-surface-50 border border-transparent'
+                      }`}
+                    >
+                      <Icon size={18} />
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+
+                {currentUser?.role === 'ADMIN' && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 mt-2 bg-red-50 text-red-700 border border-red-200 rounded-xl text-xs font-bold"
+                  >
+                    <ShieldCheck size={18} />
+                    <span>{lang === 'ar' ? 'بوابة الإدارة' : 'Admin Portal'}</span>
+                  </Link>
+                )}
+              </nav>
+
+              <div className="p-4 border-t border-border flex flex-col gap-2 bg-surface-50">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 text-red-600 bg-white border border-red-200 rounded-xl text-xs font-bold hover:bg-red-50"
+                >
+                  <LogOut size={16} />
+                  <span>{t.logout}</span>
+                </button>
+                <div className="text-[10px] text-muted text-center font-mono pt-1">
+                  {t.title} © 2026
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Main Layout */}
       <div className="flex-1 flex overflow-hidden">
         
-        {/* Sidebar */}
-        <aside className={`w-64 border-border bg-white flex flex-col justify-between shrink-0 ${lang === 'ar' ? 'border-l' : 'border-r'}`}>
+        {/* Desktop Permanent Sidebar */}
+        <aside className={`hidden lg:flex w-64 border-border bg-white flex-col justify-between shrink-0 ${lang === 'ar' ? 'border-l' : 'border-r'}`}>
           <nav className="p-4 flex flex-col gap-1.5">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -780,18 +883,18 @@ export default function DashboardPage() {
         </aside>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-y-auto bg-background p-8">
+        <main className="flex-1 overflow-y-auto bg-background p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
           
           {/* TAB 1: 15. DASHBOARD */}
           {activeTab === 'dashboard' && (
-            <div className="space-y-8 max-w-7xl mx-auto">
+            <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto">
               <div>
-                <h1 className="text-2xl font-bold uppercase tracking-wider text-foreground mb-1">{t.dashboard}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold uppercase tracking-wider text-foreground mb-1">{t.dashboard}</h1>
                 <p className="text-secondary text-xs">{t.dashboardDesc}</p>
               </div>
 
               {/* 15. OVERVIEW STATS NODES */}
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4">
                 <OverviewStatCard title={t.totalVehicles} desc={t.totalVehiclesDesc} value={stats.total} />
                 <OverviewStatCard title={t.activeJobs} desc={t.activeJobsDesc} value={stats.active} color="text-primary" />
                 <OverviewStatCard title={t.awaitingDiagnosis} desc={t.awaitingDiagnosisDesc} value={stats.awaitingDiag} />
@@ -802,11 +905,11 @@ export default function DashboardPage() {
               </div>
 
               {/* Quick views */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8">
                 {/* Active Jobs list */}
-                <div className="bg-white border border-border p-6 rounded-2xl shadow-sm space-y-4">
+                <div className="bg-white border border-border p-4 sm:p-6 rounded-2xl shadow-sm space-y-4">
                   <div className="flex justify-between items-center border-b border-border pb-3">
-                    <h3 className="font-bold text-sm uppercase tracking-wider text-foreground">{t.activeJobs}</h3>
+                    <h3 className="font-bold text-xs sm:text-sm uppercase tracking-wider text-foreground">{t.activeJobs}</h3>
                     <span className="text-xs text-secondary">{stats.active} {t.vehicles}</span>
                   </div>
                   <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1">
@@ -814,11 +917,11 @@ export default function DashboardPage() {
                       <div 
                         key={v.id} 
                         onClick={() => setSelectedVehicle(v)} 
-                        className="p-4 bg-surface-50 border border-border hover:border-primary/40 cursor-pointer rounded-xl flex justify-between items-center transition-all"
+                        className="p-3.5 sm:p-4 bg-surface-50 border border-border hover:border-primary/40 cursor-pointer rounded-xl flex justify-between items-center transition-all"
                       >
                         <div>
-                          <div className="text-sm font-bold text-foreground">{v.make} {v.model} ({v.year})</div>
-                          <div className="text-xs font-mono text-secondary mt-0.5 phone-number">{v.plateNumber} • {v.trackingCode}</div>
+                          <div className="text-xs sm:text-sm font-bold text-foreground">{v.make} {v.model} ({v.year})</div>
+                          <div className="text-[11px] sm:text-xs font-mono text-secondary mt-0.5 phone-number">{v.plateNumber} • {v.trackingCode}</div>
                         </div>
                         <span className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border ${STATUS_COLORS[v.status]}`}>
                           {STATUS_LABELS[lang][v.status] || v.status}
@@ -829,17 +932,17 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Recent Work Progress log */}
-                <div className="bg-white border border-border p-6 rounded-2xl shadow-sm space-y-4">
+                <div className="bg-white border border-border p-4 sm:p-6 rounded-2xl shadow-sm space-y-4">
                   <div className="flex justify-between items-center border-b border-border pb-3">
-                    <h3 className="font-bold text-sm uppercase tracking-wider text-foreground">{t.workProgressLogTitle}</h3>
+                    <h3 className="font-bold text-xs sm:text-sm uppercase tracking-wider text-foreground">{t.workProgressLogTitle}</h3>
                   </div>
                   <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1">
                     {vehicles.flatMap(v => (v.progressLogs || []).map(l => ({ ...l, vehicle: v }))).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 8).map((log, idx) => (
                       <div key={idx} className="p-3 bg-surface-50 border border-border rounded-xl text-xs flex gap-3 items-start">
                         <History size={16} className="text-primary shrink-0 mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-foreground font-medium">{log.message}</p>
-                          <div className="flex justify-between items-center text-[10px] text-secondary mt-1 font-mono">
+                          <p className="text-foreground font-medium text-xs sm:text-sm">{log.message}</p>
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-[10px] text-secondary mt-1 font-mono gap-0.5">
                             <span>{log.vehicle?.make} {log.vehicle?.model} ({log.vehicle?.plateNumber})</span>
                             <span>{new Date(log.createdAt).toLocaleString(lang === 'ar' ? 'ar-SA' : 'en-US')}</span>
                           </div>
@@ -1058,6 +1161,53 @@ export default function DashboardPage() {
 
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-border px-2 py-2 flex justify-around items-center shadow-lg">
+        <button
+          onClick={() => setActiveTab('dashboard')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl text-[10px] font-bold transition-all ${
+            activeTab === 'dashboard' ? 'text-primary bg-primary/10' : 'text-secondary hover:text-foreground'
+          }`}
+        >
+          <BarChart3 size={18} />
+          <span>{t.dashboard}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('vehicles')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl text-[10px] font-bold transition-all ${
+            activeTab === 'vehicles' ? 'text-primary bg-primary/10' : 'text-secondary hover:text-foreground'
+          }`}
+        >
+          <Car size={18} />
+          <span>{t.vehicles}</span>
+        </button>
+        <button
+          onClick={() => { setFormVehicle(null); setIsFormOpen(true); }}
+          className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl text-[10px] font-bold bg-primary text-white shadow-md active:scale-95 transition-all"
+        >
+          <Plus size={18} />
+          <span>{t.newVehicleIntake}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('costs')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl text-[10px] font-bold transition-all ${
+            activeTab === 'costs' ? 'text-primary bg-primary/10' : 'text-secondary hover:text-foreground'
+          }`}
+        >
+          <Wallet size={18} />
+          <span>{t.repairCostsTitle}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('reports')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl text-[10px] font-bold transition-all ${
+            activeTab === 'reports' ? 'text-primary bg-primary/10' : 'text-secondary hover:text-foreground'
+          }`}
+        >
+          <FileText size={18} />
+          <span>{t.reports}</span>
+        </button>
+      </nav>
 
       {/* 18. VEHICLE DETAILS MODAL */}
       <AnimatePresence>
@@ -1391,7 +1541,7 @@ function VehicleIntakeForm({ vehicle, onSave, showToast, t, lang }: any) {
       <div className="p-4 bg-surface-50 border border-border rounded-xl space-y-2">
         <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">{t.costNoticeTitle}</h4>
         <p className="text-xs text-secondary leading-relaxed">{t.costNoticeDesc}</p>
-        <div className="grid grid-cols-3 gap-2 pt-2 text-xs font-mono">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 text-xs font-mono">
           <div><span className="text-secondary">{t.partsCostLabel}:</span> <span className="font-bold">{t.partsCostNotDetermined}</span></div>
           <div><span className="text-secondary">{t.laborCostLabel}:</span> <span className="font-bold">{t.laborCostNotDetermined}</span></div>
           <div><span className="text-secondary">{t.estimatedTotalLabel}:</span> <span className="font-bold text-primary">{t.estimatedTotalPending}</span></div>
@@ -1418,15 +1568,15 @@ function VehicleFormModal({ vehicle, onClose, onSave, markWhatsappAsSent, showTo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="bg-white border border-border shadow-2xl w-full max-w-2xl p-8 max-h-[90vh] overflow-y-auto rounded-2xl relative">
-        <button onClick={onClose} className={`absolute top-6 ${lang === 'ar' ? 'left-6' : 'right-6'} text-secondary hover:text-foreground`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm">
+      <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="bg-white border border-border shadow-2xl w-full max-w-2xl p-5 sm:p-8 max-h-[90vh] overflow-y-auto rounded-2xl relative">
+        <button onClick={onClose} className={`absolute top-4 sm:top-6 ${lang === 'ar' ? 'left-4 sm:left-6' : 'right-4 sm:right-6'} text-secondary hover:text-foreground p-1`}>
           <X size={20} />
         </button>
 
         {!createdVehicle ? (
           <div>
-            <h2 className="text-xl font-bold uppercase tracking-wider text-foreground mb-6 border-b border-border pb-4">
+            <h2 className="text-lg sm:text-xl font-bold uppercase tracking-wider text-foreground mb-4 sm:mb-6 border-b border-border pb-4">
               {vehicle ? t.editVehicle : t.newVehicleIntake}
             </h2>
             <VehicleIntakeForm 
@@ -1445,16 +1595,16 @@ function VehicleFormModal({ vehicle, onClose, onSave, markWhatsappAsSent, showTo
             />
           </div>
         ) : (
-          <div className="flex flex-col items-center text-center py-6 space-y-6">
-            <div className="w-16 h-16 rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-green-600">
-              <CheckCircle size={32} />
+          <div className="flex flex-col items-center text-center py-4 sm:py-6 space-y-5 sm:space-y-6">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-green-600">
+              <CheckCircle size={28} />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-foreground uppercase tracking-wider mb-1">{t.msgVehicleRegistered}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground uppercase tracking-wider mb-1">{t.msgVehicleRegistered}</h2>
               <p className="text-secondary text-xs font-mono">{t.trackingCodeTitle}: <span className="font-bold text-primary">{createdVehicle.trackingCode}</span></p>
             </div>
 
-            <div className="w-full bg-surface-50 border border-border p-6 rounded-xl text-start space-y-3 text-xs font-mono">
+            <div className="w-full bg-surface-50 border border-border p-4 sm:p-6 rounded-xl text-start space-y-3 text-xs font-mono">
               <div className="flex justify-between">
                 <span className="text-secondary">{t.customerName}:</span>
                 <span className="font-bold text-foreground">{createdVehicle.ownerName}</span>
@@ -1469,7 +1619,7 @@ function VehicleFormModal({ vehicle, onClose, onSave, markWhatsappAsSent, showTo
               </div>
             </div>
 
-            <div className="w-full pt-4 border-t border-border flex gap-3">
+            <div className="w-full pt-4 border-t border-border flex flex-col sm:flex-row gap-3">
               <button 
                 onClick={() => triggerWhatsApp(createdVehicle)} 
                 className="flex-1 py-3 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-brand-hover transition-colors shadow-md flex items-center justify-center gap-2"
@@ -1578,13 +1728,13 @@ function VehicleDetailModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="bg-white border border-border shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl p-8 space-y-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm">
+      <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="bg-white border border-border shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
         
         {/* Header & Actions */}
-        <div className="flex justify-between items-start border-b border-border pb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-border pb-4">
           <div>
-            <h2 className="text-2xl font-bold uppercase tracking-wider text-foreground">
+            <h2 className="text-xl sm:text-2xl font-bold uppercase tracking-wider text-foreground">
               {vehicle.make} {vehicle.model} — {vehicle.year}
             </h2>
             <div className="flex items-center gap-3 mt-1 font-mono text-xs text-secondary">
@@ -1593,11 +1743,11 @@ function VehicleDetailModal({
               <span className="text-primary font-bold">{vehicle.trackingCode}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={onEdit} className="px-4 py-2 border border-border rounded-lg text-xs font-bold uppercase hover:bg-surface-50">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <button onClick={onEdit} className="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-border rounded-lg text-xs font-bold uppercase hover:bg-surface-50 text-center">
               {t.editVehicle}
             </button>
-            <button onClick={onDelete} className="px-4 py-2 border border-red-200 text-red-600 rounded-lg text-xs font-bold uppercase hover:bg-red-50">
+            <button onClick={onDelete} className="flex-1 sm:flex-none px-3 sm:px-4 py-2 border border-red-200 text-red-600 rounded-lg text-xs font-bold uppercase hover:bg-red-50 text-center">
               {t.deleteVehicle}
             </button>
             <button onClick={onClose} className="p-2 text-secondary hover:text-foreground">
@@ -1607,8 +1757,8 @@ function VehicleDetailModal({
         </div>
 
         {/* 18. Vehicle & Customer Info Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-5 bg-surface-50 border border-border rounded-xl space-y-2 text-xs font-mono">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="p-4 sm:p-5 bg-surface-50 border border-border rounded-xl space-y-2 text-xs font-mono">
             <h4 className="font-bold text-foreground uppercase tracking-wider mb-2">{t.vehicleDetailsSection}</h4>
             <div><span className="text-secondary">{t.make}:</span> <span className="font-semibold">{vehicle.make}</span></div>
             <div><span className="text-secondary">{t.model}:</span> <span className="font-semibold">{vehicle.model}</span></div>
@@ -1617,7 +1767,7 @@ function VehicleDetailModal({
             <div><span className="text-secondary">{t.vin}:</span> <span className="font-semibold">{vehicle.vin || t.na}</span></div>
           </div>
 
-          <div className="p-5 bg-surface-50 border border-border rounded-xl space-y-2 text-xs font-mono">
+          <div className="p-4 sm:p-5 bg-surface-50 border border-border rounded-xl space-y-2 text-xs font-mono">
             <h4 className="font-bold text-foreground uppercase tracking-wider mb-2">{t.customerDetailsSection}</h4>
             <div><span className="text-secondary">{t.customerName}:</span> <span className="font-semibold">{vehicle.ownerName}</span></div>
             <div><span className="text-secondary">{t.mobileNumber}:</span> <span className="font-semibold phone-number">{vehicle.ownerPhone}</span></div>
@@ -1636,13 +1786,13 @@ function VehicleDetailModal({
         </div>
 
         {/* 18 & 19. Repair Status updater */}
-        <div className="p-6 bg-surface-50 border border-border rounded-xl space-y-4">
+        <div className="p-4 sm:p-6 bg-surface-50 border border-border rounded-xl space-y-4">
           <h4 className="font-bold text-xs uppercase tracking-wider text-secondary">{t.currentStatusTitle}</h4>
           <div className="flex flex-wrap gap-2 items-center">
             <select 
               value={newStatus} 
               onChange={(e) => setNewStatus(e.target.value as VehicleStatus)}
-              className="bg-white border border-border rounded-lg px-4 py-2 text-xs text-foreground font-semibold"
+              className="bg-white border border-border rounded-lg px-4 py-2 text-xs text-foreground font-semibold flex-1 sm:flex-none"
             >
               <option value="AWAITING_DIAGNOSIS">{t.statusAwaitingDiagnosis || 'بانتظار التشخيص'}</option>
               <option value="IN_PROGRESS">{t.statusInProgress || 'قيد التنفيذ'}</option>
@@ -1660,9 +1810,9 @@ function VehicleDetailModal({
         </div>
 
         {/* 18 & 21. Costs */}
-        <div className="p-6 bg-surface-50 border border-border rounded-xl space-y-4">
+        <div className="p-4 sm:p-6 bg-surface-50 border border-border rounded-xl space-y-4">
           <h4 className="font-bold text-xs uppercase tracking-wider text-secondary">{t.costsTitle}</h4>
-          <div className="grid grid-cols-3 gap-4 text-xs font-mono">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs font-mono">
             <div className="p-3 bg-white border border-border rounded-lg">
               <span className="text-secondary block mb-1">{t.partsCostLabel}</span>
               <span className="font-bold text-foreground">
@@ -1688,7 +1838,7 @@ function VehicleDetailModal({
         <div className="space-y-4">
           <h4 className="font-bold text-xs uppercase tracking-wider text-secondary">{t.workProgressLogTitle}</h4>
           
-          <form onSubmit={handleAddNote} className="flex gap-2">
+          <form onSubmit={handleAddNote} className="flex flex-col sm:flex-row gap-2">
             <input 
               type="text" 
               value={noteText}
@@ -1696,7 +1846,7 @@ function VehicleDetailModal({
               placeholder="أدخل ملاحظة تقدم العمل..."
               className="flex-1 bg-surface-50 border border-border rounded-lg px-4 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary"
             />
-            <button type="submit" className="px-5 py-2.5 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors">
+            <button type="submit" className="px-5 py-2.5 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors whitespace-nowrap">
               {t.addProgressNoteBtn}
             </button>
           </form>

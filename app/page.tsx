@@ -360,15 +360,15 @@ export default function Home() {
     <main className="w-full bg-background min-h-screen text-foreground selection:bg-primary/30 overflow-x-hidden">
 
       {/* 2. NAVIGATION */}
-      <header className="fixed top-0 w-full z-50 bg-white border-b border-border h-[85px] flex items-center shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 w-full flex items-center justify-between">
+      <header className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-border h-[72px] sm:h-[85px] flex items-center shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center group">
-              <img src="/logo.png" alt={t.title} className="h-[48px] md:h-[58px] w-auto object-contain group-hover:opacity-85 transition-opacity" />
+              <img src="/logo.png" alt={t.title} className="h-[38px] sm:h-[48px] md:h-[58px] w-auto object-contain group-hover:opacity-85 transition-opacity" />
             </Link>
           </div>
 
-          <nav className="hidden md:flex items-center gap-7">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8">
             <Link href="/" className="text-xs font-bold uppercase tracking-wider text-foreground hover:text-primary transition-colors">{t.home}</Link>
             <Link href="#services" className="text-xs font-bold uppercase tracking-wider text-secondary hover:text-primary transition-colors">{t.servicesNav}</Link>
             <Link href="/track" className="text-xs font-bold uppercase tracking-wider text-primary hover:text-brand-dark transition-colors">{t.trackNav}</Link>
@@ -377,28 +377,32 @@ export default function Home() {
           </nav>
 
           {/* CTAs */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
             <button
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="px-3.5 py-1.5 border-2 border-border bg-white rounded-lg text-xs font-bold font-mono text-foreground hover:bg-surface-50 transition-colors shadow-sm"
+              className="px-3.5 py-1.5 border border-border bg-white rounded-lg text-xs font-bold font-mono text-foreground hover:bg-surface-50 transition-colors shadow-xs"
             >
               {t.langToggle}
             </button>
-            <Link href="/login" className="px-5 py-2.5 bg-primary text-white font-bold text-xs rounded-lg hover:bg-brand-hover transition-colors shadow-md">
+            <Link href="/login" className="px-5 py-2.5 bg-primary text-white font-bold text-xs rounded-lg hover:bg-brand-hover transition-colors shadow-sm">
               {t.employeeLogin}
             </Link>
           </div>
 
           {/* Mobile toggle */}
-          <div className="flex md:hidden items-center gap-3">
+          <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="px-2.5 py-1 border border-border bg-white rounded text-xs font-bold font-mono text-foreground hover:bg-surface-50 transition-colors"
+              className="px-2.5 py-1.5 border border-border bg-white rounded-lg text-xs font-bold font-mono text-foreground hover:bg-surface-50 transition-colors shadow-xs"
             >
               {t.langToggle}
             </button>
-            <button className="text-foreground hover:text-primary p-1" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            <button 
+              className="text-foreground hover:text-primary p-2 rounded-lg bg-surface-50 border border-border transition-colors" 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
@@ -410,16 +414,16 @@ export default function Home() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white border-b border-border overflow-hidden absolute top-[85px] w-full shadow-xl"
+              className="md:hidden bg-white/98 backdrop-blur-lg border-b border-border overflow-hidden absolute top-[72px] sm:top-[85px] w-full shadow-2xl z-50"
             >
-              <div className="px-6 py-6 flex flex-col gap-4">
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-foreground hover:text-primary">{t.home}</Link>
-                <Link href="#services" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary">{t.servicesNav}</Link>
-                <Link href="/track" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-primary hover:text-brand-dark">{t.trackNav}</Link>
-                <Link href="#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary">{t.aboutNav}</Link>
-                <Link href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary">{t.contactNav}</Link>
+              <div className="px-5 py-6 flex flex-col gap-3.5">
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-foreground hover:text-primary py-1">{t.home}</Link>
+                <Link href="#services" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary py-1">{t.servicesNav}</Link>
+                <Link href="/track" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-primary hover:text-brand-dark py-1">{t.trackNav}</Link>
+                <Link href="#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary py-1">{t.aboutNav}</Link>
+                <Link href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold text-secondary hover:text-primary py-1">{t.contactNav}</Link>
                 <div className="h-px bg-border my-1" />
-                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="px-4 py-3 bg-primary text-white font-bold text-center text-xs rounded-lg hover:bg-brand-hover transition-colors shadow-md">
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="w-full py-3 bg-primary text-white font-bold text-center text-xs rounded-xl hover:bg-brand-hover transition-colors shadow-md">
                   {t.employeeLogin}
                 </Link>
               </div>
@@ -429,35 +433,35 @@ export default function Home() {
       </header>
 
       {/* 3. HOME PAGE - HERO */}
-      <section id="hero" className="relative min-h-[85vh] flex items-center justify-center pt-36 pb-20 overflow-hidden bg-background">
+      <section id="hero" className="relative min-h-[80vh] flex items-center justify-center pt-28 sm:pt-36 pb-16 sm:pb-20 overflow-hidden bg-background">
         <div className="absolute inset-0 z-0 pointer-events-none flex justify-center items-center">
-          <div className="w-[800px] h-[800px] rounded-full border border-primary/10 absolute" />
-          <div className="w-[500px] h-[500px] rounded-full border border-primary/5 absolute blur-[1px]" />
+          <div className="w-[320px] sm:w-[500px] md:w-[800px] h-[320px] sm:h-[500px] md:h-[800px] rounded-full border border-primary/10 absolute" />
+          <div className="w-[240px] sm:w-[360px] md:w-[500px] h-[240px] sm:h-[360px] md:h-[500px] rounded-full border border-primary/5 absolute blur-[1px]" />
         </div>
 
-        <div className="max-w-5xl mx-auto px-6 relative z-10 w-full flex flex-col items-center text-center">
-          <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible" className="mb-6 flex items-center gap-3 bg-white border border-border px-5 py-2 rounded-full shadow-sm">
-            <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs font-bold tracking-wider text-primary uppercase">{t.subBrand}</span>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10 w-full flex flex-col items-center text-center">
+          <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible" className="mb-4 sm:mb-6 flex items-center gap-2.5 bg-white border border-border px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full shadow-xs">
+            <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-primary animate-pulse shrink-0" />
+            <span className="text-[11px] sm:text-xs font-bold tracking-wider text-primary uppercase">{t.subBrand}</span>
           </motion.div>
 
-          <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="visible" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-5 leading-[1.25] text-foreground max-w-4xl">
+          <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="visible" className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 sm:mb-5 leading-[1.25] text-foreground max-w-4xl">
             {t.heroHeading}
           </motion.h1>
 
-          <motion.p custom={1.5} variants={fadeUp} initial="hidden" animate="visible" className="text-base sm:text-lg md:text-xl text-secondary font-medium tracking-normal mb-6 max-w-3xl leading-relaxed">
+          <motion.p custom={1.5} variants={fadeUp} initial="hidden" animate="visible" className="text-sm sm:text-base md:text-xl text-secondary font-medium tracking-normal mb-6 max-w-3xl leading-relaxed">
             {t.heroSubheading}
           </motion.p>
 
-          <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="flex items-center gap-2 mb-10 text-sm md:text-base font-bold text-primary italic bg-surface-50 border border-border px-5 py-2 rounded-xl shadow-xs">
+          <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="flex items-center gap-2 mb-8 sm:mb-10 text-xs sm:text-sm md:text-base font-bold text-primary italic bg-surface-50 border border-border px-4 sm:px-5 py-2 rounded-xl shadow-xs">
             <span>"{t.tagline}"</span>
           </motion.div>
 
-          <motion.div custom={2.5} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-            <Link href="#services" className="px-8 py-4 bg-primary text-white font-bold rounded-xl hover:bg-brand-hover transition-all w-full sm:w-auto shadow-md text-center text-xs uppercase tracking-wider">
+          <motion.div custom={2.5} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
+            <Link href="#services" className="px-7 py-3.5 sm:px-8 sm:py-4 bg-primary text-white font-bold rounded-xl hover:bg-brand-hover transition-all w-full sm:w-auto shadow-md text-center text-xs uppercase tracking-wider">
               {t.servicesBtn}
             </Link>
-            <Link href="/track" className="px-8 py-4 bg-white border-2 border-primary text-foreground font-bold rounded-xl hover:bg-surface-50 transition-colors w-full sm:w-auto text-center text-xs uppercase tracking-wider shadow-sm">
+            <Link href="/track" className="px-7 py-3.5 sm:px-8 sm:py-4 bg-white border-2 border-primary text-foreground font-bold rounded-xl hover:bg-surface-50 transition-colors w-full sm:w-auto text-center text-xs uppercase tracking-wider shadow-xs">
               {t.trackBtn}
             </Link>
           </motion.div>
@@ -465,47 +469,47 @@ export default function Home() {
       </section>
 
       {/* ABOUT THE WORKSHOP (Section 3) */}
-      <section className="py-20 bg-surface-50 border-t border-border">
-        <div className="max-w-5xl mx-auto px-6 text-center">
-          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">
+      <section className="py-14 sm:py-20 bg-surface-50 border-t border-border">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
+          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground mb-3 sm:mb-4">
             {t.aboutWorkshopTitle}
           </motion.h2>
-          <div className="w-16 h-1.5 bg-primary mx-auto mb-6 rounded-full" />
-          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="text-base md:text-lg text-secondary font-medium leading-relaxed max-w-3xl mx-auto">
+          <div className="w-16 h-1.5 bg-primary mx-auto mb-5 sm:mb-6 rounded-full" />
+          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="text-sm sm:text-base md:text-lg text-secondary font-medium leading-relaxed max-w-3xl mx-auto">
             {t.aboutWorkshopDesc}
           </motion.p>
         </div>
       </section>
 
       {/* 4. OUR SERVICES */}
-      <section id="services" className="py-24 max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-2xl md:text-3xl font-extrabold uppercase mb-3 text-foreground">
+      <section id="services" className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-10 sm:mb-16">
+          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-xl sm:text-2xl md:text-3xl font-extrabold uppercase mb-2 sm:mb-3 text-foreground">
             {t.servicesTitle}
           </motion.h2>
-          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="text-sm md:text-base text-secondary font-medium max-w-xl mx-auto">
+          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="text-xs sm:text-sm md:text-base text-secondary font-medium max-w-xl mx-auto">
             {t.servicesSubtitle}
           </motion.p>
-          <div className="w-16 h-1.5 bg-primary mx-auto mt-4 rounded-full" />
+          <div className="w-16 h-1.5 bg-primary mx-auto mt-3 sm:mt-4 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
           {servicesList.map((svc, i) => {
             const Icon = svc.icon;
             return (
               <motion.div
                 key={i}
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i * 0.5}
-                className="p-8 border-2 border-border bg-white rounded-2xl hover:border-primary transition-all group flex flex-col justify-between shadow-sm hover:shadow-lg"
+                className="p-6 sm:p-8 border-2 border-border bg-white rounded-2xl hover:border-primary transition-all group flex flex-col justify-between shadow-xs hover:shadow-lg"
               >
                 <div>
-                  <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 bg-surface-50 text-primary border border-border group-hover:bg-primary group-hover:text-white transition-colors">
-                    <Icon size={26} className="transition-colors group-hover:text-white text-current" />
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-5 sm:mb-6 bg-surface-50 text-primary border border-border group-hover:bg-primary group-hover:text-white transition-colors">
+                    <Icon size={24} className="transition-colors group-hover:text-white text-current" />
                   </div>
-                  <h3 className="text-lg md:text-xl font-bold mb-3 text-foreground">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 text-foreground">
                     {lang === 'ar' ? svc.nameAr : svc.nameEn}
                   </h3>
-                  <p className="text-sm text-secondary font-medium leading-relaxed">
+                  <p className="text-xs sm:text-sm text-secondary font-medium leading-relaxed">
                     {lang === 'ar' ? svc.descAr : svc.descEn}
                   </p>
                 </div>
@@ -516,25 +520,25 @@ export default function Home() {
       </section>
 
       {/* 5. WHY CHOOSE US */}
-      <section id="why-choose-us" className="py-24 bg-surface-50 border-t border-border">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-3">{t.whyTitle}</h2>
+      <section id="why-choose-us" className="py-16 sm:py-24 bg-surface-50 border-t border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground mb-2 sm:mb-3">{t.whyTitle}</h2>
             <div className="w-16 h-1.5 bg-primary mx-auto rounded-full" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {whyChooseUsList.map((item, idx) => (
-              <div key={idx} className="p-6 bg-white border border-border rounded-xl shadow-sm hover:border-primary transition-all">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                    <CheckCircle size={20} />
+              <div key={idx} className="p-5 sm:p-6 bg-white border border-border rounded-xl shadow-xs hover:border-primary transition-all">
+                <div className="flex items-center gap-3 mb-2.5 sm:mb-3">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <CheckCircle size={18} />
                   </div>
-                  <h3 className="text-base font-bold text-foreground">
+                  <h3 className="text-sm sm:text-base font-bold text-foreground">
                     {lang === 'ar' ? item.titleAr : item.titleEn}
                   </h3>
                 </div>
-                <p className="text-sm text-secondary font-medium leading-relaxed">
+                <p className="text-xs sm:text-sm text-secondary font-medium leading-relaxed">
                   {lang === 'ar' ? item.descAr : item.descEn}
                 </p>
               </div>
@@ -544,25 +548,25 @@ export default function Home() {
       </section>
 
       {/* 6. HOW IT WORKS */}
-      <section id="how-it-works" className="py-24 max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-3">{t.howItWorksTitle}</h2>
-          <div className="w-16 h-1.5 bg-primary mx-auto mt-3 rounded-full" />
+      <section id="how-it-works" className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-10 sm:mb-16">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground mb-2 sm:mb-3">{t.howItWorksTitle}</h2>
+          <div className="w-16 h-1.5 bg-primary mx-auto mt-2 sm:mt-3 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
           {howItWorksSteps.map((step, idx) => (
-            <div key={idx} className="relative p-6 bg-white border border-border rounded-2xl shadow-sm flex flex-col group hover:border-primary transition-all">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-2xl font-mono font-extrabold text-primary">{step.num}</span>
-                <span className="w-8 h-8 rounded-full bg-surface-50 border border-border flex items-center justify-center text-foreground text-xs font-mono font-bold">
+            <div key={idx} className="relative p-5 sm:p-6 bg-white border border-border rounded-2xl shadow-xs flex flex-col group hover:border-primary transition-all">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <span className="text-xl sm:text-2xl font-mono font-extrabold text-primary">{step.num}</span>
+                <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-50 border border-border flex items-center justify-center text-foreground text-[11px] sm:text-xs font-mono font-bold">
                   0{idx + 1}
                 </span>
               </div>
-              <h3 className="text-base font-bold text-foreground mb-2">
+              <h3 className="text-sm sm:text-base font-bold text-foreground mb-1.5 sm:mb-2">
                 {lang === 'ar' ? step.titleAr : step.titleEn}
               </h3>
-              <p className="text-sm text-secondary font-medium leading-relaxed">
+              <p className="text-xs sm:text-sm text-secondary font-medium leading-relaxed">
                 {lang === 'ar' ? step.descAr : step.descEn}
               </p>
             </div>
@@ -571,28 +575,28 @@ export default function Home() {
       </section>
 
       {/* 7. TRACK YOUR VEHICLE (CTA TO DEDICATED PAGE) */}
-      <section id="track" className="py-24 bg-surface-50 border-t border-border">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-white border-2 border-border rounded-2xl p-8 md:p-12 shadow-xl text-center">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
-              <Key size={32} />
+      <section id="track" className="py-16 sm:py-24 bg-surface-50 border-t border-border">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="bg-white border-2 border-border rounded-2xl p-6 sm:p-10 md:p-12 shadow-lg text-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-5 sm:mb-6">
+              <Key size={28} />
             </div>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">{t.trackSecTitle}</h2>
-            <p className="text-base text-secondary font-medium max-w-2xl mx-auto leading-relaxed mb-8">{t.trackSecDesc}</p>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground mb-3 sm:mb-4">{t.trackSecTitle}</h2>
+            <p className="text-xs sm:text-sm md:text-base text-secondary font-medium max-w-2xl mx-auto leading-relaxed mb-6 sm:mb-8">{t.trackSecDesc}</p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto mb-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto mb-6 sm:mb-8">
               <Link
                 href="/track"
-                className="w-full sm:w-auto px-10 py-4 bg-primary text-white font-bold rounded-xl hover:bg-brand-hover transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider shadow-md"
+                className="w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 bg-primary text-white font-bold rounded-xl hover:bg-brand-hover transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider shadow-md"
               >
                 <span>{t.trackVehicleAction}</span>
-                <ArrowRight size={18} className={lang === 'ar' ? 'rotate-180' : ''} />
+                <ArrowRight size={16} className={lang === 'ar' ? 'rotate-180' : ''} />
               </Link>
             </div>
 
-            <div className="pt-6 border-t border-border flex items-center justify-center gap-3 bg-surface-50 p-4 rounded-xl max-w-xl mx-auto">
-              <ShieldCheck size={22} className="text-primary shrink-0" />
-              <div className="text-xs leading-relaxed text-secondary text-start font-medium">
+            <div className="pt-5 border-t border-border flex items-start sm:items-center justify-center gap-2.5 sm:gap-3 bg-surface-50 p-3.5 sm:p-4 rounded-xl max-w-xl mx-auto">
+              <ShieldCheck size={20} className="text-primary shrink-0 mt-0.5 sm:mt-0" />
+              <div className="text-[11px] sm:text-xs leading-relaxed text-secondary text-start font-medium">
                 <span className="font-bold text-foreground">{t.privacyNoticeTitle}: </span>
                 {t.privacyNotice}
               </div>
@@ -602,32 +606,32 @@ export default function Home() {
       </section>
 
       {/* 9. ABOUT US */}
-      <section id="about" className="py-24 max-w-7xl mx-auto px-6">
+      <section id="about" className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-3">{t.aboutUsTitle}</h2>
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground mb-2 sm:mb-3">{t.aboutUsTitle}</h2>
             <div className="w-16 h-1.5 bg-primary mx-auto rounded-full" />
           </div>
 
-          <div className="bg-white border border-border rounded-2xl p-8 md:p-12 shadow-sm space-y-8">
-            <p className="text-base md:text-lg text-foreground leading-relaxed font-bold">
+          <div className="bg-white border border-border rounded-2xl p-6 sm:p-10 md:p-12 shadow-xs space-y-6 sm:space-y-8">
+            <p className="text-sm sm:text-base md:text-lg text-foreground leading-relaxed font-bold">
               {t.aboutUsDesc1}
             </p>
 
-            <div className="p-6 bg-surface-50 border-r-4 md:border-r-4 border-primary rounded-xl space-y-2">
-              <h3 className="text-sm font-extrabold text-primary uppercase tracking-wider">{t.approachTitle}</h3>
-              <p className="text-lg md:text-xl font-extrabold text-foreground italic">
+            <div className="p-4 sm:p-6 bg-surface-50 border-r-4 md:border-r-4 border-primary rounded-xl space-y-2">
+              <h3 className="text-xs sm:text-sm font-extrabold text-primary uppercase tracking-wider">{t.approachTitle}</h3>
+              <p className="text-base sm:text-lg md:text-xl font-extrabold text-foreground italic">
                 {t.approachMotto}
               </p>
             </div>
 
-            <p className="text-base text-secondary font-medium leading-relaxed">
+            <p className="text-xs sm:text-sm md:text-base text-secondary font-medium leading-relaxed">
               {t.aboutUsDesc2}
             </p>
 
-            <div className="pt-6 border-t border-border">
-              <h3 className="text-lg font-bold text-foreground mb-2">{t.ourGoalTitle}</h3>
-              <p className="text-base text-secondary font-medium leading-relaxed">
+            <div className="pt-5 border-t border-border">
+              <h3 className="text-base sm:text-lg font-bold text-foreground mb-2">{t.ourGoalTitle}</h3>
+              <p className="text-xs sm:text-sm md:text-base text-secondary font-medium leading-relaxed">
                 {t.ourGoalDesc}
               </p>
             </div>
@@ -636,69 +640,69 @@ export default function Home() {
       </section>
 
       {/* 10. CONTACT US */}
-      <section id="contact" className="py-24 bg-surface-50 border-t border-border">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-3">{t.contactTitle}</h2>
-            <p className="text-sm md:text-base text-secondary font-medium max-w-xl mx-auto leading-relaxed">{t.contactSubtitle}</p>
-            <div className="w-16 h-1.5 bg-primary mx-auto mt-4 rounded-full" />
+      <section id="contact" className="py-16 sm:py-24 bg-surface-50 border-t border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground mb-2 sm:mb-3">{t.contactTitle}</h2>
+            <p className="text-xs sm:text-sm md:text-base text-secondary font-medium max-w-xl mx-auto leading-relaxed">{t.contactSubtitle}</p>
+            <div className="w-16 h-1.5 bg-primary mx-auto mt-3 sm:mt-4 rounded-full" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-start">
 
             {/* Contact Details Card */}
-            <div className="bg-white border border-border rounded-2xl p-8 shadow-sm space-y-6">
-              <div className="flex items-start gap-4 p-4 bg-surface-50 border border-border rounded-xl">
-                <MapPin className="text-primary shrink-0 mt-1" size={24} />
+            <div className="bg-white border border-border rounded-2xl p-6 sm:p-8 shadow-xs space-y-4 sm:space-y-6">
+              <div className="flex items-start gap-3 sm:gap-4 p-3.5 sm:p-4 bg-surface-50 border border-border rounded-xl">
+                <MapPin className="text-primary shrink-0 mt-0.5 sm:mt-1" size={20} />
                 <div>
-                  <div className="text-xs font-bold text-primary uppercase tracking-wider">{t.locationLabel}</div>
-                  <div className="text-sm font-bold text-foreground mt-0.5">{t.locationVal}</div>
+                  <div className="text-[11px] sm:text-xs font-bold text-primary uppercase tracking-wider">{t.locationLabel}</div>
+                  <div className="text-xs sm:text-sm font-bold text-foreground mt-0.5">{t.locationVal}</div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 p-4 bg-surface-50 border border-border rounded-xl">
-                <Phone className="text-primary shrink-0 mt-1" size={24} />
+              <div className="flex items-start gap-3 sm:gap-4 p-3.5 sm:p-4 bg-surface-50 border border-border rounded-xl">
+                <Phone className="text-primary shrink-0 mt-0.5 sm:mt-1" size={20} />
                 <div>
-                  <div className="text-xs font-bold text-primary uppercase tracking-wider">{t.phoneLabel}</div>
-                  <div className="text-sm font-extrabold text-foreground mt-0.5 phone-number">{t.phoneVal}</div>
+                  <div className="text-[11px] sm:text-xs font-bold text-primary uppercase tracking-wider">{t.phoneLabel}</div>
+                  <div className="text-xs sm:text-sm font-extrabold text-foreground mt-0.5 phone-number">{t.phoneVal}</div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 p-4 bg-surface-50 border border-border rounded-xl">
-                <Clock className="text-primary shrink-0 mt-1" size={24} />
-                <div className="space-y-1">
-                  <div className="text-xs font-bold text-primary uppercase tracking-wider">{t.workingHoursLabel}</div>
-                  <div className="text-sm font-bold text-foreground">
+              <div className="flex items-start gap-3 sm:gap-4 p-3.5 sm:p-4 bg-surface-50 border border-border rounded-xl">
+                <Clock className="text-primary shrink-0 mt-0.5 sm:mt-1" size={20} />
+                <div className="space-y-0.5 sm:space-y-1">
+                  <div className="text-[11px] sm:text-xs font-bold text-primary uppercase tracking-wider">{t.workingHoursLabel}</div>
+                  <div className="text-xs sm:text-sm font-bold text-foreground">
                     {t.workingDaysVal}: <span className="font-semibold text-secondary">{t.workingTimeVal}</span>
                   </div>
-                  <div className="text-xs font-bold text-accent-rust">
+                  <div className="text-[11px] sm:text-xs font-bold text-accent-rust">
                     {t.fridayLabel}: <span className="font-semibold">{t.fridayVal}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 flex flex-col sm:flex-row gap-3">
+              <div className="pt-2 sm:pt-4 flex flex-col sm:flex-row gap-3">
                 <a
                   href="tel:+966558852934"
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shadow-md text-center"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-6 sm:py-3.5 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-brand-hover transition-colors shadow-md text-center"
                 >
-                  <PhoneCall size={16} />
+                  <PhoneCall size={15} />
                   {t.callWorkshopBtn}
                 </a>
                 <a
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white border-2 border-primary text-foreground font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-surface-50 transition-colors shadow-sm text-center"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 sm:px-6 sm:py-3.5 bg-white border-2 border-primary text-foreground font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-surface-50 transition-colors shadow-xs text-center"
                 >
-                  <Compass size={16} />
+                  <Compass size={15} />
                   {t.getDirectionsBtn}
                 </a>
               </div>
             </div>
 
             {/* Interactive Embedded Google Map */}
-            <div className="relative w-full h-[420px] border-2 border-border bg-white rounded-2xl overflow-hidden shadow-sm flex flex-col group">
+            <div className="relative w-full h-[320px] sm:h-[420px] border-2 border-border bg-white rounded-2xl overflow-hidden shadow-xs flex flex-col group">
               <iframe
                 title={t.workshopVal}
                 src="https://maps.google.com/maps?q=18.2410405,42.5722994&t=&z=15&ie=UTF8&iwloc=&output=embed"
@@ -710,23 +714,23 @@ export default function Home() {
                 referrerPolicy="no-referrer-when-downgrade"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute bottom-4 start-4 end-4 sm:end-auto bg-white/95 backdrop-blur-sm border border-border p-3.5 rounded-xl shadow-lg flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-surface-50 text-primary flex items-center justify-center shrink-0 border border-border">
-                    <MapPin size={18} />
+              <div className="absolute bottom-3 start-3 end-3 sm:end-auto bg-white/95 backdrop-blur-sm border border-border p-2.5 sm:p-3.5 rounded-xl shadow-lg flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-surface-50 text-primary flex items-center justify-center shrink-0 border border-border">
+                    <MapPin size={16} />
                   </div>
                   <div className="text-start">
                     <div className="text-xs font-bold text-foreground">{t.workshopVal}</div>
-                    <div className="text-[11px] text-secondary font-medium truncate max-w-[200px]">{t.locationVal}</div>
+                    <div className="text-[10px] sm:text-[11px] text-secondary font-medium truncate max-w-[140px] sm:max-w-[200px]">{t.locationVal}</div>
                   </div>
                 </div>
                 <a
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shrink-0 shadow-sm"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 sm:px-3.5 sm:py-2 bg-primary text-white font-bold text-[11px] sm:text-xs uppercase tracking-wider rounded-lg hover:bg-brand-hover transition-colors shrink-0 shadow-xs"
                 >
-                  <Compass size={14} />
+                  <Compass size={13} />
                   <span>{t.getDirectionsBtn}</span>
                 </a>
               </div>
@@ -737,21 +741,21 @@ export default function Home() {
       </section>
 
       {/* 31. FOOTER */}
-      <footer className="bg-white border-t border-border py-14">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+      <footer className="bg-white border-t border-border py-10 sm:py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 mb-8 sm:mb-12">
 
             {/* Col 1: Brand */}
-            <div className="space-y-3">
-              <span className="font-display text-2xl font-extrabold text-foreground block">{t.title}</span>
-              <p className="text-sm text-secondary font-medium leading-relaxed">{t.subBrand}</p>
+            <div className="space-y-2.5 sm:space-y-3">
+              <span className="font-display text-xl sm:text-2xl font-extrabold text-foreground block">{t.title}</span>
+              <p className="text-xs sm:text-sm text-secondary font-medium leading-relaxed">{t.subBrand}</p>
               <p className="text-xs text-primary font-bold italic">{t.tagline}</p>
             </div>
 
             {/* Col 2: Quick links */}
-            <div className="space-y-3">
+            <div className="space-y-2.5 sm:space-y-3">
               <h4 className="text-xs font-bold font-mono uppercase tracking-wider text-foreground">{t.quickLinksTitle}</h4>
-              <ul className="space-y-2 text-xs font-semibold">
+              <ul className="space-y-1.5 sm:space-y-2 text-xs font-semibold">
                 <li><Link href="/" className="text-secondary hover:text-primary transition-colors">{t.home}</Link></li>
                 <li><Link href="#services" className="text-secondary hover:text-primary transition-colors">{t.servicesNav}</Link></li>
                 <li><Link href="/track" className="text-primary hover:text-brand-dark transition-colors">{t.trackNav}</Link></li>
@@ -761,10 +765,10 @@ export default function Home() {
             </div>
 
             {/* Col 3: Contact & Hours */}
-            <div className="space-y-3 text-xs">
+            <div className="space-y-2.5 sm:space-y-3 text-xs sm:col-span-2 md:col-span-1">
               <h4 className="text-xs font-bold font-mono uppercase tracking-wider text-foreground">{t.contactNav}</h4>
               <p className="text-secondary font-medium">{t.locationVal}</p>
-              <p className="text-foreground font-mono font-extrabold text-sm phone-number">{t.phoneVal}</p>
+              <p className="text-foreground font-mono font-extrabold text-xs sm:text-sm phone-number">{t.phoneVal}</p>
               <div className="pt-2 border-t border-border space-y-1 text-secondary font-medium">
                 <div>{t.workingDaysVal}: <span className="font-bold text-foreground">{t.workingTimeVal}</span></div>
                 <div>{t.fridayLabel}: <span className="font-bold text-accent-rust">{t.fridayVal}</span></div>
@@ -773,7 +777,7 @@ export default function Home() {
 
           </div>
 
-          <div className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted font-medium">
+          <div className="pt-6 sm:pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted font-medium text-center sm:text-start">
             <div>{t.copyright}</div>
             <div>
               <Link href="/login" className="font-bold text-primary hover:underline transition-all">{t.employeeLogin}</Link>

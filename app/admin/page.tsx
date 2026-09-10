@@ -660,22 +660,22 @@ export default function AdminPage() {
       </AnimatePresence>
 
       {/* Top Header */}
-      <header className="border-b border-border bg-white sticky top-0 z-30 h-[85px] flex items-center shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 w-full flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
+      <header className="border-b border-border bg-white sticky top-0 z-30 h-[70px] sm:h-[85px] flex items-center shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link href="/" className="flex items-center group">
-              <img src="/logo.png" alt="AL Mubarmaja" className="h-[45px] md:h-[54px] w-auto object-contain group-hover:opacity-85 transition-opacity" />
+              <img src="/logo.png" alt="AL Mubarmaja" className="h-[38px] sm:h-[48px] md:h-[54px] w-auto object-contain group-hover:opacity-85 transition-opacity" />
             </Link>
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-bold font-mono">
+            <div className="hidden sm:flex items-center gap-2 px-2.5 sm:px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-bold font-mono">
               <ShieldCheck size={14} />
               <span>{t.portalTitle}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface-50 rounded-lg text-xs font-bold text-secondary hover:text-foreground hover:bg-white transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 border border-border bg-surface-50 rounded-lg text-xs font-bold text-secondary hover:text-foreground hover:bg-white transition-colors"
             >
               <LayoutDashboard size={14} />
               <span className="hidden md:inline">{t.dashboardLink}</span>
@@ -683,7 +683,7 @@ export default function AdminPage() {
 
             <button
               onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="px-3 py-1.5 border border-border bg-white rounded-lg text-xs font-mono font-bold text-secondary hover:text-foreground transition-colors"
+              className="px-2.5 sm:px-3 py-1.5 border border-border bg-white rounded-lg text-xs font-mono font-bold text-secondary hover:text-foreground transition-colors"
             >
               {t.langToggle}
             </button>
@@ -697,7 +697,7 @@ export default function AdminPage() {
 
             <button
               onClick={handleLogout}
-              className="p-2 border border-border rounded-lg text-secondary hover:text-red-600 hover:bg-red-50 transition-colors"
+              className="p-1.5 sm:p-2 border border-border rounded-lg text-secondary hover:text-red-600 hover:bg-red-50 transition-colors"
               title={t.logout}
             >
               <LogOut size={16} />
@@ -707,18 +707,18 @@ export default function AdminPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-6 py-10 w-full flex-1 flex flex-col gap-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full flex-1 flex flex-col gap-6 sm:gap-8">
 
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-foreground mb-1">{t.pageTitle}</h1>
-            <p className="text-sm text-secondary font-medium">{t.pageSubtitle}</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground mb-1">{t.pageTitle}</h1>
+            <p className="text-xs sm:text-sm text-secondary font-medium">{t.pageSubtitle}</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={fetchEmployees}
-              className="px-3.5 py-2.5 border border-border bg-white rounded-xl text-xs font-bold text-secondary hover:text-foreground hover:bg-surface-50 transition-colors flex items-center gap-2 shadow-xs"
+              className="flex-1 sm:flex-none justify-center px-3.5 py-2.5 border border-border bg-white rounded-xl text-xs font-bold text-secondary hover:text-foreground hover:bg-surface-50 transition-colors flex items-center gap-2 shadow-xs"
             >
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
               <span>{t.refreshBtn}</span>
@@ -728,7 +728,7 @@ export default function AdminPage() {
                 setAddPassword(generateRandomPassword());
                 setIsAddOpen(true);
               }}
-              className="px-5 py-2.5 bg-primary text-white rounded-xl text-xs font-bold hover:bg-brand-hover transition-colors flex items-center gap-2 shadow-md uppercase tracking-wider"
+              className="flex-1 sm:flex-none justify-center px-4 sm:px-5 py-2.5 bg-primary text-white rounded-xl text-xs font-bold hover:bg-brand-hover transition-colors flex items-center gap-2 shadow-md uppercase tracking-wider whitespace-nowrap"
             >
               <UserPlus size={16} />
               <span>{t.addEmployeeBtn}</span>
@@ -737,50 +737,50 @@ export default function AdminPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="p-4 sm:p-5 bg-white border border-border rounded-2xl shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-secondary uppercase tracking-wider">{t.totalEmployees}</span>
-              <div className="w-8 h-8 rounded-lg bg-surface-50 text-primary flex items-center justify-center">
-                <Users size={16} />
+              <span className="text-[11px] sm:text-xs font-bold text-secondary uppercase tracking-wider">{t.totalEmployees}</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-surface-50 text-primary flex items-center justify-center">
+                <Users size={15} />
               </div>
             </div>
-            <div className="text-2xl font-extrabold font-mono text-foreground">{stats.total}</div>
+            <div className="text-xl sm:text-2xl font-extrabold font-mono text-foreground">{stats.total}</div>
           </div>
 
-          <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+          <div className="p-4 sm:p-5 bg-white border border-border rounded-2xl shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-secondary uppercase tracking-wider">{t.activeStaff}</span>
-              <div className="w-8 h-8 rounded-lg bg-green-50 text-green-700 flex items-center justify-center">
-                <UserCheck size={16} />
+              <span className="text-[11px] sm:text-xs font-bold text-secondary uppercase tracking-wider">{t.activeStaff}</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-green-50 text-green-700 flex items-center justify-center">
+                <UserCheck size={15} />
               </div>
             </div>
-            <div className="text-2xl font-extrabold font-mono text-green-700">{stats.active}</div>
+            <div className="text-xl sm:text-2xl font-extrabold font-mono text-green-700">{stats.active}</div>
           </div>
 
-          <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+          <div className="p-4 sm:p-5 bg-white border border-border rounded-2xl shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-secondary uppercase tracking-wider">{t.adminsCount}</span>
-              <div className="w-8 h-8 rounded-lg bg-red-50 text-red-700 flex items-center justify-center">
-                <ShieldCheck size={16} />
+              <span className="text-[11px] sm:text-xs font-bold text-secondary uppercase tracking-wider">{t.adminsCount}</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-red-50 text-red-700 flex items-center justify-center">
+                <ShieldCheck size={15} />
               </div>
             </div>
-            <div className="text-2xl font-extrabold font-mono text-red-700">{stats.admins}</div>
+            <div className="text-xl sm:text-2xl font-extrabold font-mono text-red-700">{stats.admins}</div>
           </div>
 
-          <div className="p-5 bg-white border border-border rounded-2xl shadow-sm">
+          <div className="p-4 sm:p-5 bg-white border border-border rounded-2xl shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-secondary uppercase tracking-wider">{t.techsAndAdvisors}</span>
-              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
-                <Users size={16} />
+              <span className="text-[11px] sm:text-xs font-bold text-secondary uppercase tracking-wider">{t.techsAndAdvisors}</span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+                <Users size={15} />
               </div>
             </div>
-            <div className="text-2xl font-extrabold font-mono text-blue-700">{stats.techsAndAdvisors}</div>
+            <div className="text-xl sm:text-2xl font-extrabold font-mono text-blue-700">{stats.techsAndAdvisors}</div>
           </div>
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="bg-white border border-border p-4 rounded-2xl shadow-sm flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+        <div className="bg-white border border-border p-3.5 sm:p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
           <div className="relative flex-1">
             <Search size={16} className={`absolute top-1/2 -translate-y-1/2 ${lang === 'ar' ? 'right-3' : 'left-3'} text-secondary pointer-events-none`} />
             <input
@@ -792,7 +792,7 @@ export default function AdminPage() {
             />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-3">
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
@@ -816,7 +816,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Employees Table */}
+        {/* Employees Display */}
         <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
           {loading ? (
             <div className="py-20 flex flex-col items-center justify-center gap-3 text-secondary">
@@ -831,144 +831,247 @@ export default function AdminPage() {
               <h3 className="text-base font-bold text-foreground mb-1">{t.noRecords}</h3>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-start text-xs border-collapse">
-                <thead>
-                  <tr className="bg-surface-50 border-b border-border text-secondary uppercase font-mono font-bold">
-                    <th className="py-4 px-5 text-start">{t.colEmployee}</th>
-                    <th className="py-4 px-5 text-start">{t.colContact}</th>
-                    <th className="py-4 px-5 text-start">{t.colRole}</th>
-                    <th className="py-4 px-5 text-center">{t.colStatus}</th>
-                    <th className="py-4 px-5 text-center">{t.colVerified}</th>
-                    <th className="py-4 px-5 text-start">{t.colJoined}</th>
-                    <th className="py-4 px-5 text-center">{t.colActions}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {filteredEmployees.map((emp) => {
-                    const badge = ROLE_BADGES[emp.role] || ROLE_BADGES.TECHNICIAN;
-                    const isSelf = emp.id === currentUser?.id;
+            <>
+              {/* Mobile Employee Card List */}
+              <div className="md:hidden divide-y divide-border">
+                {filteredEmployees.map((emp) => {
+                  const badge = ROLE_BADGES[emp.role] || ROLE_BADGES.TECHNICIAN;
+                  const isSelf = emp.id === currentUser?.id;
 
-                    return (
-                      <tr key={emp.id} className="hover:bg-surface-50/70 transition-colors">
-                        {/* Employee Name */}
-                        <td className="py-4 px-5">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-surface-200 border border-border text-primary font-bold flex items-center justify-center font-mono shrink-0">
-                              {emp.name.charAt(0).toUpperCase()}
+                  return (
+                    <div key={emp.id} className="p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-surface-200 border border-border text-primary font-bold flex items-center justify-center font-mono shrink-0">
+                            {emp.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="font-bold text-foreground text-sm flex items-center gap-1.5">
+                              <span>{emp.name}</span>
+                              {isSelf && (
+                                <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded font-mono font-bold">
+                                  YOU
+                                </span>
+                              )}
                             </div>
-                            <div>
-                              <div className="font-bold text-foreground text-sm flex items-center gap-1.5">
-                                <span>{emp.name}</span>
-                                {isSelf && (
-                                  <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded font-mono font-bold">
-                                    YOU
-                                  </span>
-                                )}
+                            <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold font-mono border ${badge.bg} ${badge.text} ${badge.border}`}>
+                              {emp.role}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold shrink-0 ${
+                          emp.isActive ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-100 text-gray-600 border border-gray-300'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${emp.isActive ? 'bg-green-600' : 'bg-gray-400'}`} />
+                          {emp.isActive ? t.statusActive : t.statusInactive}
+                        </span>
+                      </div>
+
+                      <div className="p-3 bg-surface-50 rounded-xl space-y-1.5 text-xs font-mono">
+                        <div className="flex items-center gap-2 text-secondary">
+                          <Mail size={13} className="shrink-0" />
+                          <span className="truncate">{emp.email}</span>
+                        </div>
+                        {emp.phone && (
+                          <div className="flex items-center gap-2 text-secondary">
+                            <Phone size={13} className="shrink-0" />
+                            <span className="phone-number">{emp.phone}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between text-[11px] pt-1 border-t border-border/60">
+                          <span className="text-secondary">{t.colVerified}: {emp.emailVerified ? <strong className="text-green-700">{t.verifiedYes}</strong> : <strong className="text-amber-700">{t.verifiedNo}</strong>}</span>
+                          <span className="text-muted">{new Date(emp.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-1 pt-1">
+                        <button
+                          onClick={() => {
+                            setEditingEmployee(emp);
+                            setEditName(emp.name);
+                            setEditEmail(emp.email);
+                            setEditPhone(emp.phone || '');
+                            setEditRole(emp.role);
+                            setEditIsActive(emp.isActive);
+                          }}
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-secondary hover:text-primary hover:bg-surface-50 rounded-lg border border-border transition-colors"
+                        >
+                          <Edit2 size={13} />
+                          <span>{t.editAction}</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setResetPassEmployee(emp);
+                            setNewPassword(generateRandomPassword());
+                          }}
+                          className="p-2 text-secondary hover:text-amber-700 hover:bg-amber-50 rounded-lg border border-border transition-colors"
+                          title={t.resetPassAction}
+                        >
+                          <KeyRound size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleToggleStatus(emp)}
+                          className={`p-2 rounded-lg border border-border transition-colors ${
+                            emp.isActive ? 'text-secondary hover:text-red-600 hover:bg-red-50' : 'text-secondary hover:text-green-600 hover:bg-green-50'
+                          }`}
+                          title={emp.isActive ? t.deactivateAction : t.activateAction}
+                        >
+                          {emp.isActive ? <UserX size={14} /> : <UserCheck size={14} />}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteEmployee(emp)}
+                          className="p-2 text-secondary hover:text-red-600 hover:bg-red-50 rounded-lg border border-border transition-colors"
+                          title={t.deleteAction}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Employee Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-start text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-surface-50 border-b border-border text-secondary uppercase font-mono font-bold">
+                      <th className="py-4 px-5 text-start">{t.colEmployee}</th>
+                      <th className="py-4 px-5 text-start">{t.colContact}</th>
+                      <th className="py-4 px-5 text-start">{t.colRole}</th>
+                      <th className="py-4 px-5 text-center">{t.colStatus}</th>
+                      <th className="py-4 px-5 text-center">{t.colVerified}</th>
+                      <th className="py-4 px-5 text-start">{t.colJoined}</th>
+                      <th className="py-4 px-5 text-center">{t.colActions}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {filteredEmployees.map((emp) => {
+                      const badge = ROLE_BADGES[emp.role] || ROLE_BADGES.TECHNICIAN;
+                      const isSelf = emp.id === currentUser?.id;
+
+                      return (
+                        <tr key={emp.id} className="hover:bg-surface-50/70 transition-colors">
+                          {/* Employee Name */}
+                          <td className="py-4 px-5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-full bg-surface-200 border border-border text-primary font-bold flex items-center justify-center font-mono shrink-0">
+                                {emp.name.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <div className="font-bold text-foreground text-sm flex items-center gap-1.5">
+                                  <span>{emp.name}</span>
+                                  {isSelf && (
+                                    <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded font-mono font-bold">
+                                      YOU
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
+                          </td>
 
-                        {/* Contact info */}
-                        <td className="py-4 px-5 font-mono">
-                          <div className="text-secondary">{emp.email}</div>
-                          {emp.phone && <div className="text-[11px] text-muted phone-number">{emp.phone}</div>}
-                        </td>
+                          {/* Contact info */}
+                          <td className="py-4 px-5 font-mono">
+                            <div className="text-secondary">{emp.email}</div>
+                            {emp.phone && <div className="text-[11px] text-muted phone-number">{emp.phone}</div>}
+                          </td>
 
-                        {/* Role badge */}
-                        <td className="py-4 px-5">
-                          <span className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-bold font-mono border ${badge.bg} ${badge.text} ${badge.border}`}>
-                            {emp.role}
-                          </span>
-                        </td>
+                          {/* Role badge */}
+                          <td className="py-4 px-5">
+                            <span className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-bold font-mono border ${badge.bg} ${badge.text} ${badge.border}`}>
+                              {emp.role}
+                            </span>
+                          </td>
 
-                        {/* Active status */}
-                        <td className="py-4 px-5 text-center">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                            emp.isActive ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-100 text-gray-600 border border-gray-300'
-                          }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${emp.isActive ? 'bg-green-600' : 'bg-gray-400'}`} />
-                            {emp.isActive ? t.statusActive : t.statusInactive}
-                          </span>
-                        </td>
+                          {/* Active status */}
+                          <td className="py-4 px-5 text-center">
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                              emp.isActive ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-100 text-gray-600 border border-gray-300'
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${emp.isActive ? 'bg-green-600' : 'bg-gray-400'}`} />
+                              {emp.isActive ? t.statusActive : t.statusInactive}
+                            </span>
+                          </td>
 
-                        {/* Verified status */}
-                        <td className="py-4 px-5 text-center font-mono">
-                          {emp.emailVerified ? (
-                            <span className="text-green-700 font-bold">{t.verifiedYes}</span>
-                          ) : (
-                            <span className="text-amber-700 font-bold">{t.verifiedNo}</span>
-                          )}
-                        </td>
+                          {/* Verified status */}
+                          <td className="py-4 px-5 text-center font-mono">
+                            {emp.emailVerified ? (
+                              <span className="text-green-700 font-bold">{t.verifiedYes}</span>
+                            ) : (
+                              <span className="text-amber-700 font-bold">{t.verifiedNo}</span>
+                            )}
+                          </td>
 
-                        {/* Joined Date */}
-                        <td className="py-4 px-5 font-mono text-secondary">
-                          {new Date(emp.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </td>
+                          {/* Joined Date */}
+                          <td className="py-4 px-5 font-mono text-secondary">
+                            {new Date(emp.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </td>
 
-                        {/* Actions */}
-                        <td className="py-4 px-5 text-center">
-                          <div className="inline-flex items-center gap-1">
-                            {/* Edit */}
-                            <button
-                              onClick={() => {
-                                setEditingEmployee(emp);
-                                setEditName(emp.name);
-                                setEditEmail(emp.email);
-                                setEditPhone(emp.phone || '');
-                                setEditRole(emp.role);
-                                setEditIsActive(emp.isActive);
-                              }}
-                              className="p-1.5 text-secondary hover:text-primary hover:bg-white rounded border border-transparent hover:border-border transition-colors"
-                              title={t.editAction}
-                            >
-                              <Edit2 size={15} />
-                            </button>
+                          {/* Actions */}
+                          <td className="py-4 px-5 text-center">
+                            <div className="inline-flex items-center gap-1">
+                              {/* Edit */}
+                              <button
+                                onClick={() => {
+                                  setEditingEmployee(emp);
+                                  setEditName(emp.name);
+                                  setEditEmail(emp.email);
+                                  setEditPhone(emp.phone || '');
+                                  setEditRole(emp.role);
+                                  setEditIsActive(emp.isActive);
+                                }}
+                                className="p-1.5 text-secondary hover:text-primary hover:bg-white rounded border border-transparent hover:border-border transition-colors"
+                                title={t.editAction}
+                              >
+                                <Edit2 size={15} />
+                              </button>
 
-                            {/* Reset Password */}
-                            <button
-                              onClick={() => {
-                                setResetPassEmployee(emp);
-                                setNewPassword(generateRandomPassword());
-                              }}
-                              className="p-1.5 text-secondary hover:text-amber-700 hover:bg-white rounded border border-transparent hover:border-border transition-colors"
-                              title={t.resetPassAction}
-                            >
-                              <KeyRound size={15} />
-                            </button>
+                              {/* Reset Password */}
+                              <button
+                                onClick={() => {
+                                  setResetPassEmployee(emp);
+                                  setNewPassword(generateRandomPassword());
+                                }}
+                                className="p-1.5 text-secondary hover:text-amber-700 hover:bg-white rounded border border-transparent hover:border-border transition-colors"
+                                title={t.resetPassAction}
+                              >
+                                <KeyRound size={15} />
+                              </button>
 
-                            {/* Toggle Active */}
-                            <button
-                              onClick={() => handleToggleStatus(emp)}
-                              className={`p-1.5 rounded border border-transparent hover:border-border transition-colors ${
-                                emp.isActive ? 'text-secondary hover:text-red-600 hover:bg-white' : 'text-secondary hover:text-green-600 hover:bg-white'
-                              }`}
-                              title={emp.isActive ? t.deactivateAction : t.activateAction}
-                            >
-                              {emp.isActive ? <UserX size={15} /> : <UserCheck size={15} />}
-                            </button>
+                              {/* Toggle Active */}
+                              <button
+                                onClick={() => handleToggleStatus(emp)}
+                                className={`p-1.5 rounded border border-transparent hover:border-border transition-colors ${
+                                  emp.isActive ? 'text-secondary hover:text-red-600 hover:bg-white' : 'text-secondary hover:text-green-600 hover:bg-white'
+                                }`}
+                                title={emp.isActive ? t.deactivateAction : t.activateAction}
+                              >
+                                {emp.isActive ? <UserX size={15} /> : <UserCheck size={15} />}
+                              </button>
 
-                            {/* Delete */}
-                            <button
-                              onClick={() => handleDeleteEmployee(emp)}
-                              className="p-1.5 text-secondary hover:text-red-600 hover:bg-white rounded border border-transparent hover:border-border transition-colors"
-                              title={t.deleteAction}
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                              {/* Delete */}
+                              <button
+                                onClick={() => handleDeleteEmployee(emp)}
+                                className="p-1.5 text-secondary hover:text-red-600 hover:bg-white rounded border border-transparent hover:border-border transition-colors"
+                                title={t.deleteAction}
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       </main>

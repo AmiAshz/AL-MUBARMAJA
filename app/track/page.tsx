@@ -224,21 +224,21 @@ function TrackContent() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center p-4 relative overflow-x-hidden pt-24 pb-16">
+    <div className="min-h-screen bg-background flex flex-col items-center px-4 sm:px-6 relative overflow-x-hidden pt-20 sm:pt-24 pb-12 sm:pb-16">
       {/* Background Graphic Elements */}
       <div className="fixed inset-0 z-0 pointer-events-none flex justify-center items-center opacity-10">
-        <div className="w-[800px] h-[800px] rounded-full border border-primary/20 absolute blur-[1px]" />
+        <div className="w-[320px] sm:w-[600px] md:w-[800px] h-[320px] sm:h-[600px] md:h-[800px] rounded-full border border-primary/20 absolute blur-[1px]" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
       </div>
 
       {/* Header bar */}
-      <div className="absolute top-6 max-w-3xl w-full flex items-center justify-between px-6 z-20">
-        <Link href="/" className="text-xs font-semibold text-secondary hover:text-foreground transition-colors flex items-center gap-1">
+      <div className="absolute top-4 sm:top-6 max-w-3xl w-full flex items-center justify-between px-4 sm:px-6 z-20">
+        <Link href="/" className="text-xs font-semibold text-secondary hover:text-foreground transition-colors flex items-center gap-1 bg-white/80 backdrop-blur-xs px-2.5 py-1.5 rounded-lg border border-border">
           <span>{lang === 'ar' ? '→' : '←'}</span> {t.home}
         </Link>
         <button 
           onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-          className="px-3 py-1.5 border border-border bg-white rounded text-xs font-mono text-secondary hover:text-foreground transition-colors"
+          className="px-3 py-1.5 border border-border bg-white rounded-lg text-xs font-mono text-secondary hover:text-foreground transition-colors shadow-xs"
         >
           {t.langToggle}
         </button>
@@ -246,9 +246,9 @@ function TrackContent() {
 
       <div className="w-full max-w-2xl relative z-10 flex flex-col items-center">
         {/* Brand Header */}
-        <Link href="/" className="flex flex-col items-center gap-2 group mb-8">
-          <img src="/logo.png" alt={t.title} className="w-[140px] md:w-[190px] h-auto max-h-[55px] md:max-h-[65px] object-contain group-hover:opacity-80 transition-opacity" />
-          <span className="text-xs text-secondary tracking-widest uppercase mt-1 opacity-80">{t.tagline}</span>
+        <Link href="/" className="flex flex-col items-center gap-1.5 sm:gap-2 group mb-6 sm:mb-8 text-center">
+          <img src="/logo.png" alt={t.title} className="w-[130px] sm:w-[160px] md:w-[190px] h-auto max-h-[48px] sm:max-h-[58px] md:max-h-[65px] object-contain group-hover:opacity-80 transition-opacity" />
+          <span className="text-[11px] sm:text-xs text-secondary tracking-widest uppercase mt-0.5 opacity-80">{t.tagline}</span>
         </Link>
 
         <AnimatePresence mode="wait">
@@ -259,35 +259,35 @@ function TrackContent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
-              className="w-full bg-white border border-border rounded-2xl p-8 md:p-10 shadow-xl"
+              className="w-full bg-white border border-border rounded-2xl p-5 sm:p-8 md:p-10 shadow-xl"
             >
-              <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold uppercase tracking-wider mb-2 text-foreground">{t.trackTitle}</h1>
-                <p className="text-secondary text-sm leading-relaxed max-w-lg mx-auto">{t.trackDesc}</p>
-                <p className="text-secondary text-xs mt-2">{t.trackInstruction}</p>
+              <div className="text-center mb-6 sm:mb-8">
+                <h1 className="text-xl sm:text-2xl font-bold uppercase tracking-wider mb-2 text-foreground">{t.trackTitle}</h1>
+                <p className="text-secondary text-xs sm:text-sm leading-relaxed max-w-lg mx-auto">{t.trackDesc}</p>
+                <p className="text-secondary text-[11px] sm:text-xs mt-2">{t.trackInstruction}</p>
               </div>
 
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700 text-sm">
-                  <AlertCircle size={18} className="shrink-0" />
+                <div className="mb-5 sm:mb-6 p-3.5 sm:p-4 bg-red-50 border border-red-200 rounded-xl flex items-start sm:items-center gap-2.5 sm:gap-3 text-red-700 text-xs sm:text-sm">
+                  <AlertCircle size={18} className="shrink-0 mt-0.5 sm:mt-0" />
                   <span>{error}</span>
                 </div>
               )}
 
-              <form onSubmit={handleTrack} className="space-y-6">
+              <form onSubmit={handleTrack} className="space-y-5 sm:space-y-6">
                 <div className="space-y-2">
                   <label className="text-xs font-mono font-bold uppercase tracking-wider text-secondary block mb-1">
                     {t.codeLabel}
                   </label>
                   <div className="relative">
-                    <div className={`absolute inset-y-0 ${lang === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none text-secondary`}>
+                    <div className={`absolute inset-y-0 ${lang === 'ar' ? 'right-0 pr-3.5' : 'left-0 pl-3.5'} flex items-center pointer-events-none text-secondary`}>
                       <Key size={18} />
                     </div>
                     <input 
                       type="text" 
                       value={trackingCode}
                       onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
-                      className={`w-full bg-surface-50 border border-border rounded-lg ${lang === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-3.5 font-mono tracking-widest text-sm focus:outline-none focus:border-primary transition-all uppercase text-foreground`}
+                      className={`w-full bg-surface-50 border border-border rounded-xl ${lang === 'ar' ? 'pr-11 pl-4' : 'pl-11 pr-4'} py-3.5 font-mono tracking-widest text-xs sm:text-sm focus:outline-none focus:border-primary transition-all uppercase text-foreground`}
                       placeholder={t.codePlaceholder}
                       required
                     />
@@ -297,20 +297,20 @@ function TrackContent() {
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full bg-primary text-white font-bold rounded-lg py-4 mt-6 hover:bg-brand-hover transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-wider text-sm shadow-md"
+                  className="w-full bg-primary text-white font-bold rounded-xl py-3.5 sm:py-4 mt-5 sm:mt-6 hover:bg-brand-hover transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-wider text-xs sm:text-sm shadow-md"
                 >
                   {loading ? <Loader2 size={18} className="animate-spin" /> : (
                     <span className="flex items-center gap-2">
                       {t.trackAction}
-                      <ArrowRight size={18} className={lang === 'ar' ? 'rotate-180' : ''} />
+                      <ArrowRight size={16} className={lang === 'ar' ? 'rotate-180' : ''} />
                     </span>
                   )}
                 </button>
               </form>
 
-              <div className="mt-8 pt-6 border-t border-border flex items-start gap-3 bg-surface-50 p-4 rounded-xl">
+              <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-border flex items-start gap-3 bg-surface-50 p-3.5 sm:p-4 rounded-xl">
                 <ShieldCheck size={18} className="text-primary shrink-0 mt-0.5" />
-                <div className="text-xs leading-relaxed text-secondary">
+                <div className="text-[11px] sm:text-xs leading-relaxed text-secondary">
                   <span className="font-bold text-foreground">{t.privacyNoticeTitle}: </span>
                   {t.privacyNotice}
                 </div>
@@ -322,44 +322,44 @@ function TrackContent() {
               key="results"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="w-full space-y-6"
+              className="w-full space-y-5 sm:space-y-6"
             >
               {/* Vehicle Header Card */}
-              <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm">
-                <div className="flex justify-between items-center border-b border-border pb-4 mb-6">
-                  <h2 className="text-xl font-bold uppercase tracking-wider text-foreground">
+              <div className="bg-white border border-border rounded-2xl p-5 sm:p-6 md:p-8 shadow-xs">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2.5 border-b border-border pb-4 mb-5 sm:mb-6">
+                  <h2 className="text-lg sm:text-xl font-bold uppercase tracking-wider text-foreground">
                     {t.vehicleStatusTitle}
                   </h2>
-                  <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full border border-primary/20">
+                  <span className="inline-block self-start sm:self-auto px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full border border-primary/20">
                     {getCurrentStatusLabel(trackingData.status)}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
-                  <div className="p-3 bg-surface-50 border border-border rounded-lg">
-                    <span className="text-secondary block mb-1">{t.vehicleLabel}</span>
-                    <span className="text-sm font-bold text-foreground">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs font-mono">
+                  <div className="p-3 sm:p-3.5 bg-surface-50 border border-border rounded-xl">
+                    <span className="text-secondary block mb-1 text-[11px]">{t.vehicleLabel}</span>
+                    <span className="text-xs sm:text-sm font-bold text-foreground">
                       {trackingData.vehicle.make} {trackingData.vehicle.model} — {trackingData.vehicle.year}
                     </span>
                   </div>
 
-                  <div className="p-3 bg-surface-50 border border-border rounded-lg">
-                    <span className="text-secondary block mb-1">{t.regNumberLabel}</span>
-                    <span className="text-sm font-bold text-foreground phone-number">
+                  <div className="p-3 sm:p-3.5 bg-surface-50 border border-border rounded-xl">
+                    <span className="text-secondary block mb-1 text-[11px]">{t.regNumberLabel}</span>
+                    <span className="text-xs sm:text-sm font-bold text-foreground phone-number">
                       {trackingData.vehicle.plateNumber}
                     </span>
                   </div>
 
-                  <div className="p-3 bg-surface-50 border border-border rounded-lg">
-                    <span className="text-secondary block mb-1">{t.trackingCodeLabel}</span>
-                    <span className="text-sm font-bold text-primary">
+                  <div className="p-3 sm:p-3.5 bg-surface-50 border border-border rounded-xl">
+                    <span className="text-secondary block mb-1 text-[11px]">{t.trackingCodeLabel}</span>
+                    <span className="text-xs sm:text-sm font-bold text-primary">
                       {trackingData.vehicle.trackingCode}
                     </span>
                   </div>
 
-                  <div className="p-3 bg-surface-50 border border-border rounded-lg">
-                    <span className="text-secondary block mb-1">{t.currentStatusLabel}</span>
-                    <span className="text-sm font-bold text-foreground">
+                  <div className="p-3 sm:p-3.5 bg-surface-50 border border-border rounded-xl">
+                    <span className="text-secondary block mb-1 text-[11px]">{t.currentStatusLabel}</span>
+                    <span className="text-xs sm:text-sm font-bold text-foreground">
                       {getCurrentStatusLabel(trackingData.status)}
                     </span>
                   </div>
@@ -367,31 +367,31 @@ function TrackContent() {
               </div>
 
               {/* Repair Progress Timeline (Section 8) */}
-              <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm">
-                <h3 className="text-base font-bold uppercase tracking-wider text-foreground mb-6">
+              <div className="bg-white border border-border rounded-2xl p-5 sm:p-6 md:p-8 shadow-xs">
+                <h3 className="text-sm sm:text-base font-bold uppercase tracking-wider text-foreground mb-5 sm:mb-6">
                   {t.repairProgressTitle}
                 </h3>
                 
-                <div className="relative space-y-6">
+                <div className="relative space-y-5 sm:space-y-6">
                   {getProgressStages(trackingData.status).map((stage, idx, arr) => (
-                    <div key={idx} className="flex items-start gap-4 relative">
+                    <div key={idx} className="flex items-start gap-3 sm:gap-4 relative">
                       {idx < arr.length - 1 && (
-                        <div className={`absolute ${lang === 'ar' ? 'right-3' : 'left-3'} top-7 bottom-[-16px] w-0.5 ${stage.completed ? 'bg-primary' : 'bg-border'}`} />
+                        <div className={`absolute ${lang === 'ar' ? 'right-2.5 sm:right-3' : 'left-2.5 sm:left-3'} top-7 bottom-[-16px] w-0.5 ${stage.completed ? 'bg-primary' : 'bg-border'}`} />
                       )}
                       
-                      <div className="relative z-10 bg-white flex items-center justify-center pt-0.5">
+                      <div className="relative z-10 bg-white flex items-center justify-center pt-0.5 shrink-0">
                         {stage.completed ? (
-                          <CheckCircle2 size={24} className="text-primary bg-white rounded-full" />
+                          <CheckCircle2 size={22} className="text-primary bg-white rounded-full" />
                         ) : (
-                          <Circle size={24} className="text-secondary/40 bg-white rounded-full" />
+                          <Circle size={22} className="text-secondary/40 bg-white rounded-full" />
                         )}
                       </div>
 
                       <div className="flex-1">
-                        <h4 className={`text-sm font-bold ${stage.completed ? 'text-foreground' : 'text-secondary'}`}>
+                        <h4 className={`text-xs sm:text-sm font-bold ${stage.completed ? 'text-foreground' : 'text-secondary'}`}>
                           {stage.title}
                         </h4>
-                        <p className="text-xs text-secondary mt-0.5 leading-relaxed">
+                        <p className="text-[11px] sm:text-xs text-secondary mt-0.5 leading-relaxed">
                           {stage.desc}
                         </p>
                       </div>
@@ -401,16 +401,16 @@ function TrackContent() {
               </div>
 
               {/* Latest Update (Section 8) */}
-              <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm">
-                <h3 className="text-base font-bold uppercase tracking-wider text-foreground mb-4">
+              <div className="bg-white border border-border rounded-2xl p-5 sm:p-6 md:p-8 shadow-xs">
+                <h3 className="text-sm sm:text-base font-bold uppercase tracking-wider text-foreground mb-3 sm:mb-4">
                   {t.latestUpdateTitle}
                 </h3>
 
                 {((trackingData.customerUpdates && trackingData.customerUpdates.length > 0) || (trackingData.vehicle?.progressLogs && trackingData.vehicle.progressLogs.length > 0)) ? (
-                  <div className="p-4 bg-surface-50 border border-border rounded-xl flex items-start gap-3">
+                  <div className="p-3.5 sm:p-4 bg-surface-50 border border-border rounded-xl flex items-start gap-3">
                     <Clock size={18} className="text-primary shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-foreground">
+                      <p className="text-xs sm:text-sm font-medium text-foreground">
                         {trackingData.customerUpdates?.[0]?.message || trackingData.vehicle.progressLogs[0].message}
                       </p>
                       <span className="text-[10px] text-secondary font-mono mt-1 block">
@@ -424,10 +424,10 @@ function TrackContent() {
               </div>
 
               {/* Action Button */}
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center pt-2 sm:pt-4">
                 <button 
                   onClick={() => setTrackingData(null)}
-                  className="px-6 py-3 bg-white border border-border rounded-lg text-xs font-bold uppercase tracking-wider text-foreground hover:bg-surface-50 transition-colors shadow-sm flex items-center gap-2"
+                  className="px-6 py-3 bg-white border border-border rounded-xl text-xs font-bold uppercase tracking-wider text-foreground hover:bg-surface-50 transition-colors shadow-xs flex items-center gap-2"
                 >
                   <ArrowRight size={14} className={lang === 'ar' ? '' : 'rotate-180'} />
                   {t.trackAnother}

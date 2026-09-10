@@ -127,6 +127,20 @@
     scrollbar-width: none;
   }
 
+  /* Smooth momentum horizontal scrolling for mobile badge filters */
+  .smooth-scroll-x {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Safe container max widths */
+  .container-safe {
+    width: 100%;
+    max-width: 100%;
+    padding-left: clamp(1rem, 4vw, 2rem);
+    padding-right: clamp(1rem, 4vw, 2rem);
+  }
+
   /* ── Brand Color Cache Overrides ── */
   .bg-primary {
     background-color: #4C7111 !important;
